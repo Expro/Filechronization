@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{927D8050-253C-4DE6-A810-FDB54A3854D0}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Network</RootNamespace>
+    <AssemblyName>Network</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Messages\ArbiterChange.cs" />
+    <Compile Include="Messages\ConnectionLost.cs" />
+    <Compile Include="Messages\NetworkSend.cs" />
+    <Compile Include="Messages\NetworkUserMessage.cs" />
+    <Compile Include="Messages\Send.cs" />
+    <Compile Include="Messages\ToStateMessage.cs" />
+    <Compile Include="Messages\UserStateChanged.cs" />
+    <Compile Include="NetQueue.cs" />
+    <Compile Include="NetworkDescriptor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="States\StateAbstract.cs" />
+    <Compile Include="States\StateArbiter.cs" />
+    <Compile Include="States\StateConnected.cs" />
+    <Compile Include="States\StateDisconnected.cs" />
+    <Compile Include="States\StateNonArbiter.cs" />
+    <Compile Include="System\Connections\ConnectionGroup.cs" />
+    <Compile Include="System\Connections\ConnectThread.cs" />
+    <Compile Include="System\Connections\LocalPeer.cs" />
+    <Compile Include="System\Connections\Peer.cs" />
+    <Compile Include="System\Connections\RemotePeer.cs" />
+    <Compile Include="System\Connections\UserConnectionMap.cs" />
+    <Compile Include="System\Exceptions\BugException.cs" />
+    <Compile Include="System\Exceptions\NotConnectedException.cs" />
+    <Compile Include="System\MainParts\FileModulelLink.cs" />
+    <Compile Include="System\MainParts\InterfaceModuleLink.cs" />
+    <Compile Include="System\MainParts\NetworkModule.cs" />
+    <Compile Include="System\MainParts\PeerCenter.cs" />
+    <Compile Include="System\MainParts\TaskCenter.cs" />
+    <Compile Include="Tasks\ArbiterInfo\ClientArbiterInfoTask.cs" />
+    <Compile Include="Tasks\ArbiterInfo\Messages\ArbiterInfo.cs" />
+    <Compile Include="Tasks\ArbiterInfo\Messages\ReqArbiterInfo.cs" />
+    <Compile Include="Tasks\ArbiterInfo\ServerArbiterInfoTask.cs" />
+    <Compile Include="Tasks\Authorization\AuthorizationClientTask.cs" />
+    <Compile Include="Tasks\Authorization\AuthorizationServerTask.cs" />
+    <Compile Include="Tasks\Authorization\Messages\AuthorizationAccepted.cs" />
+    <Compile Include="Tasks\Authorization\Messages\AuthorizationRejected.cs" />
+    <Compile Include="Tasks\Authorization\Messages\SaltRequest.cs" />
+    <Compile Include="Tasks\Authorization\Messages\SaltResponse.cs" />
+    <Compile Include="Tasks\Authorization\Messages\UserAuthorization.cs" />
+    <Compile Include="Tasks\NetworkTask.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Messages" />
+    <Folder Include="States" />
+    <Folder Include="System" />
+    <Folder Include="System\Connections" />
+    <Folder Include="System\Exceptions" />
+    <Folder Include="System\MainParts" />
+    <Folder Include="Tasks" />
+    <Folder Include="Tasks\ArbiterInfo" />
+    <Folder Include="Tasks\ArbiterInfo\Messages" />
+    <Folder Include="Tasks\Authorization" />
+    <Folder Include="Tasks\Authorization\Messages" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommonClasses\CommonClasses.csproj">
+      <Project>{56B4542E-3AA1-462B-8EAC-13E17744BB44}</Project>
+      <Name>CommonClasses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Modularity\Modularity.csproj">
+      <Project>{7B22747F-AA0C-430C-9AE6-3FCD96603766}</Project>
+      <Name>Modularity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Security\Security.csproj">
+      <Project>{F3F1EE3B-3A6F-4C86-9F28-6C65CC0BF23D}</Project>
+      <Name>Security</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tasks\Tasks.csproj">
+      <Project>{A5AD0D10-B9D9-4FD4-931D-C84588D37382}</Project>
+      <Name>Tasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UserManagement\UserManagement.csproj">
+      <Project>{351C22EB-698A-4AAA-888A-A787625C18F0}</Project>
+      <Name>UserManagement</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>
