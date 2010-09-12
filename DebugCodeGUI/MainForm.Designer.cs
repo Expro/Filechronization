@@ -7,8 +7,9 @@
  * 
  */
 using System;
+using System.Windows.Forms;
 using CodeManagement;
- 
+
 namespace DebugCodeGUI
 {
 	partial class mainForm
@@ -202,6 +203,7 @@ namespace DebugCodeGUI
 			this.startButton.TabIndex = 5;
 			this.startButton.Text = "Start";
 			this.startButton.UseVisualStyleBackColor = true;
+			this.startButton.Click += new System.EventHandler(this.StartButtonClick);
 			// 
 			// runButton
 			// 

@@ -59,8 +59,7 @@ namespace CodeManagement
 		private bool disposed;
 		#endregion
 		
-		#region Private Methods
-		
+		#region Private Methods	
 		private AppDomain CreateDomain(string name, PermissionSet permissions)
 		{
 			AppDomainSetup info = new AppDomainSetup();
@@ -83,23 +82,31 @@ namespace CodeManagement
 		}
 		
 		
-		private void UnloadDomain(CodeDetails details)
+		private void UnloadDomain(CodeDetails details, int attempts = 3)
 		{
 			try
 			{
-				if (!details.Equals(managerDetails))
+				if (attempts != 0)
 				{
-					representatives[details].Destroy();
-					AppDomain.Unload(domains[details]);
+					if (!details.Equals(managerDetails))
+					{
+						representatives[details].Destroy();
+						AppDomain.Unload(domains[details]);
+					}
 				}
+				else
+					LoggingService.Trace.Log("Unloading domain failed during all attemps. Domain will be ignored.", new string[] {"CODE"}, this, EntryCategory.Warning);
 			}
 			catch (Exception e)
 			{
 				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				LoggingService.Trace.Log("Unloading domain failed. Trying again (" + attempts.ToString() + " more attempts left)", new string[] {"CODE"}, this, EntryCategory.Information);
+				UnloadDomain(details, --attempts);
 			}
 			finally
 			{
-				domains.Remove(details);
+				if (domains.ContainsKey(details))
+					domains.Remove(details);
 			}
 		}
 		
@@ -430,7 +437,7 @@ namespace CodeManagement
 		}
 		
 		
-		public SharedCode ProvideSharedCode(string className)
+		public MarshalByRefObject ProvideSharedCode(string className)
 		{
 			Contract.Requires(className != null);
 			
@@ -446,7 +453,7 @@ namespace CodeManagement
 				representative = ProvideRepresentative(details);
 				
 				if (representative.Initialize())
-					return (SharedCode)representative.Instance;
+					return (MarshalByRefObject)representative.Instance;
 				else
 					throw new MissingSharedCodeException(className);
 			}

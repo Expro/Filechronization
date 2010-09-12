@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace CustomControls
+namespace ExtendedControls
 {
 	#region Comment
 	/// <summary>

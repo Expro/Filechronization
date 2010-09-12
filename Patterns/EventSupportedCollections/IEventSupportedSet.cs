@@ -13,6 +13,6 @@ namespace Patterns.EventSupportedCollections
 {
 	public interface IEventSupportedSet<T>: ISet<T>, IEventSupportedCollection<T>
 	{
-		bool Remove(T item);
+		new bool Remove(T item);
 	}
 }

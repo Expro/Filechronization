@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace CustomControls
+namespace ExtendedControls
 {
 	public delegate void ItemRemoveClickedEventHandler(object sender, ItemRemoveClickedEventArgs e);
 	

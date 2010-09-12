@@ -29,6 +29,8 @@ namespace CodeManagement
 		#region Fields
 		private Thread thread;
 		private ControllableState stateOfControllable;
+		private SemaphoreSlim startBlocker;
+		private SemaphoreSlim createIndicator;
 		#endregion
 		
 		#region Protected Properties
@@ -41,34 +43,40 @@ namespace CodeManagement
 		}
 		#endregion
 		
-		#region Constructors
-		
+		#region Constructors	
 		public ControllableCodeRepresentative(): base()
 		{
 			this.stateOfControllable = ControllableState.Stopped;
+			this.startBlocker = new SemaphoreSlim(0);
+			this.createIndicator = new SemaphoreSlim(0);
 		}
 		#endregion
 		
 		#region Public Methods
 		public new bool Create()
 		{	
-			bool result = false;
-			
 			try
 			{
-				result = base.Create();
-				if (result)
-					thread = new Thread(delegate()
-					                    {
-					                    	try
-					                    	{
-					                    		Instance.Start();
-					                    	}
-					                    	catch (Exception e)
-					                    	{
-					                    		LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
-					                    	}
-					                    });
+				thread = new Thread(() =>
+				                    {
+				                    	try
+				                    	{
+				                    		base.Create();
+				                    		createIndicator.Release();
+				                    		startBlocker.Wait();
+				                    		Instance.Start();
+				                    		
+				                    		stateOfControllable = ControllableState.Stopped;
+				                    		LoggingService.Trace.Log("Finished execution of controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+				                    	}
+				                    	catch (Exception e)
+				                    	{
+				                    		LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				                    	}
+				                    });
+				thread.Start();
+				createIndicator.Wait();
+				return true;
 			}
 			catch (Exception e)
 			{
@@ -76,7 +84,7 @@ namespace CodeManagement
 				State = CodeState.Corrupted;
 			}
 				
-			return result;
+			return false;
 		}
 		
 		
@@ -109,7 +117,9 @@ namespace CodeManagement
 			{
 				try
 				{
-					thread.Start();	
+					LoggingService.Trace.Log("Starting controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+
+					startBlocker.Release();
 					stateOfControllable = ControllableState.Started;
 				}
 				catch (Exception e)
@@ -127,6 +137,8 @@ namespace CodeManagement
 			{
 				try
 				{
+					LoggingService.Trace.Log("Pausing controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);                 		
+
 					Instance.Pause();
 					stateOfControllable = ControllableState.Paused;
 				}
@@ -145,6 +157,8 @@ namespace CodeManagement
 			{
 				try
 				{
+					LoggingService.Trace.Log("Restoring controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+					
 					Instance.Restore();
 					stateOfControllable = ControllableState.Started;
 				}
@@ -163,6 +177,8 @@ namespace CodeManagement
 			{
 				try
 				{
+					LoggingService.Trace.Log("Ending controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+
 					Instance.End();
 					thread.Abort();
 					stateOfControllable = ControllableState.Stopped;
@@ -182,8 +198,7 @@ namespace CodeManagement
 		/// <returns>
 		/// 	True if code successfully started.
 		/// </returns>
-		#endregion
-		
+		#endregion	
 		public bool Run()
 		{
 			if (State.Equals(CodeState.Unloaded))

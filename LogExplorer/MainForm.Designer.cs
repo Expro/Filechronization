@@ -106,21 +106,21 @@ namespace LogExplorer
 			this.openMenu.Image = ((System.Drawing.Image)(resources.GetObject("openMenu.Image")));
 			this.openMenu.Name = "openMenu";
 			this.openMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-			this.openMenu.Size = new System.Drawing.Size(152, 22);
+			this.openMenu.Size = new System.Drawing.Size(140, 22);
 			this.openMenu.Text = "Open...";
 			this.openMenu.Click += new System.EventHandler(this.OpenMenuClick);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(137, 6);
 			// 
 			// closeMenu
 			// 
 			this.closeMenu.Image = ((System.Drawing.Image)(resources.GetObject("closeMenu.Image")));
 			this.closeMenu.Name = "closeMenu";
 			this.closeMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-			this.closeMenu.Size = new System.Drawing.Size(152, 22);
+			this.closeMenu.Size = new System.Drawing.Size(140, 22);
 			this.closeMenu.Text = "Close";
 			this.closeMenu.Click += new System.EventHandler(this.CloseMenuClick);
 			// 
@@ -443,6 +443,7 @@ namespace LogExplorer
 			this.Name = "MainForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Log Explorer";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 			this.menu.ResumeLayout(false);
 			this.menu.PerformLayout();
 			this.propertiesPanel.ResumeLayout(false);

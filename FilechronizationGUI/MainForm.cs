@@ -19,32 +19,51 @@ namespace FilechronizationGUI
 	[Version(1, 0, 0)]
 	[Author("Maciej 'Expro' Grabowski", "mds.expro@gmail.com")]
 	[Description("Form containing all graphical subelements required to provide feedback for user.")]
-	public partial class MainForm: Form, IControllableCode
+	[Module("GUI")]
+	public partial class MainForm: Form, ICode, IControllableCode, IFilechronizationMainWindow
 	{
 		public MainForm()
 		{
 			Application.EnableVisualStyles();
 			InitializeComponent();
 		}
-		
+
+		public Control AddContentToCenter(string title, Control content)
+		{
+			TabPage tab;
+
+			if (content == null)
+				throw new ArgumentNullException("content");
+			if (title == null)
+				throw new ArgumentNullException("name");
+
+			tab = new TabPage(title);
+			tab.Controls.Add(content);
+			content.Dock = DockStyle.Fill;
+
+			tabs.TabPages.Add(tab);
+
+			return tab;
+		}
+
 		public void Start()
 		{
 			Application.Run(this);
 		}
-		
+
 		public void Pause()
 		{
-			Invoke(new MethodInvoker(() => {Enabled = false;}));
+			Invoke(new MethodInvoker(() => { Enabled = false; }));
 		}
-		
+
 		public void Restore()
 		{
-			Invoke(new MethodInvoker(() => {Enabled = true;}));
+			Invoke(new MethodInvoker(() => { Enabled = true; }));
 		}
-		
+
 		public void End()
 		{
-			Invoke(new MethodInvoker(() => {Close();}));
+			Invoke(new MethodInvoker(() => { Close(); }));
 		}
 	}
 }

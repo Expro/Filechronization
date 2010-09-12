@@ -1,5 +1,5 @@
 ﻿
-namespace CustomControls
+namespace ExtendedControls
 {
 	partial class CollectionView
 	{

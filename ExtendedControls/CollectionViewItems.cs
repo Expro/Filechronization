@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CustomControls
+namespace ExtendedControls
 {
 	#region Comment
 	/// <summary>

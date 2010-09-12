@@ -94,7 +94,7 @@ namespace LogExplorer
 					break;
 				case EntryCategory.Warning:
 					node.ImageKey = "warnings.png";
-					node.ForeColor = Color.Yellow;
+					node.ForeColor = Color.DarkGoldenrod;
 					break;
 				case EntryCategory.Error:
 					node.ImageKey = "errors.png";

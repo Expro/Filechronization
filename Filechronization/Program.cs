@@ -54,6 +54,7 @@ namespace Filechronization
 				#if DEBUG
 				manager.AddCondition("DEBUG");
 				#endif
+				manager.AddCondition("GUI");
 				
 				LoggingService.Debug.LogHandlers.Add(logFile);
 				LoggingService.Trace.LogHandlers.Add(logFile);
@@ -114,7 +115,7 @@ namespace Filechronization
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log("Emergency shut down due to error: " + e.ToString(), new string[] {"APPLICATION", "CODE"});
+				LoggingService.Trace.Log("Emergency shut down due to error: " + e.ToString(), new string[] {"APPLICATION", "CODE"}, EntryCategory.Error);
 			}
 			finally
 			{

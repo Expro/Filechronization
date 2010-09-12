@@ -48,7 +48,7 @@ namespace CodeExecutionTools.Logging
 			this.message = message;
 			
 			if (sender != null)
-				this.sender = sender.ToString();
+				this.sender = sender.ToString() + " (" + sender.GetHashCode().ToString() + ")";
 				
 			this.category = category;
 			this.time = time;

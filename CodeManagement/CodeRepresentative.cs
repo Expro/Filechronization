@@ -41,12 +41,12 @@ namespace CodeManagement
 		#endregion
 
 		#region Private Methods	
-		private SharedCode[] ProvideParameters(ConstructorInfo constructor)
+		private MarshalByRefObject[] ProvideParameters(ConstructorInfo constructor)
 		{
 			Contract.Requires(constructor != null);
 			
 			ParameterInfo[] parameters = constructor.GetParameters();
-			SharedCode[] result = new SharedCode[parameters.Length];
+			MarshalByRefObject[] result = new MarshalByRefObject[parameters.Length];
 			int i = 0;
 			
 			foreach (ParameterInfo parameter in parameters)
@@ -150,6 +150,8 @@ namespace CodeManagement
 			{
 				state = CodeState.Creating;
 				
+				LoggingService.Trace.Log("Creating code: " + details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+				
 				try
 				{
 					constructors = type.GetConstructors();
@@ -198,6 +200,9 @@ namespace CodeManagement
 				try
 				{
 					state = CodeState.Destroying;
+					
+					LoggingService.Trace.Log("Destroying code: " + details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+					
 					instance.Dispose();
 					instance = null;
 				

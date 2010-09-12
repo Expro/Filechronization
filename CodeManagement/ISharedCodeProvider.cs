@@ -19,7 +19,6 @@ namespace CodeManagement
 	#endregion
 	public interface ISharedCodeProvider
 	{
-		
-		SharedCode ProvideSharedCode(string className);
+		MarshalByRefObject ProvideSharedCode(string className);
 	}
 }

@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace CustomControls
+namespace ExtendedControls
 {
 	public class ToStringNameExtractor: IItemNameExtractor
 	{
