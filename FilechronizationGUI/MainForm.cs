@@ -26,6 +26,8 @@ namespace FilechronizationGUI
 		{
 			Application.EnableVisualStyles();
 			InitializeComponent();
+			CreateControl();
+			CreateHandle();
 		}
 
 		public Control AddContentToCenter(string title, Control content)
@@ -53,17 +55,17 @@ namespace FilechronizationGUI
 
 		public void Pause()
 		{
-			Invoke(new MethodInvoker(() => { Enabled = false; }));
+			Invoke(new MethodInvoker(() => {Enabled = false;}));
 		}
 
 		public void Restore()
 		{
-			Invoke(new MethodInvoker(() => { Enabled = true; }));
+			Invoke(new MethodInvoker(() => {Enabled = true;}));
 		}
 
 		public void End()
 		{
-			Invoke(new MethodInvoker(() => { Close(); }));
+			Application.ExitThread();
 		}
 	}
 }
