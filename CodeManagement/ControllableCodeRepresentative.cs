@@ -26,6 +26,8 @@ namespace CodeManagement
 	
 	public class ControllableCodeRepresentative: CodeRepresentative
 	{
+		const int END_TIMEOUT = 5000;
+		
 		#region Fields
 		private Thread thread;
 		private ControllableState stateOfControllable;
@@ -68,6 +70,10 @@ namespace CodeManagement
 				                    		
 				                    		stateOfControllable = ControllableState.Stopped;
 				                    		LoggingService.Trace.Information("Finished execution of controllable code: " + Details.ToString(), new string[] {"CODE"}, this);
+				                    	}
+				                    	catch (ThreadAbortException)
+				                    	{
+				                    		LoggingService.Trace.Information("Execution of " + Details.ToString() + " was aborted", new string[] {"CODE"}, this);
 				                    	}
 				                    	catch (Exception e)
 				                    	{
@@ -181,6 +187,7 @@ namespace CodeManagement
 
 					Instance.End();
 					thread.Abort();
+					thread.Join(END_TIMEOUT);
 					stateOfControllable = ControllableState.Stopped;
 				}
 				catch (Exception e)

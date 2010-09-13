@@ -95,13 +95,13 @@ namespace CodeManagement
 					}
 				}
 				else
-					LoggingService.Trace.Warning("Unloading domain failed during all attemps. Domain will be ignored.", new string[] {"CODE"}, this);
+					LoggingService.Trace.Warning("Unloading domain for " + details.ToString() + " failed during all attemps. Domain will be ignored.", new string[] {"CODE"}, this);
 			}
 			catch (Exception e)
 			{
 				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 				if (attempts != 0)
-					LoggingService.Trace.Information("Unloading domain failed. Trying again (" + attempts.ToString() + " more attempts left)", new string[] {"CODE"}, this);
+					LoggingService.Trace.Information("Unloading domain for " + details.ToString() + " failed. Trying again (" + attempts.ToString() + " more attempts left)", new string[] {"CODE"}, this);
 				
 				UnloadDomain(details, attempts);
 			}
