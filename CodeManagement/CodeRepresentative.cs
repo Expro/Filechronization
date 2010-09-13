@@ -57,7 +57,7 @@ namespace CodeManagement
 				}
 				catch (MissingSharedCodeException e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION", "CODE"}, this);
+					LoggingService.Trace.Warning(e.ToString(), new string[] {"EXCEPTION", "CODE"}, this);
 					result[i] = null;
 				}
 					
@@ -109,7 +109,7 @@ namespace CodeManagement
 			{
 				state = CodeState.Loading;
 				
-				LoggingService.Trace.Log("Loading code: " + details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+				LoggingService.Trace.Information("Loading code: " + details.ToString(), new string[] {"CODE"}, this);
 				
 				try
 				{
@@ -131,7 +131,7 @@ namespace CodeManagement
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					state = CodeState.Corrupted;
 				}
 			}
@@ -150,7 +150,7 @@ namespace CodeManagement
 			{
 				state = CodeState.Creating;
 				
-				LoggingService.Trace.Log("Creating code: " + details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+				LoggingService.Trace.Information("Creating code: " + details.ToString(), new string[] {"CODE"}, this);
 				
 				try
 				{
@@ -179,7 +179,7 @@ namespace CodeManagement
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					
 					state = CodeState.Corrupted;
 				}
@@ -201,7 +201,7 @@ namespace CodeManagement
 				{
 					state = CodeState.Destroying;
 					
-					LoggingService.Trace.Log("Destroying code: " + details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+					LoggingService.Trace.Information("Destroying code: " + details.ToString(), new string[] {"CODE"}, this);
 					
 					instance.Dispose();
 					instance = null;
@@ -211,7 +211,7 @@ namespace CodeManagement
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 				}
 			}
 			
@@ -223,7 +223,6 @@ namespace CodeManagement
 		/// 	Shortcut for object creation from any state.
 		/// </summary>
 		#endregion
-		
 		public virtual bool Initialize()
 		{
 			if (state.Equals(CodeState.Unloaded))

@@ -67,11 +67,11 @@ namespace CodeManagement
 				                    		Instance.Start();
 				                    		
 				                    		stateOfControllable = ControllableState.Stopped;
-				                    		LoggingService.Trace.Log("Finished execution of controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+				                    		LoggingService.Trace.Information("Finished execution of controllable code: " + Details.ToString(), new string[] {"CODE"}, this);
 				                    	}
 				                    	catch (Exception e)
 				                    	{
-				                    		LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				                    		LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 				                    	}
 				                    });
 				thread.Start();
@@ -80,7 +80,7 @@ namespace CodeManagement
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 				State = CodeState.Corrupted;
 			}
 				
@@ -102,7 +102,7 @@ namespace CodeManagement
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					State = CodeState.Corrupted;
 				}
 			}
@@ -117,14 +117,14 @@ namespace CodeManagement
 			{
 				try
 				{
-					LoggingService.Trace.Log("Starting controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+					LoggingService.Trace.Information("Starting controllable code: " + Details.ToString(), new string[] {"CODE"}, this);
 
 					startBlocker.Release();
 					stateOfControllable = ControllableState.Started;
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					State = CodeState.Corrupted;
 				}
 			}
@@ -137,14 +137,14 @@ namespace CodeManagement
 			{
 				try
 				{
-					LoggingService.Trace.Log("Pausing controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);                 		
+					LoggingService.Trace.Information("Pausing controllable code: " + Details.ToString(), new string[] {"CODE"}, this);                 		
 
 					Instance.Pause();
 					stateOfControllable = ControllableState.Paused;
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					State = CodeState.Corrupted;
 				}
 			}
@@ -157,14 +157,14 @@ namespace CodeManagement
 			{
 				try
 				{
-					LoggingService.Trace.Log("Restoring controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+					LoggingService.Trace.Information("Restoring controllable code: " + Details.ToString(), new string[] {"CODE"}, this);
 					
 					Instance.Restore();
 					stateOfControllable = ControllableState.Started;
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					State = CodeState.Corrupted;
 				}
 			}
@@ -177,7 +177,7 @@ namespace CodeManagement
 			{
 				try
 				{
-					LoggingService.Trace.Log("Ending controllable code: " + Details.ToString(), new string[] {"CODE"}, this, EntryCategory.Information);
+					LoggingService.Trace.Information("Ending controllable code: " + Details.ToString(), new string[] {"CODE"}, this);
 
 					Instance.End();
 					thread.Abort();
@@ -185,7 +185,7 @@ namespace CodeManagement
 				}
 				catch (Exception e)
 				{
-					LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 					State = CodeState.Corrupted;
 				}
 			}

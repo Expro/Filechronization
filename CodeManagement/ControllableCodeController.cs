@@ -13,7 +13,6 @@ using System.Security.Permissions;
 
 namespace CodeManagement
 {
-	
 	public class ControllableCodeController: CodeController
 	{
 		#region Protected Properies
@@ -31,7 +30,6 @@ namespace CodeManagement
 		#endregion
 		
 		#region Public Methods
-		
 		[ReflectionPermission(SecurityAction.Demand)]
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public override bool Create()
@@ -41,7 +39,6 @@ namespace CodeManagement
 			return State.Equals(CodeState.Created);
 		}
 		
-		
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public override bool Destroy()
 		{
@@ -49,7 +46,6 @@ namespace CodeManagement
 			
 			return State.Equals(CodeState.Loaded);
 		}
-		
 		
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public bool Start()
@@ -65,7 +61,6 @@ namespace CodeManagement
 				return false;
 		}
 		
-		
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public bool Pause()
 		{
@@ -79,7 +74,6 @@ namespace CodeManagement
 			else
 				return false;
 		}
-		
 		
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public bool Restore()
@@ -95,7 +89,6 @@ namespace CodeManagement
 				return false;
 		}
 		
-		
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public bool End()
 		{
@@ -109,7 +102,6 @@ namespace CodeManagement
 			else
 				return false;
 		}
-		
 		
 		[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Execution)]
 		public bool Run()

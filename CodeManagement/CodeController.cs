@@ -66,7 +66,7 @@ namespace CodeManagement
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"});
 			}
 				
 			return State.Equals(CodeState.Loaded);
@@ -84,7 +84,7 @@ namespace CodeManagement
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 			}
 			
 			return State.Equals(CodeState.Created);
@@ -101,7 +101,7 @@ namespace CodeManagement
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 			}
 			
 			return State.Equals(CodeState.Loaded);

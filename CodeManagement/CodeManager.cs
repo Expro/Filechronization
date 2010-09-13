@@ -66,7 +66,7 @@ namespace CodeManagement
 			
 			info.ApplicationBase = Environment.CurrentDirectory;
 			info.PrivateBinPath = binaries;
-
+			//FIXME: skonczyc
 			permissions.AddPermission(new ReflectionPermission(PermissionState.Unrestricted));
 			#if DEBUG
 			permissions.AddPermission(new FileIOPermission(PermissionState.Unrestricted));
@@ -81,11 +81,11 @@ namespace CodeManagement
 			return AppDomain.CreateDomain(name, null, info, permissions, null);
 		}
 		
-		
 		private void UnloadDomain(CodeDetails details, int attempts = 3)
 		{
 			try
 			{
+				--attempts;
 				if (attempts != 0)
 				{
 					if (!details.Equals(managerDetails))
@@ -95,13 +95,15 @@ namespace CodeManagement
 					}
 				}
 				else
-					LoggingService.Trace.Log("Unloading domain failed during all attemps. Domain will be ignored.", new string[] {"CODE"}, this, EntryCategory.Warning);
+					LoggingService.Trace.Warning("Unloading domain failed during all attemps. Domain will be ignored.", new string[] {"CODE"}, this);
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
-				LoggingService.Trace.Log("Unloading domain failed. Trying again (" + attempts.ToString() + " more attempts left)", new string[] {"CODE"}, this, EntryCategory.Information);
-				UnloadDomain(details, --attempts);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
+				if (attempts != 0)
+					LoggingService.Trace.Information("Unloading domain failed. Trying again (" + attempts.ToString() + " more attempts left)", new string[] {"CODE"}, this);
+				
+				UnloadDomain(details, attempts);
 			}
 			finally
 			{
@@ -208,7 +210,7 @@ namespace CodeManagement
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION", "RESOURCE"}, this, EntryCategory.Error);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION", "RESOURCE"}, this);
 				
 				if (codes.Contains(details))
 					codes.Remove(details);
@@ -225,8 +227,7 @@ namespace CodeManagement
 		}
 		#endregion
 		
-		#region Protected Methods
-		
+		#region Protected Methods		
 		protected internal CodeRepresentative ProvideRepresentative(CodeDetails details)
 		{
 			Contract.Requires(details != null);
@@ -437,30 +438,32 @@ namespace CodeManagement
 		}
 		
 		
-		public MarshalByRefObject ProvideSharedCode(string className)
+		public MarshalByRefObject ProvideSharedCode(string entityName)
 		{
-			Contract.Requires(className != null);
+			Contract.Requires(entityName != null);
 			
 			CodeDetails details;
 			CodeRepresentative representative;
 			
+			LoggingService.Trace.Information("Providing shared code: " + entityName, new string[] {"CODE"}, this);
+			
 			try
 			{	
-				details = resolver[className];
+				details = resolver[entityName];
 				if (!details.IsShared)
-					throw new MissingSharedCodeException(className);
+					throw new MissingSharedCodeException(entityName);
 				
 				representative = ProvideRepresentative(details);
 				
 				if (representative.Initialize())
 					return (MarshalByRefObject)representative.Instance;
 				else
-					throw new MissingSharedCodeException(className);
+					throw new MissingSharedCodeException(entityName);
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log(e.ToString(), new string[] {"EXCEPTION"}, this, EntryCategory.Error);
-				throw new MissingSharedCodeException(className);
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
+				throw new MissingSharedCodeException(entityName);
 			}
 		}
 		
