@@ -19,7 +19,7 @@ namespace CodeGUI
 	[Version(1, 0, 0)]
 	[Author("Expro", "mds.expro@gmail.com")]
 	[CodeManagement.Definitions.Description("Provides control over code usable with Filechronization")]
-	[Module("GUI")]
+	//[Module("GUI")]
 	public partial class CodeExplorerControl: UserControl, ICode
 	{
 		private Control windowControl;
