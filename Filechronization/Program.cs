@@ -29,7 +29,7 @@ namespace Filechronization
 	/// </summary>
 	#endregion
 	internal sealed class Program
-	{
+	{	
 		#region Comment
 		/// <summary>
 		/// Program entry point.
@@ -46,15 +46,6 @@ namespace Filechronization
 			
 			manager = new CodeManager();
 			logFile = new XMLZipLogFileHandler(Environment.CurrentDirectory +"\\Logs\\" + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-fff") + ".log", false);
-			
-			Application.ApplicationExit += (object sender, EventArgs e) =>
-													{
-														if (logFile != null)
-														{
-															if (!logFile.Disposed)
-																logFile.Dispose();
-														}
-													};
 			
 			try
 			{
@@ -123,7 +114,7 @@ namespace Filechronization
 			}
 			catch (Exception e)
 			{
-				LoggingService.Trace.Log("Emergency shut down due to error: " + e.ToString(), new string[] {"APPLICATION", "CODE"}, EntryCategory.Error);
+				LoggingService.Trace.Error("Emergency shut down due to error: " + e.ToString(), new string[] {"APPLICATION", "CODE"});
 			}
 			finally
 			{
@@ -131,6 +122,12 @@ namespace Filechronization
 				{
 					if (!manager.Disposed)
 						manager.Dispose();
+				}
+				
+				if (logFile != null)
+				{
+					if (!logFile.Disposed)
+						logFile.Dispose();
 				}
 			}
 		}
