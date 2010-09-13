@@ -21,6 +21,10 @@ namespace CodeExecutionTools.Logging
 		void Log(string message, string[] tags = null, object sender = null, EntryCategory category = EntryCategory.Information);
 		void Log(LogEntry entry);
 		
+		void Information(string message, string[] tags = null, object sender = null);
+		void Warning(string message, string[] tags = null, object sender = null);
+		void Error(string message, string[] tags = null, object sender = null);
+		
 		ILoggingService Parent {get; set;}
 		
 		ICollection<ILogHandler> LogHandlers {get;}

@@ -124,6 +124,21 @@ namespace CodeExecutionTools.Logging
 				
 			Log(entry);
 		}
+		
+		public void Information(string message, string[] tags = null, object sender = null)
+		{
+			Log(message, tags, sender, EntryCategory.Information);
+		}
+		
+		public void Warning(string message, string[] tags = null, object sender = null)
+		{
+			Log(message, tags, sender, EntryCategory.Warning);
+		}
+		
+		public void Error(string message, string[] tags = null, object sender = null)
+		{
+			Log(message, tags, sender, EntryCategory.Error);
+		}
 		#endregion
 		
 		#region Public Properties
