@@ -79,7 +79,7 @@ namespace CodeExecutionTools.Logging
 
 		public ICollection<LogEntry> Read()
 		{
-			ICollection<LogEntry> entries;
+			ICollection<LogEntry> entries = new HashSet<LogEntry>();
 			Stream memory;
 			string[] parts;
 			UTF8Encoding encoder;
@@ -92,41 +92,47 @@ namespace CodeExecutionTools.Logging
 			//TODO: Posprzatac
 			CheckDisposed();
 			
-			OnProgress(new ProgressEventArgs(processName, "Extracting data", 0, 4));
-			entries = new HashSet<LogEntry>();
-			memory = new MemoryStream();
-			zipStream.CopyTo(memory);
-			memory.Seek(0, SeekOrigin.Begin);
-			OnProgress(new ProgressEventArgs(processName, "Preparation for encoding", 1, 4));
-			buffer = new byte[memory.Length];
-			memory.Read(buffer, 0, (int)memory.Length);
-			OnProgress(new ProgressEventArgs(processName, "Encoding", 2, 4));
-			encoder = new UTF8Encoding();
-			parts = encoder.GetString(buffer, 0, buffer.Length).Split(new string[] {"</Entry>"}, StringSplitOptions.RemoveEmptyEntries);
-			OnProgress(new ProgressEventArgs(processName, "Encoded", 3, 4));
-			
-			i = 0;
-			processName = "Converting encoded data";
-			foreach (string entry in parts)
+			try
 			{
-				OnProgress(new ProgressEventArgs(processName, i.ToString() + " of " + parts.Length.ToString(), i++, parts.Length));
-				worker = entry;
-				worker += "</Entry>";
+				OnProgress(new ProgressEventArgs(processName, "Extracting data", 0, 4));
+				memory = new MemoryStream();
+				zipStream.CopyTo(memory);
+				memory.Seek(0, SeekOrigin.Begin);
+				OnProgress(new ProgressEventArgs(processName, "Preparation for encoding", 1, 4));
+				buffer = new byte[memory.Length];
+				memory.Read(buffer, 0, (int)memory.Length);
+				OnProgress(new ProgressEventArgs(processName, "Encoding", 2, 4));
+				encoder = new UTF8Encoding();
+				parts = encoder.GetString(buffer, 0, buffer.Length).Split(new string[] {"</Entry>"}, StringSplitOptions.RemoveEmptyEntries);
+				OnProgress(new ProgressEventArgs(processName, "Encoded", 3, 4));
 				
-				source = new MemoryStream();
-				buffer = encoder.GetBytes(worker);
-				source.Write(buffer, 0, buffer.Length);
-				source.Seek(0, SeekOrigin.Begin);
-				reader = XmlTextReader.Create(source);
-			
-				entries.Add((LogEntry)serializer.ReadObject(reader));
+				i = 0;
+				processName = "Converting encoded data";
+				foreach (string entry in parts)
+				{
+					OnProgress(new ProgressEventArgs(processName, i.ToString() + " of " + parts.Length.ToString(), i++, parts.Length));
+					worker = entry;
+					worker += "</Entry>";
+					
+					source = new MemoryStream();
+					buffer = encoder.GetBytes(worker);
+					source.Write(buffer, 0, buffer.Length);
+					source.Seek(0, SeekOrigin.Begin);
+					reader = XmlTextReader.Create(source);
 				
-				source.Close();
-				source.Dispose();
-			}
+					entries.Add((LogEntry)serializer.ReadObject(reader));
+					
+					source.Close();
+					source.Dispose();
+				}
 
-			memory.Close();
-			memory.Dispose();
+				memory.Close();
+				memory.Dispose();
+			}
+			catch (Exception e)
+			{
+				LoggingService.Trace.Error(e.ToString(), new string[] {"RESOURCE"}, this);
+			}
 			
 			return entries;
 		}
