@@ -85,7 +85,6 @@ namespace CodeManagement
 		{
 			try
 			{
-				--attempts;
 				if (attempts != 0)
 				{
 					if (!details.Equals(managerDetails))
@@ -97,13 +96,26 @@ namespace CodeManagement
 				else
 					LoggingService.Trace.Warning("Unloading domain for " + details.ToString() + " failed during all attemps. Domain will be ignored.", new string[] {"CODE"}, this);
 			}
+			catch (CannotUnloadAppDomainException e)
+			{
+				--attempts;
+				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
+				if (attempts != 0)
+					LoggingService.Trace.Warning("Unloading domain for " + details.ToString() + " failed. Trying again (" + attempts.ToString() + " more attempts left).", new string[] {"CODE"}, this);
+				
+				UnloadDomain(details, attempts);
+			}
+			catch (AppDomainUnloadedException e)
+			{
+				LoggingService.Trace.Warning(e.ToString(), new string[] {"EXCEPTION"}, this);
+				LoggingService.Trace.Warning("Detected attempt to unloaded domain. Removing data assosiated with referenced domain.", new string[] {"CODE"}, this);
+				
+				if (representatives.ContainsKey(details))
+					representatives.Remove(details);
+			}
 			catch (Exception e)
 			{
 				LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
-				if (attempts != 0)
-					LoggingService.Trace.Information("Unloading domain for " + details.ToString() + " failed. Trying again (" + attempts.ToString() + " more attempts left)", new string[] {"CODE"}, this);
-				
-				UnloadDomain(details, attempts);
 			}
 			finally
 			{
