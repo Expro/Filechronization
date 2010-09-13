@@ -47,7 +47,14 @@ namespace Filechronization
 			manager = new CodeManager();
 			logFile = new XMLZipLogFileHandler(Environment.CurrentDirectory +"\\Logs\\" + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-fff") + ".log", false);
 			
-			Application.ApplicationExit += (object sender, EventArgs e) => {logFile.Dispose();};
+			Application.ApplicationExit += (object sender, EventArgs e) =>
+													{
+														if (logFile != null)
+														{
+															if (!logFile.Disposed)
+																logFile.Dispose();
+														}
+													};
 			
 			try
 			{
@@ -56,7 +63,7 @@ namespace Filechronization
 				#if DEBUG
 				manager.AddCondition("DEBUG");
 				#endif
-				manager.AddCondition("GUI");
+				//manager.AddCondition("GUI");
 				
 				LoggingService.Debug.LogHandlers.Add(logFile);
 				LoggingService.Trace.LogHandlers.Add(logFile);
@@ -121,10 +128,10 @@ namespace Filechronization
 			finally
 			{
 				if (manager != null)
-					manager.Dispose();
-				
-				if (logFile != null)
-					logFile.Dispose();
+				{
+					if (!manager.Disposed)
+						manager.Dispose();
+				}
 			}
 		}
 	}
