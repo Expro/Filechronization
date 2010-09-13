@@ -70,6 +70,9 @@ namespace LogExplorer
 			this.logTree = new System.Windows.Forms.TreeView();
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.splitContainer = new System.Windows.Forms.SplitContainer();
+			this.logStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.copyMessageContext = new System.Windows.Forms.ToolStripMenuItem();
+			this.copyAllContext = new System.Windows.Forms.ToolStripMenuItem();
 			this.menu.SuspendLayout();
 			this.propertiesPanel.SuspendLayout();
 			this.propertiesTabs.SuspendLayout();
@@ -82,6 +85,7 @@ namespace LogExplorer
 			this.splitContainer.Panel1.SuspendLayout();
 			this.splitContainer.Panel2.SuspendLayout();
 			this.splitContainer.SuspendLayout();
+			this.logStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menu
@@ -453,6 +457,30 @@ namespace LogExplorer
 			this.splitContainer.SplitterDistance = 666;
 			this.splitContainer.TabIndex = 4;
 			// 
+			// logStrip
+			// 
+			this.logStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.copyMessageContext,
+									this.copyAllContext});
+			this.logStrip.Name = "logStrip";
+			this.logStrip.Size = new System.Drawing.Size(153, 70);
+			// 
+			// copyMessageContext
+			// 
+			this.copyMessageContext.Image = ((System.Drawing.Image)(resources.GetObject("copyMessageContext.Image")));
+			this.copyMessageContext.Name = "copyMessageContext";
+			this.copyMessageContext.Size = new System.Drawing.Size(152, 22);
+			this.copyMessageContext.Text = "Copy Message";
+			this.copyMessageContext.Click += new System.EventHandler(this.CopyMessageContextClick);
+			// 
+			// copyAllContext
+			// 
+			this.copyAllContext.Image = ((System.Drawing.Image)(resources.GetObject("copyAllContext.Image")));
+			this.copyAllContext.Name = "copyAllContext";
+			this.copyAllContext.Size = new System.Drawing.Size(152, 22);
+			this.copyAllContext.Text = "Copy All";
+			this.copyAllContext.Click += new System.EventHandler(this.CopyAllContextClick);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -479,9 +507,13 @@ namespace LogExplorer
 			this.splitContainer.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
 			this.splitContainer.ResumeLayout(false);
+			this.logStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.ToolStripMenuItem copyAllContext;
+		private System.Windows.Forms.ToolStripMenuItem copyMessageContext;
+		private System.Windows.Forms.ContextMenuStrip logStrip;
 		private System.Windows.Forms.SplitContainer splitContainer;
 		private System.Windows.Forms.ToolStripMenuItem copyAllMenu;
 		private System.Windows.Forms.ToolStripMenuItem copyMessageMenu;

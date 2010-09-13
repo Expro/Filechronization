@@ -85,7 +85,8 @@ namespace LogExplorer
 			TreeNode subnode;
 			TreeNode node = new TreeNode(entryString.Substring(0, (breakPoint >= 0)?breakPoint:entryString.Length));
 			node.Tag = entry;
-
+			node.ContextMenuStrip = logStrip;
+			
 			switch (entry.Category)
 			{
 				case EntryCategory.Information:
@@ -266,6 +267,18 @@ namespace LogExplorer
 		private void ProgressHandler(object sender, ProgressEventArgs e)
 		{	
 			progressForm.ProgressHadler(sender, e);
+		}
+		
+		private void CopyMessageContextClick(object sender, EventArgs e)
+		{
+			if (logTree.SelectedNode != null)
+				Clipboard.SetText((logTree.SelectedNode.Tag as LogEntry).Message);
+		}
+		
+		private void CopyAllContextClick(object sender, EventArgs e)
+		{
+			if (logTree.SelectedNode != null)
+				Clipboard.SetText((logTree.SelectedNode.Tag as LogEntry).ToString());
 		}
 	}
 }
