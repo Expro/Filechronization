@@ -47,6 +47,8 @@ namespace Filechronization
 			manager = new CodeManager();
 			logFile = new XMLZipLogFileHandler(Environment.CurrentDirectory +"\\Logs\\" + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-fff") + ".log", false);
 			
+			Application.ApplicationExit += (object sender, EventArgs e) => {logFile.Dispose();};
+			
 			try
 			{
 				splashLock = new Semaphore(0, 1);
@@ -111,7 +113,6 @@ namespace Filechronization
 				LoggingService.Trace.Log("Disposing Code Manager resources...", new string[] {"APPLICATION", "CODE"});
 				manager.Dispose();
 				LoggingService.Trace.Log("Shut down completed.", new string[] {"APPLICATION", "CODE"});
-				logFile.Dispose();
 			}
 			catch (Exception e)
 			{
