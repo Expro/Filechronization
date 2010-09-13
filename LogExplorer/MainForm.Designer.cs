@@ -69,6 +69,7 @@ namespace LogExplorer
 			this.logPanelHeaderLabel = new System.Windows.Forms.Label();
 			this.logTree = new System.Windows.Forms.TreeView();
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.splitContainer = new System.Windows.Forms.SplitContainer();
 			this.menu.SuspendLayout();
 			this.propertiesPanel.SuspendLayout();
 			this.propertiesTabs.SuspendLayout();
@@ -77,6 +78,10 @@ namespace LogExplorer
 			this.sendersTab.SuspendLayout();
 			this.propertiesPanelHeader.SuspendLayout();
 			this.logPanelHeader.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+			this.splitContainer.Panel1.SuspendLayout();
+			this.splitContainer.Panel2.SuspendLayout();
+			this.splitContainer.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menu
@@ -159,10 +164,10 @@ namespace LogExplorer
 			// 
 			this.propertiesPanel.Controls.Add(this.propertiesTabs);
 			this.propertiesPanel.Controls.Add(this.propertiesPanelHeader);
-			this.propertiesPanel.Dock = System.Windows.Forms.DockStyle.Right;
-			this.propertiesPanel.Location = new System.Drawing.Point(627, 24);
+			this.propertiesPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.propertiesPanel.Location = new System.Drawing.Point(0, 0);
 			this.propertiesPanel.Name = "propertiesPanel";
-			this.propertiesPanel.Size = new System.Drawing.Size(293, 508);
+			this.propertiesPanel.Size = new System.Drawing.Size(246, 504);
 			this.propertiesPanel.TabIndex = 1;
 			// 
 			// propertiesTabs
@@ -175,7 +180,7 @@ namespace LogExplorer
 			this.propertiesTabs.Location = new System.Drawing.Point(0, 20);
 			this.propertiesTabs.Name = "propertiesTabs";
 			this.propertiesTabs.SelectedIndex = 0;
-			this.propertiesTabs.Size = new System.Drawing.Size(293, 488);
+			this.propertiesTabs.Size = new System.Drawing.Size(246, 484);
 			this.propertiesTabs.TabIndex = 1;
 			// 
 			// typesTab
@@ -190,7 +195,7 @@ namespace LogExplorer
 			this.typesTab.Location = new System.Drawing.Point(4, 23);
 			this.typesTab.Name = "typesTab";
 			this.typesTab.Padding = new System.Windows.Forms.Padding(3);
-			this.typesTab.Size = new System.Drawing.Size(285, 461);
+			this.typesTab.Size = new System.Drawing.Size(238, 457);
 			this.typesTab.TabIndex = 0;
 			this.typesTab.Text = "Types";
 			this.typesTab.UseVisualStyleBackColor = true;
@@ -201,7 +206,7 @@ namespace LogExplorer
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.errorsDescription.Location = new System.Drawing.Point(22, 182);
 			this.errorsDescription.Name = "errorsDescription";
-			this.errorsDescription.Size = new System.Drawing.Size(255, 40);
+			this.errorsDescription.Size = new System.Drawing.Size(208, 40);
 			this.errorsDescription.TabIndex = 5;
 			this.errorsDescription.Text = "Serious, potentialy dangerous situations that occured during application executio" +
 			"n.";
@@ -217,7 +222,7 @@ namespace LogExplorer
 			this.typeErrors.ImageList = this.logImages;
 			this.typeErrors.Location = new System.Drawing.Point(6, 155);
 			this.typeErrors.Name = "typeErrors";
-			this.typeErrors.Size = new System.Drawing.Size(271, 24);
+			this.typeErrors.Size = new System.Drawing.Size(224, 24);
 			this.typeErrors.TabIndex = 4;
 			this.typeErrors.Text = "Errors";
 			this.typeErrors.UseVisualStyleBackColor = true;
@@ -238,7 +243,7 @@ namespace LogExplorer
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.warningsDescription.Location = new System.Drawing.Point(22, 108);
 			this.warningsDescription.Name = "warningsDescription";
-			this.warningsDescription.Size = new System.Drawing.Size(255, 32);
+			this.warningsDescription.Size = new System.Drawing.Size(208, 32);
 			this.warningsDescription.TabIndex = 3;
 			this.warningsDescription.Text = "Informations about abnormal, non-critical errors and behaviors of application.";
 			// 
@@ -253,7 +258,7 @@ namespace LogExplorer
 			this.typeWarnings.ImageList = this.logImages;
 			this.typeWarnings.Location = new System.Drawing.Point(6, 81);
 			this.typeWarnings.Name = "typeWarnings";
-			this.typeWarnings.Size = new System.Drawing.Size(271, 24);
+			this.typeWarnings.Size = new System.Drawing.Size(224, 24);
 			this.typeWarnings.TabIndex = 2;
 			this.typeWarnings.Text = "Warnings";
 			this.typeWarnings.UseVisualStyleBackColor = true;
@@ -265,7 +270,7 @@ namespace LogExplorer
 									| System.Windows.Forms.AnchorStyles.Right)));
 			this.informationsDescription.Location = new System.Drawing.Point(22, 33);
 			this.informationsDescription.Name = "informationsDescription";
-			this.informationsDescription.Size = new System.Drawing.Size(255, 45);
+			this.informationsDescription.Size = new System.Drawing.Size(208, 45);
 			this.informationsDescription.TabIndex = 1;
 			this.informationsDescription.Text = "Messages describing current activities of application and loaded addins.";
 			// 
@@ -280,7 +285,7 @@ namespace LogExplorer
 			this.typeInformations.ImageList = this.logImages;
 			this.typeInformations.Location = new System.Drawing.Point(6, 6);
 			this.typeInformations.Name = "typeInformations";
-			this.typeInformations.Size = new System.Drawing.Size(271, 24);
+			this.typeInformations.Size = new System.Drawing.Size(224, 24);
 			this.typeInformations.TabIndex = 0;
 			this.typeInformations.Text = "Informations";
 			this.typeInformations.UseVisualStyleBackColor = true;
@@ -294,7 +299,7 @@ namespace LogExplorer
 			this.tagsTab.Location = new System.Drawing.Point(4, 23);
 			this.tagsTab.Name = "tagsTab";
 			this.tagsTab.Padding = new System.Windows.Forms.Padding(3);
-			this.tagsTab.Size = new System.Drawing.Size(285, 461);
+			this.tagsTab.Size = new System.Drawing.Size(238, 457);
 			this.tagsTab.TabIndex = 1;
 			this.tagsTab.Text = "Tags";
 			this.tagsTab.UseVisualStyleBackColor = true;
@@ -307,7 +312,7 @@ namespace LogExplorer
 			this.tags.HorizontalScrollbar = true;
 			this.tags.Location = new System.Drawing.Point(3, 43);
 			this.tags.Name = "tags";
-			this.tags.Size = new System.Drawing.Size(279, 415);
+			this.tags.Size = new System.Drawing.Size(232, 411);
 			this.tags.TabIndex = 1;
 			this.tags.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.TagsItemCheck);
 			// 
@@ -316,7 +321,7 @@ namespace LogExplorer
 			this.tagsDescription.Dock = System.Windows.Forms.DockStyle.Top;
 			this.tagsDescription.Location = new System.Drawing.Point(3, 3);
 			this.tagsDescription.Name = "tagsDescription";
-			this.tagsDescription.Size = new System.Drawing.Size(279, 40);
+			this.tagsDescription.Size = new System.Drawing.Size(232, 40);
 			this.tagsDescription.TabIndex = 0;
 			this.tagsDescription.Text = "Each message can be associated with set of tags, describing nature of event conta" +
 			"ined by log entry.";
@@ -329,7 +334,7 @@ namespace LogExplorer
 			this.sendersTab.Location = new System.Drawing.Point(4, 23);
 			this.sendersTab.Name = "sendersTab";
 			this.sendersTab.Padding = new System.Windows.Forms.Padding(3);
-			this.sendersTab.Size = new System.Drawing.Size(285, 461);
+			this.sendersTab.Size = new System.Drawing.Size(238, 457);
 			this.sendersTab.TabIndex = 2;
 			this.sendersTab.Text = "Senders";
 			this.sendersTab.UseVisualStyleBackColor = true;
@@ -342,7 +347,7 @@ namespace LogExplorer
 			this.senders.HorizontalScrollbar = true;
 			this.senders.Location = new System.Drawing.Point(3, 43);
 			this.senders.Name = "senders";
-			this.senders.Size = new System.Drawing.Size(279, 415);
+			this.senders.Size = new System.Drawing.Size(232, 411);
 			this.senders.TabIndex = 1;
 			this.senders.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.SendersItemCheck);
 			// 
@@ -351,7 +356,7 @@ namespace LogExplorer
 			this.sendersDescription.Dock = System.Windows.Forms.DockStyle.Top;
 			this.sendersDescription.Location = new System.Drawing.Point(3, 3);
 			this.sendersDescription.Name = "sendersDescription";
-			this.sendersDescription.Size = new System.Drawing.Size(279, 40);
+			this.sendersDescription.Size = new System.Drawing.Size(232, 40);
 			this.sendersDescription.TabIndex = 0;
 			this.sendersDescription.Text = "Messages are usually signed by object, that is source of event described by log e" +
 			"vent.";
@@ -371,7 +376,7 @@ namespace LogExplorer
 			this.propertiesPanelHeader.Dock = System.Windows.Forms.DockStyle.Top;
 			this.propertiesPanelHeader.Location = new System.Drawing.Point(0, 0);
 			this.propertiesPanelHeader.Name = "propertiesPanelHeader";
-			this.propertiesPanelHeader.Size = new System.Drawing.Size(293, 20);
+			this.propertiesPanelHeader.Size = new System.Drawing.Size(246, 20);
 			this.propertiesPanelHeader.TabIndex = 0;
 			// 
 			// propertiesPanelHeaderLabel
@@ -382,7 +387,7 @@ namespace LogExplorer
 			this.propertiesPanelHeaderLabel.ForeColor = System.Drawing.Color.White;
 			this.propertiesPanelHeaderLabel.Location = new System.Drawing.Point(0, 0);
 			this.propertiesPanelHeaderLabel.Name = "propertiesPanelHeaderLabel";
-			this.propertiesPanelHeaderLabel.Size = new System.Drawing.Size(293, 20);
+			this.propertiesPanelHeaderLabel.Size = new System.Drawing.Size(246, 20);
 			this.propertiesPanelHeaderLabel.TabIndex = 0;
 			this.propertiesPanelHeaderLabel.Text = "Properties";
 			this.propertiesPanelHeaderLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -392,9 +397,9 @@ namespace LogExplorer
 			this.logPanelHeader.BackColor = System.Drawing.Color.DarkBlue;
 			this.logPanelHeader.Controls.Add(this.logPanelHeaderLabel);
 			this.logPanelHeader.Dock = System.Windows.Forms.DockStyle.Top;
-			this.logPanelHeader.Location = new System.Drawing.Point(0, 24);
+			this.logPanelHeader.Location = new System.Drawing.Point(0, 0);
 			this.logPanelHeader.Name = "logPanelHeader";
-			this.logPanelHeader.Size = new System.Drawing.Size(627, 20);
+			this.logPanelHeader.Size = new System.Drawing.Size(662, 20);
 			this.logPanelHeader.TabIndex = 2;
 			// 
 			// logPanelHeaderLabel
@@ -404,7 +409,7 @@ namespace LogExplorer
 			this.logPanelHeaderLabel.ForeColor = System.Drawing.Color.White;
 			this.logPanelHeaderLabel.Location = new System.Drawing.Point(0, 0);
 			this.logPanelHeaderLabel.Name = "logPanelHeaderLabel";
-			this.logPanelHeaderLabel.Size = new System.Drawing.Size(627, 20);
+			this.logPanelHeaderLabel.Size = new System.Drawing.Size(662, 20);
 			this.logPanelHeaderLabel.TabIndex = 1;
 			this.logPanelHeaderLabel.Text = "Log";
 			this.logPanelHeaderLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -416,10 +421,10 @@ namespace LogExplorer
 			this.logTree.FullRowSelect = true;
 			this.logTree.ImageIndex = 0;
 			this.logTree.ImageList = this.logImages;
-			this.logTree.Location = new System.Drawing.Point(0, 44);
+			this.logTree.Location = new System.Drawing.Point(0, 20);
 			this.logTree.Name = "logTree";
 			this.logTree.SelectedImageKey = "selected.png";
-			this.logTree.Size = new System.Drawing.Size(627, 488);
+			this.logTree.Size = new System.Drawing.Size(662, 484);
 			this.logTree.TabIndex = 3;
 			this.logTree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.LogTreeDrawNode);
 			this.logTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.LogTreeAfterSelect);
@@ -429,14 +434,31 @@ namespace LogExplorer
 			this.openFileDialog.DefaultExt = "*.log";
 			this.openFileDialog.Filter = "Filechronization Log (*.log)|*.log";
 			// 
+			// splitContainer
+			// 
+			this.splitContainer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer.Location = new System.Drawing.Point(0, 24);
+			this.splitContainer.Name = "splitContainer";
+			// 
+			// splitContainer.Panel1
+			// 
+			this.splitContainer.Panel1.Controls.Add(this.logTree);
+			this.splitContainer.Panel1.Controls.Add(this.logPanelHeader);
+			// 
+			// splitContainer.Panel2
+			// 
+			this.splitContainer.Panel2.Controls.Add(this.propertiesPanel);
+			this.splitContainer.Size = new System.Drawing.Size(920, 508);
+			this.splitContainer.SplitterDistance = 666;
+			this.splitContainer.TabIndex = 4;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(920, 532);
-			this.Controls.Add(this.logTree);
-			this.Controls.Add(this.logPanelHeader);
-			this.Controls.Add(this.propertiesPanel);
+			this.Controls.Add(this.splitContainer);
 			this.Controls.Add(this.menu);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menu;
@@ -453,9 +475,14 @@ namespace LogExplorer
 			this.sendersTab.ResumeLayout(false);
 			this.propertiesPanelHeader.ResumeLayout(false);
 			this.logPanelHeader.ResumeLayout(false);
+			this.splitContainer.Panel1.ResumeLayout(false);
+			this.splitContainer.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+			this.splitContainer.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.SplitContainer splitContainer;
 		private System.Windows.Forms.ToolStripMenuItem copyAllMenu;
 		private System.Windows.Forms.ToolStripMenuItem copyMessageMenu;
 		private System.Windows.Forms.ToolStripMenuItem entryMenu;
