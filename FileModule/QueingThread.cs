@@ -8,73 +8,76 @@
 
     #endregion
 
-    public delegate void QueedJob();
+    //public delegate void QueedJob();
 
-    public class QueingThread
+    public class QueingThread : IDisposable
     {
-        private readonly BlockingCollection<QueedJob> queue;
+        private readonly BlockingCollection<Action> queue;
         private readonly Thread thread;
-        private readonly CancellationTokenSource tokenSource;
+       
 
         private bool running;
 
         public QueingThread()
         {
-            queue = new BlockingCollection<QueedJob>(new ConcurrentQueue<QueedJob>());
+            queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
             thread = new Thread(Run);
-            tokenSource = new CancellationTokenSource();
+            
 
             running = false;
         }
 
         public void Start()
         {
-            //Monitor.Enter(queue);
+            
             if (!running)
             {
                 running = true;
                 thread.Start();
             }
-            //Monitor.Exit(queue);
+            
         }
 
-        public void Stop()
+        
+        public void Dispose()
         {
             running = false;
-
-            tokenSource.Cancel();
+            queue.CompleteAdding();
+          
         }
-
-        public void Add(QueedJob comm)
+        public void Add(Action comm)
         {
             queue.Add(comm);
+            
         }
 
 
         private void Run()
         {
-            try
+            
+            foreach (var action in queue.GetConsumingEnumerable())
             {
-                while (running)
+                //var job = queue.Take(tokenSource.Token);
+
+
+#if !DEBUG
+                try
                 {
-                    var job = queue.Take(tokenSource.Token);
-
-                    try
-                    {
-                        job();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
+#endif     
+                    action();
+#if !DEBUG
                 }
+                catch (Exception e)
+                {
+                    Bug.Err(e);
+                }
+#endif
             }
-            catch (OperationCanceledException)
-            {
-                //
-            }
-        }
 
+                
+            
+        }
+        
 
 //        private readonly BlockingQueue<QueedJob> queue;
 //        private readonly Thread thread;
@@ -130,5 +133,6 @@
 //                
 //            }
 //        }
+        
     }
 }

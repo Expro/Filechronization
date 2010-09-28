@@ -9,45 +9,75 @@ namespace FileModule
 
     public class MessageDispatcher
     {
-        private readonly NewFileModule fileModule;
+        private readonly NetworkContext _netContext;
+     
         private int counter;
 
-        public MessageDispatcher(NewFileModule fileModule)
+        public MessageDispatcher(NetworkContext netContext)
         {
-            this.fileModule = fileModule;
+            _netContext = netContext;
 
-            fileModule.fileWatcher.Created += FileCreated;
-            fileModule.fileWatcher.Deleted += FileDeleted;
-            fileModule.fileWatcher.Modified += FileModified;
-            fileModule.fileWatcher.MovedRenamed += FileMovedRenamed;
-            fileModule.fileWatcher.Replaced += FileReplaced;
+
+            _netContext.FileWatcher.Created += FileCreated;
+            _netContext.FileWatcher.Deleted += FileDeleted;
+            _netContext.FileWatcher.Modified += FileModified;
+            _netContext.FileWatcher.MovedRenamed += FileMovedRenamed;
+            _netContext.FileWatcher.Replaced += FileReplaced;
         }
 
-        private void FileReplaced(string sourcepath, string targetpath)
+        private void FileReplaced(FsObject<AbsPath> sourceObj, FsObject<AbsPath> targetObj)
         {
-            string source = fileModule.Network.MainPath.CreateRelative(sourcepath);
-            string target = fileModule.Network.MainPath.CreateRelative(targetpath);
-            Console.WriteLine("File Replaced from: " + source + " to: " + target);
+//            string source = _netContext.Path.CreateRelative(sourcepath);
+//            string target = _netContext.Path.CreateRelative(targetpath);
+            Console.WriteLine("File Replaced from: " + sourceObj.Path + " to: " + targetObj.Path);
+        }
+        private bool SameGroup(IPath sourcepath, IPath targetpath)
+        {
+            string srcDir = _netContext.Path.ExtractSubfolderName(sourcepath);
+            string tarDir = _netContext.Path.ExtractSubfolderName(targetpath);
+
+            if (srcDir == tarDir)
+            {
+                return true;
+            }
+            if (_netContext.TableOverseer.ChooseTable(sourcepath)
+                != _netContext.TableOverseer.ChooseTable(targetpath))
+            {
+                return false;
+            }
+            return true;
         }
 
-        private void FileMovedRenamed(string sourcepath, string targetpath)
+        private void FileMovedRenamed(FsObject<AbsPath> sourceFile, FsObject<AbsPath> targetFile)
         {
-            string source = fileModule.Network.MainPath.CreateRelative(sourcepath);
-            string target = fileModule.Network.MainPath.CreateRelative(targetpath);
+            // Jesli zostal przeniesiony do innej grupy - zamienic na delete + create
+            //LocalObject sourceFile = (LocalObject) sourceObj;
+            if(SameGroup(sourceFile.Path, targetFile.Path))
+            {
+//                var message = new 
+            }
+            else
+            {
+                FileDeleted(sourceFile.Path);
+                FileCreated(FsObject<AbsPath>.NewLocal(targetFile.Path));
+            }
 
-            Console.WriteLine("File Moved or Renamed from: " + source + " to: " + target);
+//            string source = _netContext.Path.CreateRelative(sourcepath);
+//            string target = _netContext.Path.CreateRelative(targetpath);
+
+            Console.WriteLine("File Moved or Renamed from: " + sourceFile.Path + " to: " + targetFile.Path);
         }
 
-        private void FileModified(FileSystemObjectDescriptor newDescriptor)
+        private void FileModified(FsObject<AbsPath> newDescriptor)
         {
             
-            Console.WriteLine("File Modified: " + newDescriptor.RelativePath);
+            Console.WriteLine("File Modified: " + newDescriptor.Path);
         }
 
-        private void FileDeleted(string path)
+        private void FileDeleted(AbsPath absPath)
         {
-            string relPath = fileModule.Network.MainPath.CreateRelative(path);
-            Console.WriteLine("File Deleted: " + relPath);
+//            string relPath = _netContext.Path.CreateRelative(path);
+            Console.WriteLine("File Deleted: " + absPath);
         }
 
         public FileOrFolder GetObjectType(string path)
@@ -64,13 +94,13 @@ namespace FileModule
             throw new FileNotFoundException();
         }
 
-        private void FileCreated(FileSystemObjectDescriptor descriptor)
+        private void FileCreated(FsObject<AbsPath> descriptor)
         {
             counter++;
            // string relPath = fileModule.Network.MainPath.CreateRelative(path);
-            Console.WriteLine("File Created ({0}): {1}", counter, descriptor.RelativePath);
+            Console.WriteLine("Object Created ({0}): {1}", counter, descriptor.Path);
 
-            fileModule.tableOverseer.AddFile(descriptor);
+            _netContext.TableOverseer.AddFile(descriptor);
 //            try
 //            {
 //                FileOrFolder objectType = GetObjectType(path);

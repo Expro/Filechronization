@@ -7,13 +7,13 @@ namespace FileModule.ExchangeSystem.Messages
     public class NewFileBroadcast : Message
     {
 
-        private readonly FileDescriptor descriptor;
+        private readonly FsFile<RelPath> descriptor;
         private readonly string fileName;
 
         private readonly IList<PieceHash> hashes;
         private readonly string seedUser;
 
-        public NewFileBroadcast(string fileName, FileDescriptor descriptor, string seedUser, IList<PieceHash> hashes)
+        public NewFileBroadcast(string fileName, FsFile<RelPath> descriptor, string seedUser, IList<PieceHash> hashes)
         {
             this.fileName = fileName;
             this.descriptor = descriptor;
@@ -26,7 +26,7 @@ namespace FileModule.ExchangeSystem.Messages
             get { return fileName; }
         }
 
-        public FileDescriptor Descriptor
+        public FsFile<RelPath> Descriptor
         {
             get { return descriptor; }
         }

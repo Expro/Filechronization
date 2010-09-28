@@ -17,13 +17,17 @@ using Filechronization.UserManagement;
  
 namespace Filechronization.Network.System.MainParts
 {
+    using ConsoleApplication1;
+    using Tasks.Authorization;
+    using Tasks.Authorization.Messages;
+
     /// <summary>
     ///   Modul zajmujacy sie polaczeniami na wyzszym poziomie abstrakcji
     /// </summary>
     public class TaskCenter
     {
         private readonly NetworkModule _netModule;
-
+        private NetworksManager _manager;
 
         public TaskCenter(NetworkModule netModule)
         {
@@ -85,7 +89,7 @@ namespace Filechronization.Network.System.MainParts
                     }
 
 
-                    _netModule.ServiceModule.EnqueueMessage(new LocalTaskMessage(sender.EndPointAddress, taskMessage));
+                    _netModule.ServiceModule.EnqueueMessage(new LocalTaskMessage(sender, taskMessage));
                     ////NetworkModule.SendNotification("Received FileTaskMessage and user == null", NotificationType.ERROR);
                 }
                 else
@@ -121,7 +125,7 @@ namespace Filechronization.Network.System.MainParts
         public void StartConnectionTask(RemotePeer peer)
         {
             var task = new ClientArbiterInfoTask(_netModule);
-            SharedContext.taskManager.AddTask(peer.EndPointAddress, task);
+            SharedContext.taskManager.AddTask(peer, task);
             task.Start();
         }
 
@@ -131,14 +135,15 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "arbiter">adres arbitra</param>
         public void BeginLogin(IPAddress arbiter)
         {
-            Peer peer = _netModule.PeerCenter.BeginConnect(arbiter);
-            peer.AfterConnect(
-                delegate
+            _manager.ConnectTask(_netModule.PeerCenter, arbiter)
+                .ContinueWith(prev =>
                     {
                         var task = new AuthorizationClientTask(_netModule, _netModule.CurrentUser);
                         SharedContext.taskManager.AddTask(peer.EndPointAddress, task);
                         task.Start();
                     });
+
+           
         }
 
 

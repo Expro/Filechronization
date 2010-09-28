@@ -10,27 +10,27 @@ namespace FileModule.ExchangeSystem
     #endregion
 
     /// <summary>
-    ///   Obiekt obslugujacy wymiane jednego pliku
+    ///   Information about transfer of one file.
     /// </summary>
     public class TransferJob
     {
-        private readonly Dictionary<string, BitArray> bitArrays;
-        private readonly FileDescriptor file;
+        private readonly Dictionary<UserID, BitArray> bitArrays;
+        private readonly FsFile<RelPath> file;
         private readonly int pieceCount;
 
-        private readonly List<PieceInfo> piecesIndexed;
+        private readonly List<PieceProperties> piecesIndexed;
 
         /// <summary>
         ///   Zawiera niesciagniete czesci, posortowane rosnaco wedlug liczby userow posiadajacych
         /// </summary>
-        private readonly SortedSet<PieceInfo> piecesRaritySorted;
+        private readonly SortedSet<PieceProperties> piecesRaritySorted;
 
         private readonly Random random;
 
         private int completePieces;
 
 
-        public TransferJob(FileDescriptor file, IList<PieceHash> hashes)
+        public TransferJob(FsFile<RelPath> file, IList<PieceHash> hashes)
         {
             this.file = file;
 
@@ -39,19 +39,19 @@ namespace FileModule.ExchangeSystem
 
             pieceCount = hashes.Count;
 
-            bitArrays = new Dictionary<string, BitArray>();
-            piecesRaritySorted = new SortedSet<PieceInfo>();
-            piecesIndexed = new List<PieceInfo>(pieceCount);
+            bitArrays = new Dictionary<UserID, BitArray>();
+            piecesRaritySorted = new SortedSet<PieceProperties>();
+            piecesIndexed = new List<PieceProperties>(pieceCount);
 
             for (int i = 0; i < pieceCount; i++)
             {
-                var pieceInfo = new PieceInfo(i, hashes[i]);
+                var pieceInfo = new PieceProperties(i, hashes[i]);
                 piecesIndexed[i] = pieceInfo;
                 piecesRaritySorted.Add(pieceInfo);
             }
         }
 
-        public FileDescriptor File
+        public FsFile<RelPath> File
         {
             get { return file; }
         }
@@ -62,12 +62,12 @@ namespace FileModule.ExchangeSystem
         }
 
 
-        public bool CheckData(PieceID pieceId, byte[] data, int count)
+        public bool CheckData(PieceInfo pieceInfo, byte[] data, int count)
         {
             try
             {
-                return piecesIndexed[pieceId.Index].PieceHash.Equals(new PieceHash(data, count));
-                //// /return hashes[pieceId].Equals(new PieceHash(data));
+                return piecesIndexed[pieceInfo.Index].PieceHash.Equals(new PieceHash(data, count));
+                //// /return hashes[PieceInfo].Equals(new PieceHash(data));
             }
             catch (Exception e)
             {
@@ -77,17 +77,17 @@ namespace FileModule.ExchangeSystem
         }
 
         /// <summary>
-        ///   Losuje jedna czesc sposrod kilku najrzadszych
-        ///   Nastepnie losuje usera sposrod posiadajacych ta czesc
+        ///   Chooses piece according to rarity
         /// </summary>
-        /// <returns>Para user i indeks czesci</returns>
-        public Tuple<PieceID, int> GetNonActivePiece()
+        /// <returns>New active piece</returns>
+        public ActivePiece GetNonActivePiece()
         {
-            var selectedPieces = new List<PieceInfo>();
+            
+            var selectedPieces = new List<PieceProperties>();
             const int sampleSize = 10;
             int counter = 0;
 
-            foreach (PieceInfo piece in piecesRaritySorted)
+            foreach (PieceProperties piece in piecesRaritySorted)
             {
                 selectedPieces.Add(piece);
                 counter++;
@@ -99,7 +99,7 @@ namespace FileModule.ExchangeSystem
                 }
             }
 
-            PieceInfo selected = selectedPieces[random.Next(selectedPieces.Count)];
+            PieceProperties selected = selectedPieces[random.Next(selectedPieces.Count)];
 
             int pieceSize = ExchUtils.PieceSize(file.Size, selected.Index);
 
@@ -107,26 +107,26 @@ namespace FileModule.ExchangeSystem
             piecesRaritySorted.Remove(selected);
             piecesIndexed[selected.Index].Status = PieceStatus.Active;
 
-
-            return new Tuple<PieceID, int>(new PieceID(file.RelativePath, selected.Index), pieceSize);
+            throw new NotImplementedException();
+            //TODO: return new ActivePiece(new PieceInfo(file.Path, selected.Index), pieceSize);
         }
 
-        public void PieceComplete(PieceID piece)
+        public void PieceComplete(PieceInfo piece)
         {
             piecesIndexed[piece.Index].Status = PieceStatus.Complete;
             completePieces++;
         }
 
 
-        public void AddUser(String user)
+        public void AddUser(UserID user)
         {
             bitArrays.Add(user, new BitArray(pieceCount));
         }
 
-        public void RemoveUser(String user)
+        public void RemoveUser(UserID user)
         {
             BitArray bits = bitArrays[user];
-            foreach (PieceInfo piece in piecesRaritySorted)
+            foreach (PieceProperties piece in piecesRaritySorted)
             {
                 if (bits.Get(piece.Index))
                 {
@@ -135,7 +135,7 @@ namespace FileModule.ExchangeSystem
             }
         }
 
-        public void UserHas(String user, int pieceIndex)
+        public void UserHas(UserID user, int pieceIndex)
         {
             BitArray bits = bitArrays[user];
             if (!bits.Get(pieceIndex))
@@ -146,9 +146,9 @@ namespace FileModule.ExchangeSystem
         }
 
 
-        public String SelectUser(int pieceIndex)
+        public UserID SelectUser(int pieceIndex)
         {
-            string[] userList = (from pair in bitArrays
+            UserID[] userList = (from pair in bitArrays
                                  where pair.Value.Get(pieceIndex)
                                  select pair.Key).ToArray();
             return userList.ElementAt(random.Next(userList.Length));
@@ -157,7 +157,7 @@ namespace FileModule.ExchangeSystem
 
 //        public UserIndexPair GetRareRandom()
 //        {
-//            var selectedPieces = new List<PieceInfo>();
+//            var selectedPieces = new List<PieceProperties>();
 //            const int sampleSize = 10;
 //            int counter = 0;
 //
@@ -175,7 +175,7 @@ namespace FileModule.ExchangeSystem
 //                }
 //            }
 //
-//            PieceInfo selected = selectedPieces.ElementAt(random.Next(selectedPieces.Count));
+//            PieceProperties selected = selectedPieces.ElementAt(random.Next(selectedPieces.Count));
 //            
 //
         //var userList = (from pair in bitArrays where pair.Value.Get(selected.Index) select pair.Key).ToArray();
@@ -184,14 +184,14 @@ namespace FileModule.ExchangeSystem
 //            return new UserIndexPair(user, selected.Index);
 //        }
 
-        #region Nested type: PieceInfo
+        #region Nested type: PieceProperties
 
-        private class PieceInfo : IComparable<PieceInfo>
+        private class PieceProperties : IComparable<PieceProperties>
         {
             private readonly int index;
             private readonly PieceHash pieceHash;
 
-            public PieceInfo(int index, PieceHash pieceHash)
+            public PieceProperties(int index, PieceHash pieceHash)
             {
                 this.index = index;
                 this.pieceHash = pieceHash;
@@ -213,9 +213,9 @@ namespace FileModule.ExchangeSystem
                 get { return index; }
             }
 
-            #region IComparable<PieceInfo> Members
+            #region IComparable<PieceProperties> Members
 
-            public int CompareTo(PieceInfo other)
+            public int CompareTo(PieceProperties other)
             {
                 if (Count < other.Count)
                     return -1;

@@ -45,6 +45,8 @@ namespace Filechronization
 			XMLZipLogFileHandler logFile;
 			
 			manager = new CodeManager();
+			if (!Directory.Exists(Environment.CurrentDirectory +"\\Logs\\"))
+				Directory.CreateDirectory(Environment.CurrentDirectory +"\\Logs\\");
 			logFile = new XMLZipLogFileHandler(Environment.CurrentDirectory +"\\Logs\\" + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss-fff") + ".log", false);
 			
 			try

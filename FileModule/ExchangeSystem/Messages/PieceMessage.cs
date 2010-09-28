@@ -10,26 +10,26 @@ namespace FileModule.ExchangeSystem.Messages
     [Serializable]
     public class PieceMessage : UserMessage
     {
-        private readonly PieceID pieceId;
+        private readonly PieceInfo pieceInfo;
 
-        public PieceMessage(string fileName, int pieceIndex)
+        public PieceMessage(RelPath fileName, int pieceIndex)
         {
-            pieceId = new PieceID(fileName, pieceIndex);
+            pieceInfo = new PieceInfo(fileName, pieceIndex);
         }
 
         public string FileName
         {
-            get { return pieceId.RelFilePath; }
+            get { return pieceInfo.RelFilePath; }
         }
 
         public int PieceIndex
         {
-            get { return pieceId.Index; }
+            get { return pieceInfo.Index; }
         }
 
-        public PieceID Piece
+        public PieceInfo Piece
         {
-            get { return pieceId; }
+            get { return pieceInfo; }
         }
     }
 }

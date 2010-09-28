@@ -14,25 +14,28 @@ using Filechronization.Modularity.Messages;
 using Filechronization.Network.States;
 using Filechronization.UserManagement;
 #endregion
-
+/*
+ * 
+ * PeerCenter;
+ * musi sie rejestrowac w NetworksManager
+ * nie rozlacza polaczen
+ * nie otrzymuje notyfikacji o pol. przychodzacych
+ * - dopiero otrzymanie wiadomosci od inicjatora powoduje jego zauwazenie
+ * laczy polaczenia z uzytkownikami
+ * w przypadku rozlaczenia lub niemozliwosci polaczenia -
+ * - otrzymuje notyfikacje ConnectionClosed
+ */
 namespace Filechronization.Network.System.MainParts
 {
-  	/// <summary>
+    using ConsoleApplication1;
+
+    /// <summary>
     ///   Modul zarzadzajacy polaczeniami i ich skojarzeniami z uzytkownikami
     /// </summary>
     public class PeerCenter
     {
         private readonly NetworkModule _netModule;
 
-        /// <summary>
-        ///   wszystkie zfinalizowane polaczenia
-        /// </summary>
-        private readonly Dictionary<IPEndPoint, RemotePeer> _connections;
-
-        /// <summary>
-        ///   polaczenia jeszcze nie ustanowione
-        /// </summary>
-        private readonly Dictionary<IPAddress, RemotePeer> _unfinishedConnections;
 
         /// <summary>
         ///   mapa asocjacji polaczen z uzytkownikami
@@ -58,6 +61,7 @@ namespace Filechronization.Network.System.MainParts
         /// </summary>
         private readonly LocalPeer _loopback;
 
+  	    private NetworksManager _manager;
         /// <summary>
         ///   Tworzy modul zarzadzajacy polaczeniami
         /// </summary>
@@ -66,18 +70,16 @@ namespace Filechronization.Network.System.MainParts
         {
             _netModule = netModule;
             _netQueue = netModule.netQueue;
-            _connections = new Dictionary<IPEndPoint, RemotePeer>();
-            _unfinishedConnections = new Dictionary<IPAddress, RemotePeer>();
-
+            
 
             _loopback = new LocalPeer(_netModule);
-            _loopback.ObjectReceived += ObjectReceived;
+            //_loopback.ObjectReceived += ObjectReceived;
             _userConnectionMap = new UserConnectionMap(_netModule);
 
 
             _connectThread = new ConnectThread();
 
-            _connectThread.ConnectionAccepted += ConnectionAccepted;
+            
 
 
             // _netQueue.Register(typeof (NetworkSend), HandleNetworkSend);
@@ -114,7 +116,7 @@ namespace Filechronization.Network.System.MainParts
                         if (_netModule.NetworkState is StateDisconnected)
                         {
                             //NetworkModule.SendNotification("Trying connect to network...",
-                                                           NotificationType.DIAGNOSTIC);
+                             //                              NotificationType.DIAGNOSTIC);
                             _connectThread.tryConnect(_netModule.UsersStructure, _netModule.CurrentUser,
                                                       UserChosen);
                         }
@@ -137,46 +139,10 @@ namespace Filechronization.Network.System.MainParts
             _userConnectionMap.LinkCurrentUser(_netModule.CurrentUser, _loopback);
             //NetworkModule.SendNotification("Starting server", NotificationType.DIAGNOSTIC);
             Console.WriteLine("DD");
-            _connectThread.StartServer();
+            //_connectThread.StartServer();
         }
 
-        /// <summary>
-        ///   zlecenie utworzenia polaczenia na dany adres
-        /// </summary>
-        /// <param name = "address">dany adres</param>
-        /// <returns></returns>
-        public Peer BeginConnect(IPAddress address)
-        {
-            RemotePeer peer=null;
-            if (_connections.TryGetValue(new IPEndPoint(address, NetworkModule.portNr), out peer))
-            {
-                return peer;
-            }
-
-
-            if (!_unfinishedConnections.TryGetValue(address, out peer))
-            {
-                peer = new RemotePeer();
-                try
-                {
-                    peer.BeginConnectAsync(address, address, PeerConnectionResult);
-                    _unfinishedConnections.Add(address, peer);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    return null;
-                }
-            }
-            else
-            {
-                //NetworkModule.SendNotification("Possible bug in BeginConnect " + address);
-            }
-
-
-            return peer;
-        }
-
+      
 
         //#######################################
         // Metody obslugi zawierania polaczen: (wywolywane sa z obcych watkow)
@@ -199,42 +165,38 @@ namespace Filechronization.Network.System.MainParts
 
                             //  P.pr("Connected to user: " + user.login + " - " + peer.Address, Color.Blue);
                             //NetworkModule.SendNotification(
-                                "Connected to user: " + user.login + " - " + peer.EndPointAddress,
-                                NotificationType.RESOURCE);
+//                                "Connected to user: " + user.login + " - " + peer.EndPointAddress,
+//                                NotificationType.RESOURCE);
 
-                            peer = AddSuccessfulConnection(peer);
+                            
 
 
                             _netModule.TaskCenter.StartConnectionTask(peer);
                         }
                         else
                         {
-                            SharedContext.service.EnqueueMessage(new ToInterfaceLoginResult(true, null));
+                            //SharedContext.service.EnqueueMessage(new ToInterfaceLoginResult(true, null));
                             ChangeToArbiter();
                         }
                     });
         }
 
 
-        /// <summary>
-        ///   Wywolywana przy otrzymaniu polaczenia
-        /// </summary>
-        /// <param name = "client">Obiekt clienta z ktorego nadeszlo polaczenie</param>
-        public void ConnectionAccepted(TcpClient client)
+        public void ConnectionAccepted(RemotePeer peer)
         {
             _netQueue.Add(
                 delegate
                     {
                         // P.pr("Accepted from: " + client.Client.RemoteEndPoint, Color.Blue);
                         //NetworkModule.SendNotification("Accepted from: " + client.Client.RemoteEndPoint,
-                                                       NotificationType.RESOURCE);
+//                                                       NotificationType.RESOURCE);
 
-                        var peer = new RemotePeer(client);
-                        AddSuccessfulConnection(peer);
+                        
+                        // To jest bez sensu:
 
                         foreach (User user in _netModule.UsersStructure)
                         {
-                            if (user.isConnected && peer.EndPointAddress.Address.Equals(user.currentAddress.Address))
+                            if (user.isConnected && peer.Endpoint.Address.Equals(user.currentAddress.Address))
                             {
                                 _userConnectionMap.LinkUserAndConnection(user, peer);
                                 break;
@@ -244,36 +206,7 @@ namespace Filechronization.Network.System.MainParts
         }
 
 
-        /// <summary>
-        ///   wywolywana przy udanym lub nie polaczeniu z peerem zadanym w metodzie BeginConnect
-        /// </summary>
-        /// <param name = "peer">Obiekt zleconego polaczenia</param>
-        /// <param name = "stateObject">adres IP uzyty do polaczenia</param>
-        /// <param name = "success">jesli polaczenie sie udalo, == true</param>
-        public void PeerConnectionResult(RemotePeer peer, object stateObject, bool success)
-        {
-            _netQueue.Add(
-                delegate
-                    {
-                        if (success)
-                        {
-                            //P.pr("Nonblocking connection established.", Color.Blue);
-                            //NetworkModule.SendNotification("Successfully connected to peer: " + peer.EndPointAddress,
-                                                           NotificationType.RESOURCE);
-                            peer = AddSuccessfulConnection(peer);
-                            peer.SendAwaitingMessages();
-                        }
-                        else
-                        {
-                            //NetworkModule.SendNotification("Cannot connect to peer: " + stateObject,
-                                                           NotificationType.RESOURCE);
-                        }
-
-                        _unfinishedConnections.Remove((IPAddress) stateObject);
-                    });
-        }
-
-
+     
         /// <summary>
         ///   Nastapilo rozlaczenie ustanowionego wczesniej polaczenia
         /// </summary>
@@ -289,11 +222,13 @@ namespace Filechronization.Network.System.MainParts
                         {
                             var state = (StateNonArbiter) _netModule.NetworkState;
                             RemotePeer p;
-                            if (_connections.TryGetValue(state.Arbiter, out p) && p == peer)
-                                //if(_connections[state.Arbiter] == peer)
-                            {
-                                _netQueue.Add(() => _netModule.ChangeStateTo(new StateDisconnected(_netModule)));
-                            }
+
+                            
+                            //TODO: bez sensu:
+//                            if (_connections.TryGetValue(state.Arbiter, out p) && p == peer)
+//                            {
+//                                _netQueue.Add(() => _netModule.ChangeStateTo(new StateDisconnected(_netModule)));
+//                            }
                         }
 
 
@@ -311,32 +246,6 @@ namespace Filechronization.Network.System.MainParts
         //#######################################
 
 
-        /// <summary>
-        ///   Dodaje polaczenie do listy i rejestruje procedury obslugi zdarzen.
-        ///   wywolywana gdy w module potrzebna jest wiedza o tym polaczeniu czyli:
-        ///   po wybraniu peera do ktorego nastapi poczatek laczenia sie do sieci
-        ///   lub przy odebraniu polaczenia
-        ///   lub przy tworzeniu nieustanowionego jeszcze polaczenia DO usera w przypadku proby wyslania do niego wiadomosci
-        /// </summary>
-        /// <param name = "remotePeer">Obiekt polaczenia</param>
-        /// <returns></returns>
-        private RemotePeer AddSuccessfulConnection(RemotePeer remotePeer)
-        {
-            remotePeer.ObjectReceived += ObjectReceived;
-            remotePeer.ConnectionLost += ConnectionLost;
-            remotePeer.TryRestartTimer();
-            try
-            {
-                _connections.Add(remotePeer.EndPointAddress, remotePeer);
-            }
-            catch (ArgumentException)
-            {
-                RemotePeer previousPeer = _connections[remotePeer.EndPointAddress];
-                remotePeer.Disconnect();
-                return previousPeer;
-            }
-            return remotePeer;
-        }
 
         /// <summary>
         ///   Usuniecie polaczenia z listy, jesli polaczenie bylo przypisane do usera, jest on zwracany
@@ -345,7 +254,7 @@ namespace Filechronization.Network.System.MainParts
         /// <returns>obiekt usera (jesli polaczenie bylo przypisane do usera) lub null</returns>
         private User RemoveConnection(RemotePeer peer)
         {
-            _connections.Remove(peer.EndPointAddress);
+            
             //NetworkModule.SendNotification("Connections left: " + _connections.Count, NotificationType.DIAGNOSTIC);
 
             return _userConnectionMap.RemoveUserLink(peer);
@@ -356,13 +265,13 @@ namespace Filechronization.Network.System.MainParts
         /// </summary>
         /// <param name = "peer">Polaczenie, ktore otrzymalo obiekt z sieci</param>
         /// <param name = "netMessage">Otrzymana wiadomosc</param>
-        public void ObjectReceived(Peer peer, NetworkSend netMessage)
+        public void ObjectReceived(Peer peer, Message message)
         {
             _netQueue.Add(
                 delegate
                     {
                         User user = _userConnectionMap.GetUser(peer);
-                        _netModule.TaskCenter.ObjectReceived(peer, user, netMessage.message);
+                        _netModule.TaskCenter.ObjectReceived(peer, user, message);
                     });
         }
 
@@ -380,7 +289,8 @@ namespace Filechronization.Network.System.MainParts
             {
                 if (user.isConnected)
                 {
-                    peer = BeginConnect(user.currentAddress.Address);
+
+                    peer = _manager.Connect(this, user.currentAddress.Address);
                     _userConnectionMap.LinkUserAndConnection(user, peer);
                 }
                 else
@@ -390,33 +300,33 @@ namespace Filechronization.Network.System.MainParts
                 }
             }
 
-            peer.Send(new NetworkSend(peer.EndPointAddress, message));
+            peer.Send(message);
         }
 
 
-        public void HandleNetworkSend(NetworkSend netSend)
-        {
-            RemotePeer peer;
-            if (_connections.TryGetValue(netSend.reciver, out peer))
-            {
-                peer.Send(netSend);
-            }
-        }
+//        public void HandleNetworkSend(NetworkSend netSend)
+//        {
+//            RemotePeer peer;
+//            if (_connections.TryGetValue(netSend.reciver, out peer))
+//            {
+//                peer.Send(netSend.message);
+//            }
+//        }
 
 
         /// <summary>
         ///   Metoda wykonywana przez arbitra w przypadku pomyslnej autoryzacji uzytkownika
         /// </summary>
         /// <param name = "user">Poprawnie zautoryzowany uzytkownik</param>
-        /// <param name = "address">Adres zwiazany z polaczeniem uzytkownika</param>
-        public void EndUserLogin(User user, IPEndPoint address)
+        /// <param name = "userConn">Adres zwiazany z polaczeniem uzytkownika</param>
+        public void EndUserLogin(User user, Peer userConn)
         {
-            RemotePeer peer = _connections[address];
-            peer.Persistent = true;
-            //        user.currentAddress = address;
-            _userConnectionMap.SendToAll(new UserStateChanged(user.login, UserState.ONLINE, address));
 
-            _userConnectionMap.LinkUserAndConnection(user, peer);
+            userConn.Persistent = true;
+            //        user.currentAddress = address;
+            _userConnectionMap.SendToAll(new UserStateChanged(user.login, UserState.ONLINE, userConn.Endpoint));
+
+            _userConnectionMap.LinkUserAndConnection(user, userConn);
         }
 
         /// <summary>
@@ -461,10 +371,10 @@ namespace Filechronization.Network.System.MainParts
         /// <summary>
         ///   Wykonywana przez uzytkownika jesli udalo mu sie poprawnie zalogowac do sieci
         /// </summary>
-        /// <param name = "arbiterAddress">Adres arbitra</param>
+        /// <param name = "arbiterConn">Polaczenie arbitra</param>
         /// <param name = "arbiterLogin">Login arbitra</param>
         /// <param name = "userAddresses">Mapa z adresami aktualnie zalogowanych uzytkownikow</param>
-        public void EndLoginToNetwork(IPEndPoint arbiterAddress, string arbiterLogin,
+        public void EndLoginToNetwork(Peer arbiterConn, string arbiterLogin,
                                       Dictionary<string, IPAddress> userAddresses)
         {
             User arbiter = _netModule.UsersStructure[arbiterLogin];
@@ -475,17 +385,17 @@ namespace Filechronization.Network.System.MainParts
                 _netModule.UsersStructure[pair.Key].currentAddress = endpoint;
             }
 
-            _netModule.ChangeStateTo(new StateNonArbiter(_netModule, arbiterAddress));
+            _netModule.ChangeStateTo(new StateNonArbiter(_netModule, arbiterConn.Endpoint));
 
 
-            Peer connection = _connections[arbiterAddress];
-            connection.Persistent = true;
-            arbiter.currentAddress = arbiterAddress;
-            _userConnectionMap.LinkArbiter(arbiter, connection);
-            _userConnectionMap.LinkUserAndConnection(arbiter, connection);
+
+            arbiterConn.Persistent = true;
+            arbiter.currentAddress = arbiterConn.Endpoint;
+            _userConnectionMap.LinkArbiter(arbiter, arbiterConn);
+            _userConnectionMap.LinkUserAndConnection(arbiter, arbiterConn);
             _userConnectionMap.LinkCurrentUser(_netModule.CurrentUser, _loopback);
 
-            _connectThread.StartServer();
+//            _connectThread.StartServer();
         }
 
 

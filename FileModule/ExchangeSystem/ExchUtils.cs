@@ -6,13 +6,8 @@ namespace FileModule.ExchangeSystem
     /// <summary>
     /// Wlasciwosci liczbowe protokolu wymiany plikow
     /// </summary>
-    public class ExchUtils
+    public static class ExchUtils
     {
-
-        public ExchUtils()
-        {
-            
-        }
 
         /// <summary>
         ///   Rozmiar bloku: 16 kB = 2^14
@@ -28,12 +23,16 @@ namespace FileModule.ExchangeSystem
         public const int BlocksInPiece = StandardPieceSize/StandardBlockSize;
         public const int MaxActivePieces = 10;
 
-        public static long GetInFilePosition(BlockID block)
+        public static long GetInFilePosition(BlockInfo block)
         {
             return ((long)block.PieceIndex << StandardPieceSize) + block.InPieceOffset;
             
         }
+        public static long GetInFilePosition(PieceInfo piece)
+        {
+            return (long) piece.Index << StandardPieceSize;
 
+        }
 
         public static int BlockCount(int sizeInBytes)
         {

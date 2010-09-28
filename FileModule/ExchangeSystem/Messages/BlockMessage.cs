@@ -10,22 +10,22 @@ namespace FileModule.ExchangeSystem.Messages
     [Serializable]
     public class BlockMessage : UserMessage
     {
-        private readonly BlockID blockId;
+        private readonly BlockInfo blockInfo;
 
-        public BlockMessage(string fileName, int pieceIndex, short inPieceOffset)
+        public BlockMessage(RelPath fileName, int pieceIndex, short inPieceOffset)
             
         {
-            blockId = new BlockID(fileName, pieceIndex, inPieceOffset);
+            blockInfo = new BlockInfo(fileName, pieceIndex, inPieceOffset);
         }
 
-        public BlockMessage(BlockID blockId)
+        public BlockMessage(BlockInfo blockInfo)
         {
-            this.blockId = blockId;
+            this.blockInfo = blockInfo;
         }
 
-        public BlockID BlockId
+        public BlockInfo BlockInfo
         {
-            get { return blockId; }
+            get { return blockInfo; }
         }
     }
 }

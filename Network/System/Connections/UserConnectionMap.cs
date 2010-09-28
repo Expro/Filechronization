@@ -161,7 +161,7 @@ namespace Filechronization.Network.System.Connections
         {
             foreach (Peer peer in _userConnections.Values)
             {
-                peer.Send(new NetworkSend(peer.EndPointAddress, message));
+                peer.Send( message);
             }
         }
         /// <summary>
@@ -170,7 +170,7 @@ namespace Filechronization.Network.System.Connections
         /// <param name="message"></param>
         public void SendToArbiter(Message message)
         {
-            _arbiterConnection.Send(new NetworkSend(_arbiterConnection.EndPointAddress, message));
+            _arbiterConnection.Send( message);
         }
     }
 }

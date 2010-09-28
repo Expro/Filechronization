@@ -9,11 +9,11 @@ namespace FileModule.ExchangeSystem.Messages
     [Serializable]
     public class BlockRequest : BlockMessage
     {
-        public BlockRequest(string fileName, int pieceIndex, short inPieceOffset)
+        public BlockRequest(RelPath fileName, int pieceIndex, short inPieceOffset)
             : base(fileName, pieceIndex, inPieceOffset)
         {
         }
-        public BlockRequest(BlockID blockId) :base(blockId)
+        public BlockRequest(BlockInfo blockInfo) :base(blockInfo)
         {
             
         }

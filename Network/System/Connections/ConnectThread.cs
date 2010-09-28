@@ -21,43 +21,22 @@ namespace Filechronization.Network.System.Connections
     /// </summary>
     public class ConnectThread
     {
-        private readonly Thread _connectThread;
+        
 
-        private readonly TcpListener _listener;
-
-
-        public event ConnectionAcceptedEventHandler ConnectionAccepted;
+        //public event ConnectionAcceptedEventHandler ConnectionAccepted;
 
         public ConnectThread()
         {
-            _listener = new TcpListener(IPAddress.Any, NetworkModule.portNr);
-            _connectThread = new Thread(ListenForConnections);
+            
+            
         }
 
-        public void StartServer()
-        {
-            _connectThread.Start();
-        }
+       
 
         public delegate void UserChosenCallback(object user, RemotePeer peer);
 
 
-        public void ListenForConnections()
-        {
-            _listener.Start();
-
-            while (true)
-            {
-                try
-                {
-                    ConnectionAccepted(_listener.AcceptTcpClient());
-                }
-                catch (SocketException e)
-                {
-                    //NetworkModule.SendNotification(e, NotificationType.ERROR);
-                }
-            }
-        }
+        
 
 
         public void tryConnect(Users userList, User currentUser, UserChosenCallback callback)

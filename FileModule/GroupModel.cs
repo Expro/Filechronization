@@ -8,12 +8,17 @@ namespace FileModule
 
     public class GroupModel
     {
-        public List<string> folderList;
+        private List<string> _folderList;
+
+        public List<string> FolderList
+        {
+            get { return _folderList; }
+        }
 
         public GroupModel(IEnumerable<string> folders)
         {
-            folderList = new List<string>();
-            folderList.AddRange(folders);
+            _folderList = new List<string>(folders);
+           
         }
     }
 }

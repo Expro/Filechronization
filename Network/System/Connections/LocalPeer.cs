@@ -12,18 +12,15 @@ using Filechronization.Network.Messages;
     
 namespace Filechronization.Network.System.Connections
 {
+    using Modularity.Messages;
 
     // Loopback na siebie
     public class LocalPeer : Peer
     {
         private readonly NetworkModule _netModule;
 
-        // private IPAddress _address;
-
-
+        
         public LocalPeer(NetworkModule netModule)
-
-
         {
             _netModule = netModule;
         }
@@ -39,43 +36,20 @@ namespace Filechronization.Network.System.Connections
             set { throw new InvalidOperationException(); }
         }
 
-        public override IPEndPoint EndPointAddress
+        public override IPEndPoint Endpoint
         {
             get { return new IPEndPoint(IPAddress.Loopback, 0); }
         }
 
-        public override void Disconnect()
+        
+
+        public override void Send(Message netMessage)
         {
+
+            _netModule.netQueue.Add(() =>
+                _netModule.PeerCenter.ObjectReceived(this, netMessage));
         }
 
 
-        public override void Send(NetworkSend netMessage)
-        {
-            if (netMessage.message is TaskMessage)
-            {
-                var task = (TaskMessage) netMessage.message;
-            }
-            else
-            {
-
-            }
-
-
-            _netModule.netQueue.Add(
-                delegate { OnObjectReceived(netMessage); });
-        }
-
-//        public override void StopTimer()
-//        {
-//        }
-
-        public override void TryRestartTimer()
-        {
-        }
-
-        public override void AfterConnect(AfterConnectExec exec)
-        {
-            exec();
-        }
     }
 }

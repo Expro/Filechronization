@@ -8,7 +8,7 @@ namespace FileModule.Tasks
 
     public class FileCreatedMessage
     {
-        private FileDescriptor descriptor;
+        private FsFile<RelPath> descriptor;
 
         private PieceHash[] hashes;
         private string userLogin;

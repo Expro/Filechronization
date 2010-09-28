@@ -13,7 +13,7 @@ namespace FileModule.ExchangeSystem
         
 
 
-        private readonly PieceID pieceId;
+        private readonly PieceInfo pieceInfo;
         private readonly int pieceByteSize;
         private readonly int blocksCount;
         private readonly List<BlockStatus> blocks;
@@ -26,15 +26,15 @@ namespace FileModule.ExchangeSystem
 
         
 
-        public ActivePiece(string fileName, int pieceIndex, int pieceByteSize)
-            :this(new PieceID(fileName,pieceIndex),pieceByteSize )
+        public ActivePiece(RelPath fileName, int pieceIndex, int pieceByteSize)
+            :this(new PieceInfo(fileName,pieceIndex),pieceByteSize )
         {
             
             
         }
-        public ActivePiece(PieceID piece, int pieceByteSize)
+        public ActivePiece(PieceInfo piece, int pieceByteSize)
         {
-            this.pieceId = piece;
+            this.pieceInfo = piece;
             this.pieceByteSize = pieceByteSize;
             blocksCount = ExchUtils.BlockCount(pieceByteSize);
 
@@ -56,7 +56,7 @@ namespace FileModule.ExchangeSystem
         }
 
 
-        public BlockID RequestNextBlock()
+        public BlockInfo RequestNextBlock()
         {
             short ret = currentPosition;
             blocks[currentPosition] = BlockStatus.Requested;
@@ -70,17 +70,17 @@ namespace FileModule.ExchangeSystem
                 currentPosition += ExchUtils.StandardBlockSize;
             }
             
-            return new BlockID(pieceId, ret);
+            return new BlockInfo(pieceInfo, ret);
         }
 
-        public bool WasRequested(BlockID blockId)
+        public bool WasRequested(BlockInfo blockInfo)
         {
 
-            return blocks[blockId.InPieceOffset] == BlockStatus.Requested;
+            return blocks[blockInfo.InPieceOffset] == BlockStatus.Requested;
         }
-        public void ReceivedBlock(BlockID blockId)
+        public void ReceivedBlock(BlockInfo blockInfo)
         {
-            blocks[blockId.InPieceOffset] = BlockStatus.Received;
+            blocks[blockInfo.InPieceOffset] = BlockStatus.Received;
 
             receivedCount++;
 
@@ -95,11 +95,11 @@ namespace FileModule.ExchangeSystem
         }
 
 
-        public PieceID PieceId
+        public PieceInfo PieceInfo
         {
             get
             {
-                return pieceId;
+                return pieceInfo;
             }
         }
         public bool Complete

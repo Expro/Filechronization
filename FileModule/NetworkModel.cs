@@ -16,7 +16,7 @@ namespace FileModule
 
 		public NetworkModel(string path)
 		{
-			MainPath = new MainStoragePath(path);
+			MainPath = new MainStoragePath((AbsPath) path);
 			GroupList = new List<GroupModel>();
 		}
 	}

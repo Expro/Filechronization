@@ -11,22 +11,18 @@
     [Module]
     public class NewFileModule
     {
-        public MessageDispatcher dispatcher;
-        public FileWatcher fileWatcher;
-        public TableOverseer tableOverseer;
-
+//        public MessageDispatcher dispatcher;
+//        public FileWatcher fileWatcher;
+//        public TableOverseer tableOverseer;
+        public NetworkContext _context;
 
         public NewFileModule(NetworkModel network)
         {
-            Network = new NetworkModel(@"C:\Test2");
-            Network.GroupList.Add(new GroupModel(new[] {"Fol1", "Fol2"}));
+            network = new NetworkModel(@"C:\Test2");
+            network.GroupList.Add(new GroupModel(new[] {"Fol1", "Fol2"}));
 
-
-            tableOverseer = new TableOverseer(Network);
-
-            fileWatcher = new FileWatcher(this);
-
-            dispatcher = new MessageDispatcher(this);
+            _context = new NetworkContext(this, network, network.MainPath);
+//            tableOverseer = new TableOverseer(Network);
 
 
             LoginEnded();
@@ -44,13 +40,13 @@
             // send to user (Arbiter - User)
         }
 
-        public NetworkModel Network { get; set; }
+//        public NetworkModel Network { get; set; }
 
 
         public void LoginEnded()
         {
-            tableOverseer.IndexAllFiles();
-            fileWatcher.Active = true;
+            _context.TableOverseer.IndexAllFiles();
+            _context.FileWatcher.Active = true;
         }
     }
 }

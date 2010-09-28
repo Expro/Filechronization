@@ -11,14 +11,14 @@ namespace FileModule.ExchangeSystem.Messages
     {
         private readonly byte[] data;
 
-        public BlockTransfer(string fileName, int pieceIndex, byte inPieceOffset, byte[] data)
+        public BlockTransfer(RelPath fileName, int pieceIndex, byte inPieceOffset, byte[] data)
             : base(fileName, pieceIndex, inPieceOffset)
         {
             this.data = data;
         }
 
         public BlockTransfer(BlockRequest message, byte[] bytes)
-            : base(message.BlockId.FileName, message.BlockId.PieceIndex, message.BlockId.InPieceOffset)
+            : base(message.BlockInfo.RelFilePath, message.BlockInfo.PieceIndex, message.BlockInfo.InPieceOffset)
         {
             data = bytes;
         }

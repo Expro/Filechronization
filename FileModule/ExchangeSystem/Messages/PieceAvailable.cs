@@ -9,7 +9,7 @@ namespace FileModule.ExchangeSystem.Messages
     [Serializable]
     public class PieceAvailable : PieceMessage
     {
-        public PieceAvailable(string fileName, int pieceIndex)
+        public PieceAvailable(RelPath fileName, int pieceIndex)
             : base(fileName, pieceIndex)
         {
         }

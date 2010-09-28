@@ -26,7 +26,7 @@
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Filechronization\bin\Debug\Modules\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
@@ -46,6 +46,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectionManager.cs" />
     <Compile Include="Messages\ArbiterChange.cs" />
     <Compile Include="Messages\ConnectionLost.cs" />
     <Compile Include="Messages\NetworkSend.cs" />
@@ -55,6 +56,19 @@
     <Compile Include="Messages\UserStateChanged.cs" />
     <Compile Include="NetQueue.cs" />
     <Compile Include="NetworkDescriptor.cs" />
+    <Compile Include="ConnectionManager\AsyncConnection.cs" />
+    <Compile Include="ConnectionManager\BadHeaderException.cs" />
+    <Compile Include="Bug.cs" />
+    <Compile Include="ConnectionManager\CannotConnectException.cs" />
+    <Compile Include="ConnectionManager\ConnectionClosedException.cs" />
+    <Compile Include="ConnectionManager\ConnectionManager.cs" />
+    <Compile Include="ConnectionManager\HostAddress.cs" />
+    <Compile Include="ConnectionManager\MultiPeerMap.cs" />
+    <Compile Include="ConnectionManager\NetHeader.cs" />
+    <Compile Include="ConnectionManager\NetworkObject.cs" />
+    <Compile Include="ConnectionManager\NetworksManager.cs" />
+    <Compile Include="ConnectionManager\PeerProxy.cs" />
+    <Compile Include="P.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="States\StateAbstract.cs" />
     <Compile Include="States\StateArbiter.cs" />
@@ -87,39 +101,32 @@
     <Compile Include="Tasks\Authorization\Messages\UserAuthorization.cs" />
     <Compile Include="Tasks\NetworkTask.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Messages" />
-    <Folder Include="States" />
-    <Folder Include="System" />
-    <Folder Include="System\Connections" />
-    <Folder Include="System\Exceptions" />
-    <Folder Include="System\MainParts" />
-    <Folder Include="Tasks" />
-    <Folder Include="Tasks\ArbiterInfo" />
-    <Folder Include="Tasks\ArbiterInfo\Messages" />
-    <Folder Include="Tasks\Authorization" />
-    <Folder Include="Tasks\Authorization\Messages" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\CommonClasses\CommonClasses.csproj">
       <Project>{56B4542E-3AA1-462B-8EAC-13E17744BB44}</Project>
       <Name>CommonClasses</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Modularity\Modularity.csproj">
       <Project>{7B22747F-AA0C-430C-9AE6-3FCD96603766}</Project>
       <Name>Modularity</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Security\Security.csproj">
       <Project>{F3F1EE3B-3A6F-4C86-9F28-6C65CC0BF23D}</Project>
       <Name>Security</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Tasks\Tasks.csproj">
       <Project>{A5AD0D10-B9D9-4FD4-931D-C84588D37382}</Project>
       <Name>Tasks</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\UserManagement\UserManagement.csproj">
       <Project>{351C22EB-698A-4AAA-888A-A787625C18F0}</Project>
       <Name>UserManagement</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />

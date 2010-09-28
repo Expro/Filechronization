@@ -287,7 +287,6 @@ namespace CodeManagement
 			representatives.Remove(details);
 		}
 		
-		
 		protected internal CodeRepresentative GetRepresentative(CodeDetails details)
 		{
 			Contract.Requires(details != null);
@@ -312,7 +311,6 @@ namespace CodeManagement
 		#endregion
 		
 		#region Constuctors
-		
 		public CodeManager()
 		{
 			Author[] author = new Author[1];
@@ -403,7 +401,6 @@ namespace CodeManagement
 				GC.Collect();
 		}
 		
-		
 		public bool InitializeAndRunModules()
 		{
 			bool isSuccess = true;
@@ -448,7 +445,6 @@ namespace CodeManagement
 			
 			return areModulesLoaded;
 		}
-		
 		
 		public MarshalByRefObject ProvideSharedCode(string entityName)
 		{
@@ -522,23 +518,30 @@ namespace CodeManagement
 				throw new ObjectDisposedException(ToString());
 		}
 		
-		
 		public void Dispose(bool disposeManagedResources)
 		{
 			int i = 0;
 			
 			if (!Disposed)
 			{
-				foreach (CodeDetails details in representatives.Keys)
+				try
 				{
-					if (disposeManagedResources)
-						OnProgress("Disposing resources", details.ToString(), i++, representatives.Count);
-					UnloadDomain(details);
-				}
-				modulesLock.Dispose();
+					foreach (CodeDetails details in representatives.Keys)
+					{
+						if (disposeManagedResources)
+							OnProgress("Disposing resources", details.ToString(), i++, representatives.Count);
+						UnloadDomain(details);
+					}
+					
+					modulesLock.Dispose();
 			
-				GC.SuppressFinalize(this);
-				disposed = true;
+					GC.SuppressFinalize(this);
+					disposed = true;
+				}
+				catch (InvalidOperationException)
+				{
+					Dispose(disposeManagedResources);
+				}
 			}
 		}
 		#endregion

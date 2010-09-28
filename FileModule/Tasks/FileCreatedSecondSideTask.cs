@@ -18,7 +18,7 @@ namespace FileModule.Tasks
         {
             var fileCreated = (SingleFileMessage) message;
 
-            var path = fileModule.Network.MainPath.CreateFullPath(fileCreated.RelativePath);
+          //  var path = fileModule._context.Path.ToFull(fileCreated.RelativePath);
 
 
             return 0;

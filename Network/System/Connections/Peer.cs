@@ -11,6 +11,8 @@ using Filechronization.Network.Messages;
     
 namespace Filechronization.Network.System.Connections
 {
+    using Modularity.Messages;
+
     public delegate void ObjectReceivedEventHandler(Peer sender, NetworkSend netMessage);
 
     public delegate void AfterConnectExec();
@@ -20,12 +22,12 @@ namespace Filechronization.Network.System.Connections
     /// </summary>
     public abstract class Peer
     {
-        public event ObjectReceivedEventHandler ObjectReceived;
 
 
-        public virtual IPEndPoint EndPointAddress
+
+        public abstract IPEndPoint Endpoint
         {
-            get { return new IPEndPoint(IPAddress.Loopback, 0); }
+            get;
         }
         /// <summary>
         /// Oznacza ze polaczenie jest aktywne
@@ -36,58 +38,14 @@ namespace Filechronization.Network.System.Connections
         /// </summary>
         public abstract bool Persistent { get; set; }
 
-        /// <summary>
-        ///  Otrzymano obiekt
-        /// </summary>
-        /// <param name="obj">Otrzymany obiekt</param>
-
-        protected virtual void OnObjectReceived(object obj)
-        {
-            if (ObjectReceived != null)
-            {
-                if (obj is NetworkSend)
-                {
-                    var netMessage = (NetworkSend) obj;
-                    if (netMessage.message is TaskMessage)
-                    {
-                        var task = (TaskMessage) netMessage.message;
-                    }
-                    else
-                    {
-						}
-
-                    ObjectReceived(this, netMessage);
-                }
-                else
-                {
-                    //NetworkModule.SendNotification("Received unknown object: " + obj, NotificationType.WARNING);
-                }
-            }
-            else
-            {
-                //NetworkModule.SendNotification("ObjectReceived == null", NotificationType.ERROR);
-            }
-        }
-
-        /// <summary>
-        /// Rozlaczenie aktywnego polaczenia
-        /// </summary>
-        public abstract void Disconnect();
+        
         /// <summary>
         /// Wyslanie wiadomosci przez polaczenie
         /// </summary>
         /// <param name="message">Wiadomosc do wyslania</param>
-        public abstract void Send(NetworkSend message);
+        public abstract void Send(Message message);
 
-        /// <summary>
-        /// Proba zresetowania licznika rozlaczenia
-        /// </summary>
-        public abstract void TryRestartTimer();
+        
 
-        /// <summary>
-        /// Zlecenie wykonania metody po polaczeniu
-        /// </summary>
-        /// <param name="exec">Metoda do wykonania</param>
-        public abstract void AfterConnect(AfterConnectExec exec);
     }
 }

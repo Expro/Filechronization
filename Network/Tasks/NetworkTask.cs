@@ -23,9 +23,9 @@ namespace Filechronization.Network.Tasks
             _netModule = netModule;
         }
 
-        protected void SendMessage(IPEndPoint endpoint, Message message)
-        {
-            _netModule.PeerCenter.HandleNetworkSend(new NetworkSend(endpoint, CreateTaskMessage(message)));
-        }
+//        protected void SendMessage(IPEndPoint endpoint, Message message)
+//        {
+//            _netModule.PeerCenter.HandleNetworkSend(new NetworkSend(endpoint, CreateTaskMessage(message)));
+//        }
     }
 }

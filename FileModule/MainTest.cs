@@ -10,6 +10,7 @@ namespace FileModule
     {
         public static void Main()
         {
+            
             var mod = new NewFileModule(null);
 
             while (Console.ReadLine() != "q")
