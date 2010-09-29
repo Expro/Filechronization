@@ -1,19 +1,11 @@
-﻿/*
- * Author: Piotr Trzpil
- */
+﻿// Author: Piotr Trzpil
 
 #region Usings
-using Filechronization.Network.System.Connections;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using Filechronization.Network.Messages;
-using Filechronization.Modularity.Messages;
-using Filechronization.Network.States;
-using Filechronization.UserManagement;
+
+
+
 #endregion
+
 /*
  * 
  * PeerCenter;
@@ -25,22 +17,40 @@ using Filechronization.UserManagement;
  * w przypadku rozlaczenia lub niemozliwosci polaczenia -
  * - otrzymuje notyfikacje ConnectionClosed
  */
-namespace Filechronization.Network.System.MainParts
+
+namespace Network.System.MainParts
 {
-    using ConsoleApplication1;
+    #region Usings
+
+    using Connections;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.UserManagement;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Net;
+    using global::System.Threading;
+    using Messages;
+    using Network.Connections;
+    using States;
+
+    #endregion
 
     /// <summary>
     ///   Modul zarzadzajacy polaczeniami i ich skojarzeniami z uzytkownikami
     /// </summary>
     public class PeerCenter
     {
-        private readonly NetworkModule _netModule;
-
+        /// <summary>
+        ///   Obiekt zajmujacy sie polaczeniami na nizszym poziomie
+        /// </summary>
+        private readonly ConnectThread _connectThread;
 
         /// <summary>
-        ///   mapa asocjacji polaczen z uzytkownikami
+        ///   Obiekt polaczenia zwrotnego.
         /// </summary>
-        private readonly UserConnectionMap _userConnectionMap;
+        private readonly LocalPeer _loopback;
+
+        private readonly NetworkModule _netModule;
 
 
         /// <summary>
@@ -48,20 +58,16 @@ namespace Filechronization.Network.System.MainParts
         /// </summary>
         private readonly NetQueue _netQueue;
 
-        /// <summary>
-        ///   Obiekt zajmujacy sie polaczeniami na nizszym poziomie
-        /// </summary>
-        private readonly ConnectThread _connectThread;
-
 
         private readonly Timer _networkConnectTimer;
 
         /// <summary>
-        ///   Obiekt polaczenia zwrotnego.
+        ///   mapa asocjacji polaczen z uzytkownikami
         /// </summary>
-        private readonly LocalPeer _loopback;
+        private readonly UserConnectionMap _userConnectionMap;
 
-  	    private NetworksManager _manager;
+        private NetworksManager _manager;
+
         /// <summary>
         ///   Tworzy modul zarzadzajacy polaczeniami
         /// </summary>
@@ -70,7 +76,7 @@ namespace Filechronization.Network.System.MainParts
         {
             _netModule = netModule;
             _netQueue = netModule.netQueue;
-            
+
 
             _loopback = new LocalPeer(_netModule);
             //_loopback.ObjectReceived += ObjectReceived;
@@ -78,8 +84,6 @@ namespace Filechronization.Network.System.MainParts
 
 
             _connectThread = new ConnectThread();
-
-            
 
 
             // _netQueue.Register(typeof (NetworkSend), HandleNetworkSend);
@@ -94,14 +98,15 @@ namespace Filechronization.Network.System.MainParts
         /// </summary>
         public void StartConnectToNetwork()
         {
-            if (!UserAddressesControl.SarbiterCheckBox.Checked)
-            {
-                _networkConnectTimer.Change(500, Timeout.Infinite);
-            }
-            else
-            {
-                ChangeToArbiter();
-            }
+            throw new NotImplementedException();
+//            if (!UserAddressesControl.SarbiterCheckBox.Checked)
+//            {
+//                _networkConnectTimer.Change(500, Timeout.Infinite);
+//            }
+//            else
+//            {
+//                ChangeToArbiter();
+//            }
         }
 
         /// <summary>
@@ -112,19 +117,19 @@ namespace Filechronization.Network.System.MainParts
         {
             _netQueue.Add(
                 delegate
+                {
+                    if (_netModule.NetworkState is StateDisconnected)
                     {
-                        if (_netModule.NetworkState is StateDisconnected)
-                        {
-                            //NetworkModule.SendNotification("Trying connect to network...",
-                             //                              NotificationType.DIAGNOSTIC);
-                            _connectThread.tryConnect(_netModule.UsersStructure, _netModule.CurrentUser,
-                                                      UserChosen);
-                        }
-                        else
-                        {
-                            _networkConnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        }
-                    });
+                        //NetworkModule.SendNotification("Trying connect to network...",
+                        //                              NotificationType.DIAGNOSTIC);
+                        _connectThread.tryConnect(_netModule.UsersStructure, _netModule.CurrentUser,
+                                                  UserChosen);
+                    }
+                    else
+                    {
+                        _networkConnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    }
+                });
         }
 
 
@@ -142,7 +147,6 @@ namespace Filechronization.Network.System.MainParts
             //_connectThread.StartServer();
         }
 
-      
 
         //#######################################
         // Metody obslugi zawierania polaczen: (wywolywane sa z obcych watkow)
@@ -158,27 +162,25 @@ namespace Filechronization.Network.System.MainParts
         {
             _netQueue.Add(
                 delegate
+                {
+                    if (peer != null)
                     {
-                        if (peer != null)
-                        {
-                            User user = _netModule.UsersStructure[(string) userInfo];
+                        User user = _netModule.UsersStructure[(string) userInfo];
 
-                            //  P.pr("Connected to user: " + user.login + " - " + peer.Address, Color.Blue);
-                            //NetworkModule.SendNotification(
+                        //  P.pr("Connected to user: " + user.login + " - " + peer.Address, Color.Blue);
+                        //NetworkModule.SendNotification(
 //                                "Connected to user: " + user.login + " - " + peer.EndPointAddress,
 //                                NotificationType.RESOURCE);
 
-                            
 
-
-                            _netModule.TaskCenter.StartConnectionTask(peer);
-                        }
-                        else
-                        {
-                            //SharedContext.service.EnqueueMessage(new ToInterfaceLoginResult(true, null));
-                            ChangeToArbiter();
-                        }
-                    });
+                        _netModule.TaskCenter.StartConnectionTask(peer);
+                    }
+                    else
+                    {
+                        //SharedContext.service.EnqueueMessage(new ToInterfaceLoginResult(true, null));
+                        ChangeToArbiter();
+                    }
+                });
         }
 
 
@@ -186,27 +188,26 @@ namespace Filechronization.Network.System.MainParts
         {
             _netQueue.Add(
                 delegate
-                    {
-                        // P.pr("Accepted from: " + client.Client.RemoteEndPoint, Color.Blue);
-                        //NetworkModule.SendNotification("Accepted from: " + client.Client.RemoteEndPoint,
+                {
+                    // P.pr("Accepted from: " + client.Client.RemoteEndPoint, Color.Blue);
+                    //NetworkModule.SendNotification("Accepted from: " + client.Client.RemoteEndPoint,
 //                                                       NotificationType.RESOURCE);
 
-                        
-                        // To jest bez sensu:
 
-                        foreach (User user in _netModule.UsersStructure)
+                    // To jest bez sensu:
+
+                    foreach (User user in _netModule.UsersStructure)
+                    {
+                        if (user.isConnected && peer.Endpoint.Address.Equals(user.currentAddress.Address))
                         {
-                            if (user.isConnected && peer.Endpoint.Address.Equals(user.currentAddress.Address))
-                            {
-                                _userConnectionMap.LinkUserAndConnection(user, peer);
-                                break;
-                            }
+                            _userConnectionMap.LinkUserAndConnection(user, peer);
+                            break;
                         }
-                    });
+                    }
+                });
         }
 
 
-     
         /// <summary>
         ///   Nastapilo rozlaczenie ustanowionego wczesniej polaczenia
         /// </summary>
@@ -217,34 +218,33 @@ namespace Filechronization.Network.System.MainParts
 
             _netQueue.Add(
                 delegate
+                {
+                    if (_netModule.NetworkState is StateNonArbiter)
                     {
-                        if (_netModule.NetworkState is StateNonArbiter)
-                        {
-                            var state = (StateNonArbiter) _netModule.NetworkState;
-                            RemotePeer p;
+                        StateNonArbiter state = (StateNonArbiter) _netModule.NetworkState;
+                        RemotePeer p;
 
-                            
-                            //TODO: bez sensu:
+
+                        //TODO: bez sensu:
 //                            if (_connections.TryGetValue(state.Arbiter, out p) && p == peer)
 //                            {
 //                                _netQueue.Add(() => _netModule.ChangeStateTo(new StateDisconnected(_netModule)));
 //                            }
-                        }
+                    }
 
 
-                        User user = RemoveConnection(peer);
+                    User user = RemoveConnection(peer);
 
-                        // jesli z tym polaczeniem byl skojazony user, obiekt przekazywany jest glebiej
-                        if (user != null)
-                        {
-                            _netModule.TaskCenter.ObjectReceived(peer, user, new ConnectionLost());
-                        }
-                    });
+                    // jesli z tym polaczeniem byl skojazony user, obiekt przekazywany jest glebiej
+                    if (user != null)
+                    {
+                        _netModule.TaskCenter.ObjectReceived(peer, user, new ConnectionLost());
+                    }
+                });
         }
 
 
         //#######################################
-
 
 
         /// <summary>
@@ -254,7 +254,6 @@ namespace Filechronization.Network.System.MainParts
         /// <returns>obiekt usera (jesli polaczenie bylo przypisane do usera) lub null</returns>
         private User RemoveConnection(RemotePeer peer)
         {
-            
             //NetworkModule.SendNotification("Connections left: " + _connections.Count, NotificationType.DIAGNOSTIC);
 
             return _userConnectionMap.RemoveUserLink(peer);
@@ -269,10 +268,10 @@ namespace Filechronization.Network.System.MainParts
         {
             _netQueue.Add(
                 delegate
-                    {
-                        User user = _userConnectionMap.GetUser(peer);
-                        _netModule.TaskCenter.ObjectReceived(peer, user, message);
-                    });
+                {
+                    User user = _userConnectionMap.GetUser(peer);
+                    _netModule.TaskCenter.ObjectReceived(peer, user, message);
+                });
         }
 
 
@@ -289,7 +288,6 @@ namespace Filechronization.Network.System.MainParts
             {
                 if (user.isConnected)
                 {
-
                     peer = _manager.Connect(this, user.currentAddress.Address);
                     _userConnectionMap.LinkUserAndConnection(user, peer);
                 }
@@ -321,7 +319,6 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "userConn">Adres zwiazany z polaczeniem uzytkownika</param>
         public void EndUserLogin(User user, Peer userConn)
         {
-
             userConn.Persistent = true;
             //        user.currentAddress = address;
             _userConnectionMap.SendToAll(new UserStateChanged(user.login, UserState.ONLINE, userConn.Endpoint));
@@ -379,14 +376,13 @@ namespace Filechronization.Network.System.MainParts
         {
             User arbiter = _netModule.UsersStructure[arbiterLogin];
 
-            foreach (var pair in userAddresses)
+            foreach (KeyValuePair<string, IPAddress> pair in userAddresses)
             {
                 IPEndPoint endpoint = pair.Value == null ? null : new IPEndPoint(pair.Value, NetworkModule.portNr);
                 _netModule.UsersStructure[pair.Key].currentAddress = endpoint;
             }
 
             _netModule.ChangeStateTo(new StateNonArbiter(_netModule, arbiterConn.Endpoint));
-
 
 
             arbiterConn.Persistent = true;

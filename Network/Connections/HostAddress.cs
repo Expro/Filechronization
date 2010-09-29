@@ -1,6 +1,18 @@
-namespace ConsoleApplication1
+// Author: Piotr Trzpil
+
+#region Usings
+
+
+
+#endregion
+
+namespace Network.Connections
 {
-    using System.Net;
+    #region Usings
+
+    using global::System.Net;
+
+    #endregion
 
     public class HostAddress : IPAddress
     {

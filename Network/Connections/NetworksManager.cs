@@ -1,23 +1,26 @@
-namespace ConsoleApplication1
+// Author: Piotr Trzpil
+
+namespace Network.Connections
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Threading.Tasks;
+    #region Usings
+
+    using System.Connections;
+    using System.MainParts;
     using Filechronization.Modularity.Messages;
-    using Filechronization.Network.Messages;
-    using Filechronization.Network.System.Connections;
-    using Filechronization.Network.System.MainParts;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Net;
+    using global::System.Threading.Tasks;
+    using Messages;
+
+    #endregion
 
     public class NetworksManager
     {
+        private readonly ConnectionManager _manager;
 
-        
-
-        private ConnectionManager _manager;
-        private Dictionary<NetworkID, PeerCenter> _registeredNetworks;
-
-        private MultiPeerMap _multiPeerMap;
+        private readonly MultiPeerMap _multiPeerMap;
+        private readonly Dictionary<NetworkID, PeerCenter> _registeredNetworks;
 
         public NetworksManager(ConnectionManager manager)
         {
@@ -25,27 +28,25 @@ namespace ConsoleApplication1
             _registeredNetworks = new Dictionary<NetworkID, PeerCenter>();
 
 
-            
             _multiPeerMap = new MultiPeerMap(this);
 
-            
 
             _manager.ObjectReceived += ObjectReceived;
-       
+
             _manager.ConnectionClosed += ConnectionClosed;
         }
+
         private void ConnectionClosed(PeerProxy proxy)
         {
-            
-
-            _multiPeerMap.ForEachNetwork(proxy, 
-                (net, peer) => net.ConnectionLost(peer));
+            _multiPeerMap.ForEachNetwork(proxy,
+                                         (net, peer) => net.ConnectionLost(peer));
 
             _multiPeerMap.Remove(proxy);
         }
+
         public void SetPersistent(RemotePeer remotePeer, PeerProxy proxy, bool value)
         {
-            if(value)
+            if (value)
             {
                 proxy.Persistent = true;
             }
@@ -65,7 +66,7 @@ namespace ConsoleApplication1
 //                {
 //                    net.ConnectionAccepted(peer);
 //                }
-                
+
                 net.ObjectReceived(peer, netObject.message);
             }
             else
@@ -79,7 +80,6 @@ namespace ConsoleApplication1
             _registeredNetworks.Add(null, net);
         }
 
-        
 
         private PeerCenter SelectNetwork(NetworkSend obj)
         {
@@ -92,24 +92,28 @@ namespace ConsoleApplication1
             {
                 throw new UnknownNetworkException();
             }
-            
         }
+
         private NetworkID ReadNetworkId(NetworkSend obj)
         {
             throw new NotImplementedException();
             throw new UnknownNetworkException();
         }
-        public RemotePeer Connect(PeerCenter net,IPAddress address)
+
+        public RemotePeer Connect(PeerCenter net, IPAddress address)
         {
+            
             return _multiPeerMap.GetOrCreatePeer(net, _manager.InstantConnect(address));
         }
+
         public Task<RemotePeer> ConnectTask(PeerCenter net, IPAddress address)
         {
+            
             return _manager.ConnectTask(address)
                 .ContinueWith(prev => _multiPeerMap.GetOrCreatePeer(net, prev.Result));
         }
-        
-        
+
+
         public void HandleSend(PeerProxy proxy, Message message)
         {
             NetworkSend send = PackMessage(message);
@@ -121,14 +125,13 @@ namespace ConsoleApplication1
             throw new NotImplementedException();
         }
 
+        #region Nested type: NetworkID
 
-
-        
         private class NetworkID
         {
         }
 
-        
+        #endregion
     }
 
     internal class UnknownNetworkException : Exception

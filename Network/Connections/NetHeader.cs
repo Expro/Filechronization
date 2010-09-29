@@ -1,17 +1,27 @@
-namespace ConsoleApplication1
+// Author: Piotr Trzpil
+
+#region Usings
+
+
+
+#endregion
+
+namespace Network.Connections
 {
-    using System;
-    using System.IO;
-    using System.Text;
+    #region Usings
+
+    using global::System;
+    using global::System.IO;
+    using global::System.Text;
+
+    #endregion
+
     /// <summary>
-    /// Header is combined from 8 ASCII letters 
-    /// and 4 bytes indicating length of object.
+    ///   Header is combined from 8 ASCII letters 
+    ///   and 4 bytes indicating length of object.
     /// </summary>
     public class NetHeader
     {
-
-        
-
         public const string Signature = "XCEAHEIM";
         public const int HeaderLength = 8 + 4;
 
@@ -42,7 +52,7 @@ namespace ConsoleApplication1
                 {
                     length = ReadLengthFromHeader(stream, position);
                 }
-                catch (BadHeaderException )
+                catch (BadHeaderException)
                 {
                     // prawdopodobnie powstanie wyjatek przy kolejnym 
                     // Deserialize, wiec ok.
@@ -62,8 +72,8 @@ namespace ConsoleApplication1
 
         public static byte[] CreateHeader(long length)
         {
-            byte[] s = Encoding.ASCII.GetBytes(NetHeader.Signature);
-            byte[] len = BitConverter.GetBytes((int)length);
+            byte[] s = Encoding.ASCII.GetBytes(Signature);
+            byte[] len = BitConverter.GetBytes((int) length);
             byte[] header = new byte[s.Length + len.Length];
             Array.Copy(s, 0, header, 0, s.Length);
             Array.Copy(len, 0, header, s.Length, len.Length);

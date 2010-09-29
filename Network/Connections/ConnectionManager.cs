@@ -1,13 +1,25 @@
-namespace ConsoleApplication1
+// Author: Piotr Trzpil
+
+#region Usings
+
+
+
+#endregion
+
+namespace Network.Connections
 {
     #region Usings
 
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -20,20 +32,11 @@ namespace ConsoleApplication1
         private const int PortNumber = 49334;
         private readonly Thread _connectThread;
 
+        private readonly Dictionary<IPEndPoint, AsyncConnection> _connections;
         private readonly TcpListener _listener;
 
-        private Dictionary<IPEndPoint, AsyncConnection> _connections;
 
-
-        private Dictionary<IPAddress, TcpClient> _unfinishedConnections;
-
-        public event Action<PeerProxy,object> ObjectReceived;
-        public event Action<PeerProxy> ConnectionClosed;
-        public event Action<PeerProxy> ConnectionAccepted;
-
-
-
-        
+        private readonly Dictionary<IPAddress, TcpClient> _unfinishedConnections;
 
         public ConnectionManager()
         {
@@ -41,10 +44,12 @@ namespace ConsoleApplication1
             _connectThread = new Thread(ListenForConnections);
             _connections = new Dictionary<IPEndPoint, AsyncConnection>();
             _unfinishedConnections = new Dictionary<IPAddress, TcpClient>();
-            
         }
 
-        
+        public event Action<PeerProxy, object> ObjectReceived;
+        public event Action<PeerProxy> ConnectionClosed;
+        public event Action<PeerProxy> ConnectionAccepted;
+
 
         public void StartServer()
         {
@@ -90,9 +95,10 @@ namespace ConsoleApplication1
 
         public PeerProxy InstantConnect(IPAddress address)
         {
-            return BeginConnect(address, Callback, null).Proxy;
+            return BeginConnect(address, InstantConnectCallback, null).Proxy;
         }
-        private void Callback(IAsyncResult result)
+
+        private void InstantConnectCallback(IAsyncResult result)
         {
             try
             {
@@ -100,13 +106,12 @@ namespace ConsoleApplication1
             }
             catch (ConnectionClosedException)
             {
-                
             }
             catch (CannotConnectException)
             {
-                
             }
         }
+
         public ProxyAsyncState BeginConnect(IPAddress address, AsyncCallback callback, object state)
         {
             AsyncConnection conn;
@@ -158,7 +163,7 @@ namespace ConsoleApplication1
                 connResult.Client.EndConnect(result);
 
                 AsyncConnection connection = new AsyncConnection(connResult.Client);
-                
+
                 lock (_connections)
                     _connections.Add((IPEndPoint) connResult.Client.Client.LocalEndPoint, connection);
 
@@ -247,23 +252,20 @@ namespace ConsoleApplication1
                 // Socket jest juz zamkniety
             }
         }
+
         public Task<PeerProxy> ConnectTask(IPAddress address)
         {
             return Task<PeerProxy>.Factory.FromAsync(BeginConnect, EndConnect, address, null);
         }
-
-        
-
-        
     }
 
-   // public delegate void AcceptedEventHandler(object sender, PeerProxy proxy);
+    // public delegate void AcceptedEventHandler(object sender, PeerProxy proxy);
 
     public class ProxyAsyncState : IAsyncResult
     {
         private readonly PeerProxy _peerProxy;
         private readonly object _state;
-        private WaitHandle _waitHandle;
+        private readonly WaitHandle _waitHandle;
 
         public ProxyAsyncState(PeerProxy peerProxy, object state)
         {
@@ -311,7 +313,7 @@ namespace ConsoleApplication1
         {
             _client = client;
         }
-        
+
         public TcpClient Client
         {
             get { return _client; }

@@ -1,25 +1,28 @@
-﻿/*
- * Author: Piotr Trzpil
- */
+﻿// Author: Piotr Trzpil
 
 #region Usings
-using Filechronization.Tasks.Messages;
-using System;
-using System.Net;
-using Filechronization.Network.System.MainParts;
-using Filechronization.Network.Messages;
+
+
+
 #endregion
-    
-namespace Filechronization.Network.System.Connections
+
+namespace Network.System.Connections
 {
-    using Modularity.Messages;
+    #region Usings
+
+    using Filechronization.Modularity.Messages;
+    using global::System;
+    using global::System.Net;
+    using MainParts;
+
+    #endregion
 
     // Loopback na siebie
     public class LocalPeer : Peer
     {
         private readonly NetworkModule _netModule;
 
-        
+
         public LocalPeer(NetworkModule netModule)
         {
             _netModule = netModule;
@@ -41,15 +44,11 @@ namespace Filechronization.Network.System.Connections
             get { return new IPEndPoint(IPAddress.Loopback, 0); }
         }
 
-        
 
         public override void Send(Message netMessage)
         {
-
             _netModule.netQueue.Add(() =>
-                _netModule.PeerCenter.ObjectReceived(this, netMessage));
+                                    _netModule.PeerCenter.ObjectReceived(this, netMessage));
         }
-
-
     }
 }

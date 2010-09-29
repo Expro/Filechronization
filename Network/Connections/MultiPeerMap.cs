@@ -1,14 +1,29 @@
-namespace ConsoleApplication1
-{
-    using System;
-    using System.Collections.Generic;
-    using Filechronization.Network.System.Connections;
-    using Filechronization.Network.System.MainParts;
+// Author: Piotr Trzpil
 
+#region Usings
+
+
+
+#endregion
+
+namespace Network.Connections
+{
+    #region Usings
+
+    using System.Connections;
+    using System.MainParts;
+    using global::System;
+    using global::System.Collections.Generic;
+
+    #endregion
+
+    /// <summary>
+    ///   Matches connections to multiple network handles
+    /// </summary>
     public class MultiPeerMap
     {
+        private readonly Dictionary<PeerProxy, ConnProperties> _connections;
         private readonly NetworksManager _manager;
-        private Dictionary<PeerProxy, ConnProperties> _connections;
 
         public MultiPeerMap(NetworksManager manager)
         {
@@ -38,13 +53,14 @@ namespace ConsoleApplication1
 
             return retValue;
         }
+
         public void ForEachNetwork(PeerProxy proxy, Action<PeerCenter, RemotePeer> action)
         {
-            var tmpList = new List<KeyValuePair<PeerCenter, RemotePeer>>();
+            List<KeyValuePair<PeerCenter, RemotePeer>> tmpList = new List<KeyValuePair<PeerCenter, RemotePeer>>();
 
             lock (_connections) tmpList.AddRange(_connections[proxy].Networks);
 
-            foreach (var pair in tmpList)
+            foreach (KeyValuePair<PeerCenter, RemotePeer> pair in tmpList)
             {
                 action(pair.Key, pair.Value);
             }
@@ -58,46 +74,33 @@ namespace ConsoleApplication1
                 _connections.Remove(proxy);
             }
         }
-//        public bool SetPersistent(RemotePeer peer, PeerProxy proxy, bool value)
-//        {
-//            var prop = _connections[proxy];
-//            if(prop.Persistent[peer])
-//        }
+
+        #region Nested type: ConnProperties
 
         private class ConnProperties
         {
-
-
-            private Dictionary<PeerCenter, RemotePeer> _owners;
-            private Dictionary<RemotePeer, bool> _persistent;
             private readonly NetworksManager _manager;
-            private PeerProxy _proxy;
-            public int PersistentCount
-            {
-                get;
-                set;
-            }
-
-            public Dictionary<RemotePeer, bool> Persistent
-            {
-                get { return _persistent; }
-            }
+            private readonly Dictionary<PeerCenter, RemotePeer> _owners;
+            private readonly PeerProxy _proxy;
+            private Dictionary<RemotePeer, bool> _persistent;
 
             public ConnProperties(NetworksManager manager, PeerProxy proxy)
             {
                 _manager = manager;
                 _proxy = proxy;
                 _owners = new Dictionary<PeerCenter, RemotePeer>();
+            }
 
+            public int PersistentCount { get; set; }
+
+            public Dictionary<RemotePeer, bool> Persistent
+            {
+                get { return _persistent; }
             }
 
             public Dictionary<PeerCenter, RemotePeer> Networks
             {
-                get
-                {
-                    return _owners;
-                }
-               
+                get { return _owners; }
             }
 
 
@@ -116,7 +119,6 @@ namespace ConsoleApplication1
             }
         }
 
-
-        
+        #endregion
     }
 }

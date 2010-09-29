@@ -1,15 +1,18 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.Tasks.ArbiterInfo
+﻿// Author: Piotr Trzpil
+namespace Network.Tasks.ArbiterInfo
 {
     #region Usings
 
+    using System.Connections;
     using System.MainParts;
+    using Filechronization.Modularity.Messages;
     using global::System.Net;
     using Messages;
-    using Modularity.Messages;
     using States;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -21,6 +24,14 @@ namespace Filechronization.Network.Tasks.ArbiterInfo
             AddHandler(typeof (ReqArbiterInfo), HandleReqArbiterInfo, 0);
         }
 
+        
+        public Peer PeerHandle
+        {
+            get
+            {
+                return key as Peer;
+            }
+        }
         public override bool CheckCondition()
         {
             return _netModule.NetworkState is StateConnected;
@@ -28,17 +39,11 @@ namespace Filechronization.Network.Tasks.ArbiterInfo
 
         public int HandleReqArbiterInfo(Message message)
         {
-            var taskMessage = (ReqArbiterInfo) message;
-            var state = (StateConnected) _netModule.NetworkState;
+            ReqArbiterInfo taskMessage = (ReqArbiterInfo) message;
+            StateConnected state = (StateConnected) _netModule.NetworkState;
 
-            SendMessage(Receiver, new ArbiterInfo(state.Arbiter));
+            PeerHandle.Send( new ArbiterInfo(state.Arbiter));
             return PHASE_END;
-        }
-
-
-        public IPEndPoint Receiver
-        {
-            get { return key as IPEndPoint; }
         }
     }
 }

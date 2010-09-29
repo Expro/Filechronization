@@ -1,45 +1,66 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.Tasks.ArbiterInfo
+﻿// Author: Piotr Trzpil
+namespace Network.Tasks.ArbiterInfo
 {
     #region Usings
 
+    using System.Connections;
     using System.MainParts;
+    using Filechronization.Modularity.Messages;
     using global::System.Net;
     using Messages;
-    using Modularity.Messages;
 
     #endregion
+
+    #region Usings
+
+    #endregion
+
     /// <summary>
-    /// Zadanie zapytania innego komputera o adres arbitra
+    ///   Zadanie zapytania innego komputera o adres arbitra
     /// </summary>
     public class ClientArbiterInfoTask : NetworkTask
     {
         /// <summary>
-        /// Tworzy nowe zadanie zapytania innego komputera o adres arbitra
+        ///   Tworzy nowe zadanie zapytania innego komputera o adres arbitra
         /// </summary>
-        /// <param name="netModule">Modul sieciowy</param>
+        /// <param name = "netModule">Modul sieciowy</param>
         public ClientArbiterInfoTask(NetworkModule netModule)
             : base(netModule, false)
         {
             AddHandler(typeof (ArbiterInfo), HandleArbiterInfo, 0);
         }
+
+        public IPEndPoint Receiver
+        {
+            get
+            {
+                return key as IPEndPoint;
+                //return (key is Peer) ? (Peer) key : null;
+            }
+        }
+        public Peer PeerHandle
+        {
+            get
+            {
+                return key as Peer;
+            }
+        }
         /// <summary>
-        /// Rozpoczyna komunikacje wysylajac zapytanie o adres arbitra
+        ///   Rozpoczyna komunikacje wysylajac zapytanie o adres arbitra
         /// </summary>
         public void Start()
         {
-            SendMessage(Receiver, new ReqArbiterInfo());
+            PeerHandle.Send( new ReqArbiterInfo());
         }
+
         /// <summary>
-        /// Obsluga otrzymanej wiadomosci z adresem arbitra
+        ///   Obsluga otrzymanej wiadomosci z adresem arbitra
         /// </summary>
-        /// <param name="message">Wiadmosc z adresem arbitra</param>
+        /// <param name = "message">Wiadmosc z adresem arbitra</param>
         /// <returns>Nowa faza</returns>
         public int HandleArbiterInfo(Message message)
         {
-            var infoMessage = (ArbiterInfo) message;
+            ArbiterInfo infoMessage = (ArbiterInfo) message;
 
             if (infoMessage.Arbiter == null)
             {
@@ -57,15 +78,6 @@ namespace Filechronization.Network.Tasks.ArbiterInfo
         public override bool CheckCondition()
         {
             return true;
-        }
-
-        public IPEndPoint Receiver
-        {
-            get
-            {
-                return key as IPEndPoint;
-                //return (key is Peer) ? (Peer) key : null;
-            }
         }
     }
 }

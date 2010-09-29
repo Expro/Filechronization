@@ -1,13 +1,15 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.Tasks.ArbiterInfo.Messages
+﻿// Author: Piotr Trzpil
+namespace Network.Tasks.ArbiterInfo.Messages
 {
     #region Usings
 
+    using Filechronization.Modularity.Messages;
     using global::System;
     using global::System.Net;
-    using Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

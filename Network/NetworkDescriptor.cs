@@ -1,26 +1,26 @@
-﻿/*
- * 
- * Author: Maciej Grabowski
- * 
- */
-
-namespace Filechronization.Network
+﻿// Author: Piotr Trzpil
+namespace Network
 {
-	#region
-	using global::System;
-	using global::System.Collections.Generic;
-	//using Authorization;
-	using Network.System.Connections;
-	using CommonClasses;
-	#endregion
-	
+    #region Usings
+
+    using Filechronization.CommonClasses;
+    using global::System.Collections.Generic;
+
+    #endregion
+
+    #region
+
+    //using Authorization;
+
+    #endregion
+
     public class NetworkDescriptor
     {
-        private string pName;
-        private string pLogin;
         //private Password pPassword;
-        private List<UnifiedAddress> pAddresses;
-		
+        private readonly List<UnifiedAddress> pAddresses;
+        private readonly string pLogin;
+        private readonly string pName;
+
         public NetworkDescriptor(string name, string login, string password)
         {
             pName = name;
@@ -28,31 +28,17 @@ namespace Filechronization.Network
             //pPassword = new Password(password);
             pAddresses = new List<UnifiedAddress>();
         }
-		
-        public void AddAddress(string IP, int port)
-        {
-            UnifiedAddress item = new UnifiedAddress(IP, port);
-			
-            if (!pAddresses.Contains(item))
-                pAddresses.Add(item);
-        }
-		
+
         public string name
         {
-            get
-            {
-                return pName;
-            }
+            get { return pName; }
         }
-		
+
         public string login
         {
-            get
-            {
-                return pLogin;
-            }
+            get { return pLogin; }
         }
-		
+
 //        public Password password
 //        {
 //            get
@@ -60,15 +46,18 @@ namespace Filechronization.Network
 //                return pPassword;
 //            }
 //        }
-		
+
         public List<UnifiedAddress> addresses
         {
-            get
-            {
-                return new List<UnifiedAddress>(pAddresses);
-            }
+            get { return new List<UnifiedAddress>(pAddresses); }
+        }
+
+        public void AddAddress(string IP, int port)
+        {
+            UnifiedAddress item = new UnifiedAddress(IP, port);
+
+            if (!pAddresses.Contains(item))
+                pAddresses.Add(item);
         }
     }
 }
-
-

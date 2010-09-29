@@ -1,11 +1,13 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.System.Exceptions
+﻿// Author: Piotr Trzpil
+namespace Network.System.Exceptions
 {
     #region Usings
 
     using global::System;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

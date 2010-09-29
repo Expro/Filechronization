@@ -1,16 +1,17 @@
-﻿/*
- * Author: Piotr Trzpil
- */
- using Filechronization.Tasks;
- 
-namespace Filechronization.Network.Tasks
+﻿// Author: Piotr Trzpil
+namespace Network.Tasks
 {
     #region Usings
 
     using System.MainParts;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.Tasks;
     using global::System.Net;
     using Messages;
-    using Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -23,9 +24,6 @@ namespace Filechronization.Network.Tasks
             _netModule = netModule;
         }
 
-//        protected void SendMessage(IPEndPoint endpoint, Message message)
-//        {
-//            _netModule.PeerCenter.HandleNetworkSend(new NetworkSend(endpoint, CreateTaskMessage(message)));
-//        }
+  
     }
 }

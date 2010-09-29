@@ -1,19 +1,22 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.States
+﻿// Author: Piotr Trzpil
+namespace Network.States
 {
     #region Usings
 
     using System.MainParts;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.UserManagement;
     using global::System;
     using global::System.Collections.Generic;
-    using Modularity.Messages;
-    using UserManagement;
 
     #endregion
+
+    #region Usings
+
+    #endregion
+
     /// <summary>
-    /// Reprezentuje stan aktualnego polaczenia do sieci
+    ///   Reprezentuje stan aktualnego polaczenia do sieci
     /// </summary>
     public abstract class StateAbstract
     {

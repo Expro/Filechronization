@@ -1,13 +1,14 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-
-namespace Filechronization.Network.Messages
+﻿// Author: Piotr Trzpil
+namespace Network.Messages
 {
     #region Usings
 
     using global::System;
     using global::System.Net;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -20,8 +21,8 @@ namespace Filechronization.Network.Messages
     [Serializable]
     public class UserStateChanged : NetworkUserMessage
     {
-        public readonly UserState State;
         public readonly IPEndPoint Address;
+        public readonly UserState State;
 
 //        public UserStateChanged(UserID id, UserState state)
 //            :base(id)

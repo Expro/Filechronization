@@ -1,14 +1,25 @@
-﻿namespace ConsoleApplication1
+﻿// Author: Piotr Trzpil
+
+#region Usings
+
+
+
+#endregion
+
+namespace Network.Connections
 {
     #region Usings
 
-    using System;
-    using System.IO;
-    using System.Net.Sockets;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.IO;
+    using global::System.Net.Sockets;
+    using global::System.Runtime.Serialization.Formatters.Binary;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -16,51 +27,59 @@
     {
         private const int BufferSize = 5000;
         private readonly TcpClient _client;
-        private readonly NetworkStream _netStream;
         private readonly byte[] _dataBuffer;
-        private readonly ManualResetEvent _waitHandle;
-        //private object _userState;
-        private Action<PeerProxy> _callback;
         private readonly BinaryFormatter _inFormatter;
-        private readonly BinaryFormatter _outFormatter;
+        private readonly object _locker;
         private readonly MemoryStream _memStream;
+        private readonly NetworkStream _netStream;
+        private readonly BinaryFormatter _outFormatter;
         private readonly MemoryStream _tmpStream;
-        private Exception _exception;
-        private object _locker;
-        private int _dataLength = -1;
+        private readonly ManualResetEvent _waitHandle;
 
         private bool _alreadyStarted;
+        private Action<PeerProxy> _callback;
+        private int _dataLength = -1;
+        private Exception _exception;
 
-        public int id;
+
         private int _nextHeaderPos;
         private PeerProxy _proxy;
+
+        public AsyncConnection(TcpClient client)
+        {
+            _client = client;
+
+            _waitHandle = new ManualResetEvent(false);
+            _dataBuffer = new byte[BufferSize];
+
+            _netStream = _client.GetStream();
+            _inFormatter = new BinaryFormatter();
+            _outFormatter = new BinaryFormatter();
+            _memStream = new MemoryStream(BufferSize);
+            _tmpStream = new MemoryStream();
+
+            _locker = new object();
+        }
 
         public NetworkStream NetStream
         {
             get { return _netStream; }
         }
 
-        public AsyncConnection(TcpClient client )
+        public TcpClient Client
         {
-            _client = client;
-            
-            _waitHandle = new ManualResetEvent(false);
-            _dataBuffer = new byte[BufferSize];
-            
-            _netStream = _client.GetStream();
-            _inFormatter = new BinaryFormatter();
-            _outFormatter = new BinaryFormatter();
-            _memStream = new MemoryStream(BufferSize);
-            _tmpStream = new MemoryStream();
-       
-            _locker = new object();
+            get { return _client; }
         }
 
-        
+        internal PeerProxy Proxy
+        {
+            get { return _proxy; }
+            set { _proxy = value; }
+        }
+
 
         public void Send(object obj)
         {
-
             lock (_locker)
             {
                 try
@@ -72,16 +91,14 @@
                     byte[] header = NetHeader.CreateHeader(_tmpStream.Length);
 
                     _netStream.Write(header, 0, header.Length);
-                    _netStream.Write(_tmpStream.GetBuffer(), 0, (int)_tmpStream.Length);
-
+                    _netStream.Write(_tmpStream.GetBuffer(), 0, (int) _tmpStream.Length);
                 }
                 catch (IOException)
                 {
-                    
                     throw;
                 }
 
-                catch(ObjectDisposedException)
+                catch (ObjectDisposedException)
                 {
                     throw;
                 }
@@ -90,58 +107,55 @@
                     Bug.Pr(e);
                 }
             }
-            
         }
 
         /// <summary>
-        /// Call once to start listening for incomming data.
-        /// Each deserialized object will be received after 
-        /// calling EndReceive in callback.
+        ///   Call once to start listening for incomming data.
+        ///   Each deserialized object will be received after 
+        ///   calling EndReceive in callback.
         /// </summary>
         public void BeginReceiving(Action<PeerProxy> callback)
         {
             lock (_locker)
             {
-                if(_alreadyStarted)
+                if (_alreadyStarted)
                 {
                     throw new InvalidOperationException("Method must be called only once.");
                 }
-                _alreadyStarted = true; 
+                _alreadyStarted = true;
                 _callback = callback;
 
                 BeginNextPortion();
             }
         }
+
         private void BeginNextPortion()
         {
             _dataLength = -1;
             _waitHandle.Reset();
 
             Task.Factory.StartNew(ScheduleStreamRead)
-                .ContinueWith(prev=>
-                    {
-                        _exception = prev.Exception;
-                        FireCallback();
-                    });
-            
+                .ContinueWith(prev =>
+                {
+                    _exception = prev.Exception;
+                    FireCallback();
+                });
         }
+
         private void ScheduleStreamRead()
         {
- 
             Task<int> netStreamRead = Task<int>.Factory.FromAsync(
                 _netStream.BeginRead, _netStream.EndRead,
                 _dataBuffer, 0, BufferSize, null, TaskCreationOptions.AttachedToParent);
 
             netStreamRead.ContinueWith(AfterStreamRead,
-                                   TaskContinuationOptions.NotOnFaulted
-                                   | TaskContinuationOptions.AttachedToParent
+                                       TaskContinuationOptions.NotOnFaulted
+                                       | TaskContinuationOptions.AttachedToParent
                 );
-
         }
 
         private void AfterStreamRead(Task<int> netStreamRead)
         {
-            
             if (netStreamRead.Result > 0)
             {
                 _memStream.Write(_dataBuffer, 0, netStreamRead.Result);
@@ -157,6 +171,7 @@
                 }
             }
         }
+
         private void FireCallback()
         {
             try
@@ -167,16 +182,14 @@
             }
             catch (Exception e)
             {
-                
                 Bug.Pr(e);
             }
-            
         }
 
         /// <summary>
-        /// Must be called from a callback, returns deserialized object.
-        /// All exceptions must be cautch, otherwise UnobservedTaskException 
-        /// will be thrown.
+        ///   Must be called from a callback, returns deserialized object.
+        ///   All exceptions must be cautch, otherwise UnobservedTaskException 
+        ///   will be thrown.
         /// </summary>
         /// <returns>Object deserialized from NetworkStream</returns>
         public object EndReceive()
@@ -194,7 +207,7 @@
             _nextHeaderPos += NetHeader.HeaderLength + _dataLength;
 
 
-            if (NetHeader.IsFullObjectInStream(_memStream,_nextHeaderPos, out _dataLength))
+            if (NetHeader.IsFullObjectInStream(_memStream, _nextHeaderPos, out _dataLength))
             {
                 Task.Factory.StartNew(FireCallback);
             }
@@ -210,30 +223,16 @@
             return received;
         }
 
-        
+
         private static void TrimBeginning(MemoryStream stream)
         {
             // skopiowanie pozostalych bajtow na poczatek strumienia
-            int otherBytesLength = (int)(stream.Length - stream.Position);
+            int otherBytesLength = (int) (stream.Length - stream.Position);
             byte[] otherBytes = new byte[otherBytesLength];
             stream.Read(otherBytes, 0, otherBytesLength);
             stream.SetLength(otherBytesLength);
             stream.Position = 0;
             stream.Write(otherBytes, 0, otherBytesLength);
-        }
-
-        public TcpClient Client
-        {
-            get
-            {
-                return _client;
-            }
-        }
-
-        internal PeerProxy Proxy
-        {
-            get { return _proxy; }
-            set { _proxy = value; }
         }
     }
 }

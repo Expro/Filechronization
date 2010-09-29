@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionManager.cs" />
+    <Compile Include="Global.cs" />
     <Compile Include="Messages\ArbiterChange.cs" />
     <Compile Include="Messages\ConnectionLost.cs" />
     <Compile Include="Messages\NetworkSend.cs" />
@@ -56,18 +57,18 @@
     <Compile Include="Messages\UserStateChanged.cs" />
     <Compile Include="NetQueue.cs" />
     <Compile Include="NetworkDescriptor.cs" />
-    <Compile Include="ConnectionManager\AsyncConnection.cs" />
-    <Compile Include="ConnectionManager\BadHeaderException.cs" />
+    <Compile Include="Connections\AsyncConnection.cs" />
+    <Compile Include="Connections\BadHeaderException.cs" />
     <Compile Include="Bug.cs" />
-    <Compile Include="ConnectionManager\CannotConnectException.cs" />
-    <Compile Include="ConnectionManager\ConnectionClosedException.cs" />
-    <Compile Include="ConnectionManager\ConnectionManager.cs" />
-    <Compile Include="ConnectionManager\HostAddress.cs" />
-    <Compile Include="ConnectionManager\MultiPeerMap.cs" />
-    <Compile Include="ConnectionManager\NetHeader.cs" />
-    <Compile Include="ConnectionManager\NetworkObject.cs" />
-    <Compile Include="ConnectionManager\NetworksManager.cs" />
-    <Compile Include="ConnectionManager\PeerProxy.cs" />
+    <Compile Include="Connections\CannotConnectException.cs" />
+    <Compile Include="Connections\ConnectionClosedException.cs" />
+    <Compile Include="Connections\ConnectionManager.cs" />
+    <Compile Include="Connections\HostAddress.cs" />
+    <Compile Include="Connections\MultiPeerMap.cs" />
+    <Compile Include="Connections\NetHeader.cs" />
+    <Compile Include="Connections\NetworkObject.cs" />
+    <Compile Include="Connections\NetworksManager.cs" />
+    <Compile Include="Connections\PeerProxy.cs" />
     <Compile Include="P.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="States\StateAbstract.cs" />
@@ -103,9 +104,19 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\CodeExecutionTools\CodeExecutionTools.csproj">
+      <Project>{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}</Project>
+      <Name>CodeExecutionTools</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\CommonClasses\CommonClasses.csproj">
       <Project>{56B4542E-3AA1-462B-8EAC-13E17744BB44}</Project>
       <Name>CommonClasses</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Definitions\CodeManagementDefinitions.csproj">
+      <Project>{414BC537-D5FB-4C83-AE86-CF8B62B8CF80}</Project>
+      <Name>CodeManagementDefinitions</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Modularity\Modularity.csproj">

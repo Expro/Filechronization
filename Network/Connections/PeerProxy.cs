@@ -1,41 +1,58 @@
-namespace ConsoleApplication1
+// Author: Piotr Trzpil
+
+#region Usings
+
+#endregion
+
+namespace Network.Connections
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Runtime.Serialization;
-    using System.Threading;
+    #region Usings
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Net;
+    using global::System.Runtime.Serialization;
+    using global::System.Threading;
+
+    #endregion
 
     public class PeerProxy : IDisposable
     {
+        private const int DisconnectTimeout = 30000;
+        private readonly Timer _disconnectTimer;
+        private readonly object _locker;
         private readonly ConnectionManager _manager;
         private AsyncConnection _connection;
 
 
+        private bool _disposed;
+        private IPEndPoint _endpoint;
+        private Queue<object> _messageQueue;
         private bool _persistent;
 
-        private object _locker;
-
-        private Queue<object> _messageQueue;
-        private bool _disposed;
-        private const int DisconnectTimeout = 30000;
-        private Timer _disconnectTimer;
-        private IPEndPoint _endpoint;
+        internal PeerProxy(ConnectionManager manager)
+        {
+            _manager = manager;
+            _locker = new object();
+            _messageQueue = new Queue<object>();
+            _disconnectTimer = new Timer(TimerTick, null, DisconnectTimeout, Timeout.Infinite);
+        }
 
         public bool IsDisposed
         {
             get
             {
                 lock (_locker)
-                return _disposed;
+                    return _disposed;
             }
         }
+
         public bool Persistent
         {
             get
             {
                 lock (_locker)
-                return _persistent;
+                    return _persistent;
             }
             set
             {
@@ -45,24 +62,6 @@ namespace ConsoleApplication1
 
                     int timeout = value ? Timeout.Infinite : DisconnectTimeout;
                     _disconnectTimer.Change(timeout, Timeout.Infinite);
-                }
-            }
-        }
-        internal PeerProxy(ConnectionManager manager)
-        {
-            _manager = manager;
-            _locker = new object();
-            _messageQueue = new Queue<object>();
-            _disconnectTimer = new Timer(TimerTick, null, DisconnectTimeout, Timeout.Infinite);
-        }
-
-        private void TimerTick(object state)
-        {
-            lock (_locker)
-            {
-                if (!_persistent)
-                {
-                    Dispose();
                 }
             }
         }
@@ -76,14 +75,13 @@ namespace ConsoleApplication1
                     CheckDisposed();
                     return _connection;
                 }
-                
             }
-            set 
-            { 
-                lock(_locker)
+            set
+            {
+                lock (_locker)
                 {
                     CheckDisposed();
-                    if(_connection == null)
+                    if (_connection == null)
                     {
                         _connection = value;
                         _endpoint = (IPEndPoint) _connection.Client.Client.RemoteEndPoint;
@@ -104,7 +102,17 @@ namespace ConsoleApplication1
         public IPEndPoint Endpoint
         {
             get { return _endpoint; }
-            
+        }
+
+        private void TimerTick(object state)
+        {
+            lock (_locker)
+            {
+                if (!_persistent)
+                {
+                    Dispose();
+                }
+            }
         }
 
         public void Send(object obj)
@@ -112,7 +120,7 @@ namespace ConsoleApplication1
             lock (_locker)
             {
                 CheckDisposed();
-                if(_connection!= null)
+                if (_connection != null)
                 {
                     try
                     {
@@ -135,7 +143,6 @@ namespace ConsoleApplication1
                     _messageQueue.Enqueue(obj);
                 }
             }
-            
         }
 
         private void CheckDisposed()
@@ -148,26 +155,6 @@ namespace ConsoleApplication1
                 }
             }
         }
-
-        #region Implementation of IDisposable
-
-        public void Dispose()
-        {
-            lock(_locker)
-            {
-                if(!_disposed)
-                {
-                    _disposed = true;
-                    Connection.NetStream.Close();
-                    Connection.Client.Close();
-                    _disconnectTimer.Dispose();
-                }
-            }
-        }
-
-        #endregion
-
-
 
         internal bool TryRestartTimer()
         {
@@ -187,8 +174,24 @@ namespace ConsoleApplication1
                 }
                 return false;
             }
-            
         }
 
+        #region Implementation of IDisposable
+
+        public void Dispose()
+        {
+            lock (_locker)
+            {
+                if (!_disposed)
+                {
+                    _disposed = true;
+                    Connection.NetStream.Close();
+                    Connection.Client.Close();
+                    _disconnectTimer.Dispose();
+                }
+            }
+        }
+
+        #endregion
     }
 }

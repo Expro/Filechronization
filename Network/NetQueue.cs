@@ -1,14 +1,16 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network
+﻿// Author: Piotr Trzpil
+namespace Network
 {
     #region Usings
 
+    using Filechronization.Modularity;
+    using Filechronization.Modularity.Messages;
     using global::System;
     using global::System.Threading;
-    using Modularity;
-    using Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -65,16 +67,16 @@ namespace Filechronization.Network
 //    }
 
     /// <summary>
-    /// Klasa opakowujaca funkcjonalnosc Service zwiazana z wykonywaniem kodu prze odpowiedni Procesor
+    ///   Klasa opakowujaca funkcjonalnosc Service zwiazana z wykonywaniem kodu prze odpowiedni Procesor
     /// </summary>
     public class NetQueue
     {
-        private readonly Service _service;
+        private static int idd;
         private readonly Processor _processor;
+        private readonly Service _service;
         private readonly Thread _thread;
         private bool _running;
 
-        private static int idd;
         private int id;
 
         public NetQueue(Service service, Processor processor)

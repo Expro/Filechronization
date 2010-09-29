@@ -1,19 +1,21 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.States
+﻿// Author: Piotr Trzpil
+namespace Network.States
 {
     #region Usings
 
     using System.MainParts;
-    using global::System;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.UserManagement;
     using Messages;
-    using Modularity.Messages;
-    using UserManagement;
 
     #endregion
+
+    #region Usings
+
+    #endregion
+
     /// <summary>
-    /// Stan oznaczajacy, ze ten komputer jest arbitrem
+    ///   Stan oznaczajacy, ze ten komputer jest arbitrem
     /// </summary>
     public class StateArbiter : StateConnected
     {
@@ -27,10 +29,8 @@ namespace Filechronization.Network.States
         {
             base.BuildTaskAssociations();
 
-       
+
             _messageAssociations.Add(typeof (ConnectionLost), HandleConnectionLost);
-
-
         }
 
 
@@ -49,16 +49,16 @@ namespace Filechronization.Network.States
 //        public void giveAwayArbiter()
 //        {
 //            User user = chooseNextArbiter();
-            //_netModule.peerCenter.sendTo(user, null, new BecomeArbiterRequest());
+        //_netModule.peerCenter.sendTo(user, null, new BecomeArbiterRequest());
 //
 //
-            //_netModule.peerCenter.addTask(user, new ArbiterConnection(_netModule, _netModule.peerCenter.newId(), sender));
+        //_netModule.peerCenter.addTask(user, new ArbiterConnection(_netModule, _netModule.peerCenter.newId(), sender));
 //
 //            var taskId = _netModule.PeerCenter.newId();
 //            var task = new GiveArbiterTask(_netModule, taskId, user);
 //            if (_netModule.PeerCenter.addTask(user, task))
 //            {
-            //    _netModule.PeerCenter.sendTo(user, taskId, new BecomeArbiterRequest());
+        //    _netModule.PeerCenter.sendTo(user, taskId, new BecomeArbiterRequest());
 //            }
 //        }
 //

@@ -1,20 +1,23 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.States
+﻿// Author: Piotr Trzpil
+namespace Network.States
 {
     #region Usings
 
     using System.Connections;
     using System.MainParts;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.UserManagement;
     using global::System.Net;
     using Messages;
-    using Modularity.Messages;
-    using UserManagement;
 
     #endregion
+
+    #region Usings
+
+    #endregion
+
     /// <summary>
-    /// Oznacza, ze dany komputer nie jest arbitrem, ale jest polaczony do sieci
+    ///   Oznacza, ze dany komputer nie jest arbitrem, ale jest polaczony do sieci
     /// </summary>
     public class StateNonArbiter : StateConnected
     {
@@ -41,7 +44,7 @@ namespace Filechronization.Network.States
 
         private void HandleUserStateChanged(User sender, Message message)
         {
-            var userStateChanged = (UserStateChanged) message;
+            UserStateChanged userStateChanged = (UserStateChanged) message;
             User user = _netModule.UsersStructure[userStateChanged.Login];
             if (userStateChanged.State == UserState.ONLINE)
             {
