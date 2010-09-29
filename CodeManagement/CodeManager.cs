@@ -528,9 +528,16 @@ namespace CodeManagement
 				{
 					foreach (CodeDetails details in representatives.Keys)
 					{
-						if (disposeManagedResources)
-							OnProgress("Disposing resources", details.ToString(), i++, representatives.Count);
-						UnloadDomain(details);
+						try
+						{
+							if (disposeManagedResources)
+								OnProgress("Disposing resources", details.ToString(), i++, representatives.Count);
+							UnloadDomain(details);
+						}
+						catch (InvalidOperationException)
+						{
+							Dispose(disposeManagedResources);
+						}
 					}
 					
 					modulesLock.Dispose();
@@ -538,9 +545,9 @@ namespace CodeManagement
 					GC.SuppressFinalize(this);
 					disposed = true;
 				}
-				catch (InvalidOperationException)
+				catch (Exception)
 				{
-					Dispose(disposeManagedResources);
+					Environment.Exit(1);
 				}
 			}
 		}
