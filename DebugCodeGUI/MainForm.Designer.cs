@@ -25,12 +25,18 @@ namespace DebugCodeGUI
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing) {
-				if (components != null) {
-					components.Dispose();
-				}
+			if (IsHandleCreated)
+			{
+				Invoke(new MethodInvoker(() =>
+												{
+													if (disposing)
+													{
+														if (components != null)
+															components.Dispose();
+													}
+													base.Dispose(disposing);
+				                         }));
 			}
-			base.Dispose(disposing);
 		}
 		
 		/// <summary>
