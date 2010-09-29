@@ -56,7 +56,7 @@ namespace Filechronization
 				#if DEBUG
 				manager.AddCondition("DEBUG");
 				#endif
-				//manager.AddCondition("GUI");
+				manager.AddCondition("GUI");
 				
 				LoggingService.Debug.LogHandlers.Add(logFile);
 				LoggingService.Trace.LogHandlers.Add(logFile);

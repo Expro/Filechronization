@@ -24,8 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilechronizationGUI", "File
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedControls", "ExtendedControls\ExtendedControls.csproj", "{41B4E60F-AA89-4777-9B4C-9D04465CF01F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeExecutionTools", "CodeExecutionTools\CodeExecutionTools.csproj", "{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patterns", "Patterns\Patterns.csproj", "{BEE85151-0FDE-48DB-94F5-7D578A9ADE64}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogExplorer", "LogExplorer\LogExplorer.csproj", "{2CB1D441-6B5F-4296-806B-6459596C787E}"
@@ -92,14 +90,6 @@ Global
 		{41B4E60F-AA89-4777-9B4C-9D04465CF01F}.Release|x86.ActiveCfg = Release|x86
 		{41B4E60F-AA89-4777-9B4C-9D04465CF01F}.Release|Any CPU.Build.0 = Release|x86
 		{41B4E60F-AA89-4777-9B4C-9D04465CF01F}.Release|Any CPU.ActiveCfg = Release|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Debug|x86.Build.0 = Debug|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Debug|x86.ActiveCfg = Debug|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Debug|Any CPU.Build.0 = Debug|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Release|x86.Build.0 = Release|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Release|x86.ActiveCfg = Release|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Release|Any CPU.Build.0 = Release|x86
-		{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}.Release|Any CPU.ActiveCfg = Release|x86
 		{BEE85151-0FDE-48DB-94F5-7D578A9ADE64}.Debug|x86.Build.0 = Debug|x86
 		{BEE85151-0FDE-48DB-94F5-7D578A9ADE64}.Debug|x86.ActiveCfg = Debug|x86
 		{BEE85151-0FDE-48DB-94F5-7D578A9ADE64}.Debug|Any CPU.Build.0 = Debug|x86
