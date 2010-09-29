@@ -22,12 +22,19 @@ namespace FilechronizationGUI
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing) {
-				if (components != null) {
-					components.Dispose();
-				}
+			if (IsHandleCreated)
+			{
+				Invoke(new MethodInvoker(() =>
+												{
+													if (disposing)
+													{
+														if (components != null)
+															components.Dispose();
+													}
+													
+													base.Dispose(disposing);
+				                         }));
 			}
-			base.Dispose(disposing);
 		}
 		
 		/// <summary>
@@ -72,18 +79,18 @@ namespace FilechronizationGUI
 			// minimizeMenu
 			// 
 			this.minimizeMenu.Name = "minimizeMenu";
-			this.minimizeMenu.Size = new System.Drawing.Size(152, 22);
+			this.minimizeMenu.Size = new System.Drawing.Size(112, 22);
 			this.minimizeMenu.Text = "Minimize";
 			// 
 			// applicationSeparator1Menu
 			// 
 			this.applicationSeparator1Menu.Name = "applicationSeparator1Menu";
-			this.applicationSeparator1Menu.Size = new System.Drawing.Size(149, 6);
+			this.applicationSeparator1Menu.Size = new System.Drawing.Size(109, 6);
 			// 
 			// closeMenu
 			// 
 			this.closeMenu.Name = "closeMenu";
-			this.closeMenu.Size = new System.Drawing.Size(152, 22);
+			this.closeMenu.Size = new System.Drawing.Size(112, 22);
 			this.closeMenu.Text = "Close";
 			// 
 			// toolStripContainer1

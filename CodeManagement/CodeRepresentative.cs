@@ -28,7 +28,7 @@ namespace CodeManagement
 	#endregion
 	public class CodeRepresentative: MarshalByRefObject
 	{	
-		public const int TimeoutBase = 5000;
+		public const int Timeout = 5000;
 		
 		#region Fields
 		private ICode instance;
@@ -144,7 +144,7 @@ namespace CodeManagement
 		{
 			ConstructorInfo[] constructors;
 			object[] parameters;
-			Action creator;
+			Thread creationThread;
 			
 			if (state.Equals(CodeState.Loaded))
 			{
@@ -160,9 +160,23 @@ namespace CodeManagement
 					{
 						parameters = ProvideParameters(constructor);
 						
-						creator = delegate() {Instance = (ICode)constructor.Invoke(parameters);};
+						creationThread = new Thread(() =>
+						                            {
+						                            	try
+						                            	{
+						                            		Instance = (ICode)constructor.Invoke(parameters);
+						                            	}
+						                            	catch (ThreadAbortException)
+						                            	{
+						                            		LoggingService.Trace.Information("Creation of code: " + details.ToString() + " was aborted due to timeout", new string[] {"CODE"}, this);
+						                            	}
+						                            });
 						
-						creator.BeginInvoke(null, null).AsyncWaitHandle.WaitOne(TimeoutBase + 1000*parameters.Length);
+						creationThread.Start();
+						creationThread.Join(Timeout);
+						
+						if (creationThread.ThreadState == System.Threading.ThreadState.Running)
+							creationThread.Abort();
 						
 						instanceLock.Wait();
 						if (instance != null)
@@ -204,6 +218,13 @@ namespace CodeManagement
 					LoggingService.Trace.Information("Destroying code: " + details.ToString(), new string[] {"CODE"}, this);
 					
 					instance.Dispose();
+					instance = null;
+				
+					GC.Collect();
+					state = CodeState.Loaded;
+				}
+				catch (ObjectDisposedException)
+				{
 					instance = null;
 				
 					GC.Collect();

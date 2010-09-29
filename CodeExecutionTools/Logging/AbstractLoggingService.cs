@@ -85,6 +85,8 @@ namespace CodeExecutionTools.Logging
 		#region Public Methods
 		public virtual void Log(LogEntry entry)
 		{
+			ISet<ILogHandler> handlersToRemove = new HashSet<ILogHandler>();
+			
 			lock (this)
 			{
 				if (Parent != null)
@@ -113,7 +115,19 @@ namespace CodeExecutionTools.Logging
 					OnNewEntry(entry);
 					
 					foreach (ILogHandler handler in LogHandlers)
-						handler.Write(entry);
+					{
+						try
+						{
+							handler.Write(entry);
+						}
+						catch (ObjectDisposedException)
+						{
+							handlersToRemove.Add(handler);
+						}
+					}
+					
+					foreach (ILogHandler handler in handlersToRemove)
+						LogHandlers.Remove(handler);
 				}
 			}
 		}
