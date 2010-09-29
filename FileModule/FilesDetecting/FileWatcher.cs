@@ -107,9 +107,14 @@ namespace FileModule
         {
             queue.Add(() =>
             {
-                ObjectDeletedEvent deletion = (ObjectDeletedEvent) state;
-                _deletedFolders.Remove(deletion.Path);
-                Deleted(deletion.Path);
+                ObjectDeletedEvent deletion = (ObjectDeletedEvent)state;
+
+                if (deletion.IsActive)
+                {
+                    deletion.IsActive = false;
+                    _deletedFolders.Remove(deletion.Path);
+                    Deleted(deletion.Path);
+                }     
             });
         }
 
@@ -236,9 +241,23 @@ namespace FileModule
             {
                 List<AbsPath> folderList = (List<AbsPath>) userState;
                 AbsPath path;
-                if (TryFindMatch(indexing.Table, folderList, out path))
+                ObjectDeletedEvent delEvent = null;
+                if(TryFindMatch(indexing.Table, folderList, out path))
                 {
-                    // Przeniesienie
+                    delEvent = _deletedFolders[path];
+                }
+                if (delEvent!=null && delEvent.IsActive)
+                {
+                    delEvent.IsActive = false;
+              
+                          // Przeniesienie
+              
+                    // przywrocenie timera dla pozostalych
+//                    foreach (var del in _deletedFolders.Values.Where(del => !del.Path.Equals(path)))
+//                    {
+//                        del.IsActive = true;
+//                    }
+            
                 }
                 else
                 {
@@ -267,8 +286,15 @@ namespace FileModule
                 return;
             }
 
-            List<AbsPath> folderList = _deletedFolders.Values
-                .Select(delEvent => delEvent.Path).ToList();
+            List<AbsPath> folderList = new List<AbsPath>();
+            foreach(var ev in _deletedFolders.Values)
+            {
+                ev.IsActive = false;
+                folderList.Add(ev.Path);
+            }
+
+//            List<AbsPath> folderList = _deletedFolders.Values
+//                .Select(delEvent => delEvent.Path).ToList();
 
             //folderList.AddRange(_interruptedIndexings);
 
@@ -360,7 +386,7 @@ namespace FileModule
         {
             private readonly AbsPath _path;
 
-
+            public bool IsActive { get; set;}
             private readonly Timer _timer;
 
             public ObjectDeletedEvent(AbsPath path, TimerCallback callback)
