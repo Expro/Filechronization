@@ -209,6 +209,13 @@ namespace CodeManagement
 					GC.Collect();
 					state = CodeState.Loaded;
 				}
+				catch (ObjectDisposedException)
+				{
+					instance = null;
+				
+					GC.Collect();
+					state = CodeState.Loaded;
+				}
 				catch (Exception e)
 				{
 					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);

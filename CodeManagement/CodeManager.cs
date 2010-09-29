@@ -21,7 +21,6 @@ using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
 using System.Threading;
-using System.Windows.Forms;
 using CodeExecutionTools.Logging;
 using CodeManagement.Definitions;
 using Patterns;
@@ -121,6 +120,9 @@ namespace CodeManagement
 			{
 				if (domains.ContainsKey(details))
 					domains.Remove(details);
+				
+				if (representatives.ContainsKey(details))
+					representatives.Remove(details);
 			}
 		}
 		
@@ -319,7 +321,7 @@ namespace CodeManagement
 			
 			author[0] = new Author("Maciej 'Expro' Grabowski", "mds.expro@gmail.com");
 			description[0] = "Dynamic code manager, extends application features with modules and plugins.";
-			managerDetails = new CodeDetails(Application.ExecutablePath, typeof(CodeManager).FullName);
+			managerDetails = new CodeDetails(Environment.GetCommandLineArgs()[0], typeof(CodeManager).FullName);
 			managerDetails.Authors = author;
 			managerDetails.Descriptions = description;
 			managerDetails.IsModule = true;
@@ -526,21 +528,19 @@ namespace CodeManagement
 			{
 				try
 				{
-					foreach (CodeDetails details in representatives.Keys)
+					foreach (CodeDetails details in domains.Keys)
 					{
 						try
 						{
 							if (disposeManagedResources)
 								OnProgress("Disposing resources", details.ToString(), i++, representatives.Count);
-							UnloadDomain(details);
+							
+							if (domains.ContainsKey(details))
+								UnloadDomain(details);
 						}
-						catch (InvalidOperationException)
+						catch (Exception e)
 						{
-							Dispose(disposeManagedResources);
-						}
-						catch (Exception)
-						{
-							continue;
+							LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
 						}
 					}
 					
@@ -549,9 +549,17 @@ namespace CodeManagement
 					GC.SuppressFinalize(this);
 					disposed = true;
 				}
-				catch (Exception)
+				catch (InvalidOperationException)
 				{
-					Environment.Exit(1);
+					Dispose(disposeManagedResources);
+				}
+				catch (Exception e)
+				{
+					LoggingService.Trace.Error(e.ToString(), new string[] {"EXCEPTION"}, this);
+				}
+				finally
+				{
+					GC.Collect();
 				}
 			}
 		}
