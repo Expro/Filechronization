@@ -20,14 +20,12 @@ namespace FilechronizationGUI
 	[Author("Maciej 'Expro' Grabowski", "mds.expro@gmail.com")]
 	[Description("Form containing all graphical subelements required to provide feedback for user.")]
 	[Module("GUI")]
-	public partial class MainForm: Form, ICode, IControllableCode, IFilechronizationMainWindow
+	public partial class MainForm: Form, IControllableCode, IFilechronizationMainWindow
 	{
 		public MainForm()
 		{
 			Application.EnableVisualStyles();
 			InitializeComponent();
-			CreateControl();
-			CreateHandle();
 		}
 
 		public Control AddContentToCenter(string title, Control content)
