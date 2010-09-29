@@ -1,4 +1,6 @@
-﻿namespace FileModule
+﻿// Author: Piotr Trzpil
+
+namespace FileModule
 {
     #region Usings
 
@@ -14,7 +16,7 @@
     {
         private readonly BlockingCollection<Action> queue;
         private readonly Thread thread;
-       
+
 
         private bool running;
 
@@ -22,62 +24,55 @@
         {
             queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
             thread = new Thread(Run);
-            
+
 
             running = false;
         }
 
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            running = false;
+            queue.CompleteAdding();
+        }
+
+        #endregion
+
         public void Start()
         {
-            
             if (!running)
             {
                 running = true;
                 thread.Start();
             }
-            
         }
 
-        
-        public void Dispose()
-        {
-            running = false;
-            queue.CompleteAdding();
-          
-        }
         public void Add(Action comm)
         {
             queue.Add(comm);
-            
         }
 
 
         private void Run()
         {
-            
-            foreach (var action in queue.GetConsumingEnumerable())
+            foreach (Action action in queue.GetConsumingEnumerable())
             {
-                //var job = queue.Take(tokenSource.Token);
-
-
-#if !DEBUG
-                try
-                {
-#endif     
-                    action();
-#if !DEBUG
-                }
-                catch (Exception e)
-                {
-                    Bug.Err(e);
-                }
-#endif
+//#if !DEBUG
+//                try
+//                {
+//#endif     
+                action();
+//#if !DEBUG
+//                }
+//                catch (Exception e)
+//                {
+//                    Console.Out.WriteLine(e);
+//                }
+//#endif
             }
-
-                
-            
         }
-        
+
 
 //        private readonly BlockingQueue<QueedJob> queue;
 //        private readonly Thread thread;
@@ -133,6 +128,5 @@
 //                
 //            }
 //        }
-        
     }
 }

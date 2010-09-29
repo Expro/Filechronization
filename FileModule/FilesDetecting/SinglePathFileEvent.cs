@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule
 {
     public enum SinglePathFileEvent

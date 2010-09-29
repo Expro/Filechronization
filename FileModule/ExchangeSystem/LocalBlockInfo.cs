@@ -1,10 +1,11 @@
-﻿namespace FileModule.ExchangeSystem
+﻿// Author: Piotr Trzpil
+namespace FileModule.ExchangeSystem
 {
     public class LocalBlockInfo
     {
-        private string _absFilePath;
-        private long _position;
-        private int _size;
+        private readonly string _absFilePath;
+        private readonly long _position;
+        private readonly int _size;
 
         public LocalBlockInfo(string absFilePath, long position, int size)
         {
@@ -15,26 +16,17 @@
 
         public string AbsFilePath
         {
-            get
-            {
-                return _absFilePath;
-            }
+            get { return _absFilePath; }
         }
 
         public long Position
         {
-            get
-            {
-                return _position;
-            }
+            get { return _position; }
         }
 
         public int Size
         {
-            get
-            {
-                return _size;
-            }
+            get { return _size; }
         }
     }
 }

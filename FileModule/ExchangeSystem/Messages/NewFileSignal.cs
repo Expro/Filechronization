@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem.Messages
 {
     #region Usings
@@ -7,9 +8,12 @@ namespace FileModule.ExchangeSystem.Messages
 
     #endregion
 
+    #region Usings
+
+    #endregion
+
     public class NewFileSignal : Message
     {
-
         private readonly FsFile<RelPath> descriptor;
         private readonly string fileName;
 
@@ -20,33 +24,24 @@ namespace FileModule.ExchangeSystem.Messages
         {
             this.fileName = fileName;
             this.descriptor = descriptor;
-    
+
             this.hashes = hashes;
         }
 
         public string FileName
         {
-            get
-            {
-                return fileName;
-            }
+            get { return fileName; }
         }
 
         public FsFile<RelPath> Descriptor
         {
-            get
-            {
-                return descriptor;
-            }
+            get { return descriptor; }
         }
 
-    
+
         public IList<PieceHash> Hashes
         {
-            get
-            {
-                return hashes;
-            }
+            get { return hashes; }
         }
     }
 }

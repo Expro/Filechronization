@@ -46,6 +46,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Messages\ArbiterChange.cs" />

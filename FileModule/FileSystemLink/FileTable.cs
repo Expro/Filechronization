@@ -1,7 +1,6 @@
+// Author: Piotr Trzpil
 namespace FileModule
 {
-
-
     #region Usings
 
     using System;
@@ -10,7 +9,10 @@ namespace FileModule
 
     #endregion
 
-    
+    #region Usings
+
+    #endregion
+
     [Serializable]
     public class FileTable
     {
@@ -36,7 +38,7 @@ namespace FileModule
 
         public void AddFolders(IEnumerable<string> subfoldersNames)
         {
-            foreach (var fol in subfoldersNames)
+            foreach (string fol in subfoldersNames)
             {
                 AddAll(folderPath.ToFull((RelPath) fol));
             }
@@ -72,12 +74,12 @@ namespace FileModule
                 Console.WriteLine(e);
             }
         }
+
         public void AddFile(FsObject<AbsPath> descriptor)
         {
-
             table.Add(descriptor.Path, descriptor);
-
         }
+
         public FsObject<AbsPath> GetFile(AbsPath absPath)
         {
             return table[absPath];

@@ -1,11 +1,17 @@
-﻿namespace FileModule
+﻿// Author: Piotr Trzpil
+namespace FileModule
 {
+    #region Usings
+
     using System;
     using System.IO;
+
+    #endregion
+
     [Serializable]
-    public abstract class FsObject<TPath>where TPath:IPath
+    public abstract class FsObject<TPath> where TPath : IPath
     {
-        private TPath _path;
+        private readonly TPath _path;
         private bool _synchronized;
 
         protected FsObject(TPath path)
@@ -23,11 +29,11 @@
             get { return _synchronized; }
             set { _synchronized = value; }
         }
+
         /// <summary>
-        /// 
         /// </summary>
-        /// <param name="fullPath"></param>
-        /// <exception cref="System.IO.FileNotFoundException"></exception>
+        /// <param name = "fullPath"></param>
+        /// <exception cref = "System.IO.FileNotFoundException"></exception>
         /// <returns></returns>
         public static FsObject<AbsPath> NewLocal(AbsPath fullPath)
         {
@@ -41,7 +47,5 @@
             }
             throw new FileNotFoundException(fullPath);
         }
-
-        
     }
 }

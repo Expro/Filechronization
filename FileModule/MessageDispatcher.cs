@@ -1,3 +1,5 @@
+// Author: Piotr Trzpil
+
 namespace FileModule
 {
     #region Usings
@@ -7,10 +9,14 @@ namespace FileModule
 
     #endregion
 
+    #region Usings
+
+    #endregion
+
     public class MessageDispatcher
     {
         private readonly NetworkContext _netContext;
-     
+
         private int counter;
 
         public MessageDispatcher(NetworkContext netContext)
@@ -31,6 +37,7 @@ namespace FileModule
 //            string target = _netContext.Path.CreateRelative(targetpath);
             Console.WriteLine("File Replaced from: " + sourceObj.Path + " to: " + targetObj.Path);
         }
+
         private bool SameGroup(IPath sourcepath, IPath targetpath)
         {
             string srcDir = _netContext.Path.ExtractSubfolderName(sourcepath);
@@ -52,7 +59,7 @@ namespace FileModule
         {
             // Jesli zostal przeniesiony do innej grupy - zamienic na delete + create
             //LocalObject sourceFile = (LocalObject) sourceObj;
-            if(SameGroup(sourceFile.Path, targetFile.Path))
+            if (SameGroup(sourceFile.Path, targetFile.Path))
             {
 //                var message = new 
             }
@@ -70,7 +77,6 @@ namespace FileModule
 
         private void FileModified(FsObject<AbsPath> newDescriptor)
         {
-            
             Console.WriteLine("File Modified: " + newDescriptor.Path);
         }
 
@@ -97,7 +103,7 @@ namespace FileModule
         private void FileCreated(FsObject<AbsPath> descriptor)
         {
             counter++;
-           // string relPath = fileModule.Network.MainPath.CreateRelative(path);
+            // string relPath = fileModule.Network.MainPath.CreateRelative(path);
             Console.WriteLine("Object Created ({0}): {1}", counter, descriptor.Path);
 
             _netContext.TableOverseer.AddFile(descriptor);

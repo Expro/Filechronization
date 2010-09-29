@@ -1,4 +1,6 @@
-﻿#region Usings
+﻿// Author: Piotr Trzpil
+
+#region Usings
 
 using System.Reflection;
 using System.Runtime.InteropServices;

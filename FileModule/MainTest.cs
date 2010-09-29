@@ -1,3 +1,5 @@
+// Author: Piotr Trzpil
+
 namespace FileModule
 {
     #region Usings
@@ -6,12 +8,15 @@ namespace FileModule
 
     #endregion
 
+    #region Usings
+
+    #endregion
+
     public class MainTest
     {
         public static void Main()
         {
-            
-            var mod = new NewFileModule(null);
+            NewFileModule mod = new NewFileModule(null);
 
             while (Console.ReadLine() != "q")
             {

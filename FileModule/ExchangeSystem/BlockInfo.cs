@@ -1,40 +1,34 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
-    using System;
-    using System.Collections.Generic;
-
     public struct BlockInfo
     {
-        private readonly PieceInfo pieceInfo;
         private readonly short inPieceOffset;
+        private readonly PieceInfo pieceInfo;
 
 
         public BlockInfo(RelPath filePath, int pieceIndex, short inPieceOffset)
         {
-            this.pieceInfo = new PieceInfo(filePath, pieceIndex);
+            pieceInfo = new PieceInfo(filePath, pieceIndex);
             this.inPieceOffset = inPieceOffset;
         }
+
         public BlockInfo(PieceInfo piece, short inPieceOffset)
         {
-            this.pieceInfo = piece;
+            pieceInfo = piece;
             this.inPieceOffset = inPieceOffset;
         }
 
         public RelPath RelFilePath
         {
-            get
-            {
-                return pieceInfo.RelFilePath;
-            }
+            get { return pieceInfo.RelFilePath; }
         }
 
         public int PieceIndex
         {
-            get
-            {
-                return pieceInfo.Index;
-            }
+            get { return pieceInfo.Index; }
         }
+
         public short InPieceOffset
         {
             get { return inPieceOffset; }
@@ -47,7 +41,6 @@ namespace FileModule.ExchangeSystem
 
         public bool Equals(BlockInfo other)
         {
-     
             return Equals(other.pieceInfo, pieceInfo) && other.inPieceOffset == inPieceOffset;
         }
 

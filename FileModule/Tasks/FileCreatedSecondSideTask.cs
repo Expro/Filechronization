@@ -1,9 +1,15 @@
+// Author: Piotr Trzpil
+
 namespace FileModule.Tasks
 {
     #region Usings
 
     using System;
     using Filechronization.Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -16,9 +22,9 @@ namespace FileModule.Tasks
 
         private int HandleFileCreated(Message message)
         {
-            var fileCreated = (SingleFileMessage) message;
+            SingleFileMessage fileCreated = (SingleFileMessage) message;
 
-          //  var path = fileModule._context.Path.ToFull(fileCreated.RelativePath);
+            //  var path = fileModule._context.Path.ToFull(fileCreated.RelativePath);
 
 
             return 0;

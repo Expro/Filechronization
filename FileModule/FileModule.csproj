@@ -101,6 +101,11 @@
     <Compile Include="UserID.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CodeExecutionTools\CodeExecutionTools.csproj">
+      <Project>{9505D891-1ECE-4F65-9F5E-32A8C0A458CC}</Project>
+      <Name>CodeExecutionTools</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\CodeManagement\CodeManagement.csproj">
       <Project>{636AB20A-1A90-4413-AEA9-D912C669F503}</Project>
       <Name>CodeManagement</Name>

@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
     #region Usings
@@ -7,6 +8,10 @@ namespace FileModule.ExchangeSystem
     using System.Linq;
     using Filechronization.UserManagement;
     using Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -50,8 +55,6 @@ namespace FileModule.ExchangeSystem
             TransferJob job = SelectFile();
             ActivePiece newPiece = job.GetNonActivePiece();
 
-            
-
 
             activePieces.Add(newPiece.PieceInfo, newPiece);
         }
@@ -62,7 +65,7 @@ namespace FileModule.ExchangeSystem
             TransferJob job = jobList[pieceInfo.RelFilePath];
             if (CheckPieceData(job, pieceInfo))
             {
-            //TODO:PieceAvailable message = new PieceAvailable(job.File.Path, pieceInfo.Index);
+                //TODO:PieceAvailable message = new PieceAvailable(job.File.Path, pieceInfo.Index);
 
                 job.PieceComplete(pieceInfo);
                 if (job.Complete)

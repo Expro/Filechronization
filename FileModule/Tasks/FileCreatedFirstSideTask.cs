@@ -1,8 +1,14 @@
+// Author: Piotr Trzpil
+
 namespace FileModule.Tasks
 {
     #region Usings
 
     using System;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

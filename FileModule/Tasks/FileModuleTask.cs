@@ -1,8 +1,14 @@
-﻿namespace FileModule.Tasks
+﻿// Author: Piotr Trzpil
+
+namespace FileModule.Tasks
 {
     #region Usings
 
     using Filechronization.Tasks;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

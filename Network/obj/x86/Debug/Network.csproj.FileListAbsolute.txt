@@ -1,0 +1,5 @@
+C:\Ustawienia\SysOp\Moje dokumenty\Visual Studio 2010\Projects\Filechronization\Network\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Ustawienia\SysOp\Moje dokumenty\Visual Studio 2010\Projects\Filechronization\Filechronization\bin\Debug\Modules\Network.dll
+C:\Ustawienia\SysOp\Moje dokumenty\Visual Studio 2010\Projects\Filechronization\Filechronization\bin\Debug\Modules\Network.pdb
+C:\Ustawienia\SysOp\Moje dokumenty\Visual Studio 2010\Projects\Filechronization\Network\obj\x86\Debug\Network.dll
+C:\Ustawienia\SysOp\Moje dokumenty\Visual Studio 2010\Projects\Filechronization\Network\obj\x86\Debug\Network.pdb

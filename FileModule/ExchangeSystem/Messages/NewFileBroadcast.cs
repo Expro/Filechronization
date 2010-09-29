@@ -1,12 +1,15 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem.Messages
 {
-    using System;
+    #region Usings
+
     using System.Collections.Generic;
     using Filechronization.Modularity.Messages;
 
+    #endregion
+
     public class NewFileBroadcast : Message
     {
-
         private readonly FsFile<RelPath> descriptor;
         private readonly string fileName;
 
@@ -36,10 +39,9 @@ namespace FileModule.ExchangeSystem.Messages
             get { return seedUser; }
         }
 
-        public IList<PieceHash>  Hashes
+        public IList<PieceHash> Hashes
         {
             get { return hashes; }
         }
-
     }
 }

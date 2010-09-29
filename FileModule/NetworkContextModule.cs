@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule
 {
     public abstract class NetworkContextModule
@@ -16,35 +17,22 @@ namespace FileModule
 
         protected NewFileModule FileModule
         {
-            get
-            {
-                return _network.FileModule;
-            }
+            get { return _network.FileModule; }
         }
 
         protected MainStoragePath WorkPath
         {
-            get
-            {
-                return _network.Path;
-            }
+            get { return _network.Path; }
         }
 
         protected TableOverseer IndexedTable
         {
-            get
-            {
-                return _network.TableOverseer;
-            }
+            get { return _network.TableOverseer; }
         }
 
         protected FileWatcher FileWatcher
         {
-            get
-            {
-                return _network.FileWatcher;
-                
-            }
+            get { return _network.FileWatcher; }
         }
     }
 }

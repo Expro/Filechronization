@@ -1,15 +1,16 @@
-#region Usings
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-
-#endregion
-
+// Author: Piotr Trzpil
 namespace FileModule
 {
+    #region Usings
+
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+    using CodeExecutionTools.Logging;
+
+    #endregion
 
     #region Usings
 
@@ -90,12 +91,12 @@ namespace FileModule
         }
 
 
-        private ObjectDeletedEvent AddDeleteEvent(FsObject<AbsPath> path)
+        private ObjectDeletedEvent AddDeleteEvent(FsObject<AbsPath> fsObject)
         {
 //            FsObject<AbsPath> descr = IndexedTable.GetObject(path);
 
-            ObjectDeletedEvent events = new ObjectDeletedEvent(path, FileEventsTimerEnded);
-            _deletedFolders.Add(path, events);
+            ObjectDeletedEvent events = new ObjectDeletedEvent(fsObject.Path, FileEventsTimerEnded);
+            _deletedFolders.Add(fsObject.Path, events);
 
 
             return events;
@@ -155,7 +156,7 @@ namespace FileModule
 
         private void OnChanged(object source, FileSystemEventArgs eArgs)
         {
-            int i = 0;
+           
             try
             {
                 switch (eArgs.ChangeType)
@@ -216,7 +217,8 @@ namespace FileModule
             }
             catch (Exception e)
             {
-                Bug.Err(e);
+                LoggingService.Trace.Error(e.ToString(), sender:this);
+              
             }
 
 
@@ -225,7 +227,6 @@ namespace FileModule
 
         private void IndexingJobCallback(IndexingJob indexing, bool success, object userState)
         {
-
             if (_activeIndexings.ContainsKey(indexing.Dir) && _activeIndexings[indexing.Dir] == indexing)
             {
                 _activeIndexings.Remove(indexing.Dir);
@@ -242,7 +243,6 @@ namespace FileModule
                 else
                 {
                     // Stworzenie nowego
-                    
                 }
             }
             else
@@ -259,38 +259,36 @@ namespace FileModule
 
         private void FolderCreated(AbsPath fullPath)
         {
-            
-                if(TryResetIndexings(fullPath))
-                {
-                    // nie bawimy sie w takie komplikacje
+            if (TryResetIndexings(fullPath))
+            {
+                // nie bawimy sie w takie komplikacje
 
-                    // indeksowanie parenta powinno zlapac stworzenie tego
-                    return;
+                // indeksowanie parenta powinno zlapac stworzenie tego
+                return;
+            }
+
+            List<AbsPath> folderList = _deletedFolders.Values
+                .Select(delEvent => delEvent.Path).ToList();
+
+            //folderList.AddRange(_interruptedIndexings);
+
+            // dodanie do listy wszystkich potencjalnych folderow);
+            // sortowanie aby folder o nazwie takiej samej jak ten folder
+            // znalazl sie na poczcatku jako najbardziej prawdopodobny
+            string name = Path.GetFileName(fullPath);
+            folderList.Sort((one, two) =>
+            {
+                string n = Path.GetFileName(one);
+                if (n != null && n.Equals(name))
+                {
+                    return -1;
                 }
+                return 1;
+            });
 
-                List<AbsPath> folderList = _deletedFolders.Values
-                    .Select(delEvent => delEvent.Path).ToList();
-
-                //folderList.AddRange(_interruptedIndexings);
-
-                // dodanie do listy wszystkich potencjalnych folderow);
-                // sortowanie aby folder o nazwie takiej samej jak ten folder
-                // znalazl sie na poczcatku jako najbardziej prawdopodobny
-                string name = Path.GetFileName(fullPath);
-                folderList.Sort((one, two) =>
-                {
-                    string n = Path.GetFileName(one);
-                    if (n != null && n.Equals(name))
-                    {
-                        return -1;
-                    }
-                    return 1;
-                });
-
-                IndexingJob indexing = new IndexingJob(fullPath);
-                _activeIndexings.Add(fullPath, indexing);
-                IndexedTable.RunIndexingJob(indexing, IndexingJobCallback, folderList);
-            
+            IndexingJob indexing = new IndexingJob(fullPath);
+            _activeIndexings.Add(fullPath, indexing);
+            IndexedTable.RunIndexingJob(indexing, IndexingJobCallback, folderList);
         }
 
         private bool TryResetIndexings(AbsPath fullPath)
@@ -305,70 +303,56 @@ namespace FileModule
                 return true;
             }
             return false;
-
-
         }
-
-
 
 
         private void ObjectDeleted(AbsPath path)
         {
             
-            try
+            FsObject<AbsPath> obj = IndexedTable.GetObject(path);
+
+            AddDeleteEvent(obj);
+
+            if (obj is FsFile<AbsPath>)
             {
-                FsObject<AbsPath> obj = IndexedTable.GetObject(path);
-
-                AddDeleteEvent(obj);
-
-                if (obj is FsFile<AbsPath>)
-                {
-                    FileDeleted(obj as FsFile<AbsPath>);
-                }
-                else
-                {
-                    FolderDeleted(obj as FsFolder<AbsPath>);
-                }
+                FileDeleted(obj as FsFile<AbsPath>);
             }
-            catch (Exception e)
+            else
             {
-                Bug.Err(e);
+                FolderDeleted(obj as FsFolder<AbsPath>);
             }
             
-
         }
+
         private void FolderDeleted(FsFolder<AbsPath> fsFolder)
         {
             TryResetIndexings(fsFolder.Path);
-            
         }
 
-        
+
         private void FileDeleted(FsFile<AbsPath> fsFile)
         {
             throw new NotImplementedException();
         }
 
 
-        private void OnRenamed(object source, RenamedEventArgs e)
+        private void OnRenamed(object source, RenamedEventArgs eArgs)
         {
             try
             {
-                FsObject<AbsPath> oldDescr = IndexedTable.GetObject((AbsPath) e.OldFullPath);
-                FsObject<AbsPath> newDescr = FsObject<AbsPath>.NewLocal((AbsPath) e.FullPath);
+                FsObject<AbsPath> oldDescr = IndexedTable.GetObject((AbsPath)eArgs.OldFullPath);
+                FsObject<AbsPath> newDescr = FsObject<AbsPath>.NewLocal((AbsPath)eArgs.FullPath);
 
                 if (!TryResetIndexings(newDescr.Path))
                 {
                     MovedRenamed(oldDescr, newDescr);
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Bug.Pr(ex);
+                LoggingService.Trace.Error(e.ToString(), sender: this);
             }
         }
-
-       
 
         #region Nested type: ObjectDeletedEvent
 

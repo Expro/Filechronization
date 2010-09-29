@@ -1,7 +1,13 @@
+// Author: Piotr Trzpil
 namespace FileModule
 {
+    #region Usings
+
     using System;
     using System.IO;
+
+    #endregion
+
     [Serializable]
     public struct RelPath : IPath
     {
@@ -16,17 +22,20 @@ namespace FileModule
             _relativePath = relativePath;
         }
 
+        #region IPath Members
+
         public string Get
         {
-            get
-            {
-                return _relativePath;
-            }
+            get { return _relativePath; }
         }
+
+        #endregion
+
         public static implicit operator string(RelPath path)
         {
             return path.Get;
         }
+
         public static explicit operator RelPath(string absPath)
         {
             return new RelPath(absPath);

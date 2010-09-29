@@ -1,10 +1,14 @@
+// Author: Piotr Trzpil
 namespace FileModule
 {
     #region Usings
 
-    using System;
     using System.IO;
     using System.Text.RegularExpressions;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

@@ -1,8 +1,13 @@
+// Author: Piotr Trzpil
 namespace FileModule.Tasks
 {
     #region Usings
 
     using Filechronization.Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

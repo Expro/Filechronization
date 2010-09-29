@@ -1,8 +1,11 @@
-﻿namespace FileModule
+﻿// Author: Piotr Trzpil
+namespace FileModule
 {
+    #region Usings
+
     using CodeManagement.Definitions;
 
-  
+    #endregion
 
     [Name("File Module")]
     [Version(1, 0, 0)]

@@ -1,8 +1,13 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem.Messages
 {
     #region Usings
 
     using System;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
