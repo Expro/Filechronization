@@ -538,6 +538,10 @@ namespace CodeManagement
 						{
 							Dispose(disposeManagedResources);
 						}
+						catch (Exception)
+						{
+							continue;
+						}
 					}
 					
 					modulesLock.Dispose();
