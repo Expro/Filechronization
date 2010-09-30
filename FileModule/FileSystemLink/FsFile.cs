@@ -52,10 +52,14 @@ namespace FileModule
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-            return other.Size == Size && other.LastWrite.Equals(LastWrite);
+            return other.Path.Equals(Path) && other.Size == Size && other.LastWrite.Equals(LastWrite);
         }
-
-        public bool WeakEquals(FsFile<TPath> other)
+        /// <summary>
+        /// Fast way of determining whether two files are equal without checksums
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool FastEqualityCheck(FsFile<TPath> other)
         {
             if (ReferenceEquals(null, other))
                 return false;

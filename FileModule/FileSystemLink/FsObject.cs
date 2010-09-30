@@ -29,6 +29,15 @@ namespace FileModule
             get { return _synchronized; }
             set { _synchronized = value; }
         }
+        public bool FastEqualityCheck(FsObject<TPath> other)
+        {
+            if(GetType() != other.GetType())
+            {
+                return false;
+            }
+            var file = other as FsFile<TPath>;
+            return file == null || file.FastEqualityCheck((FsFile<TPath>) this);
+        }
 
         /// <summary>
         /// </summary>

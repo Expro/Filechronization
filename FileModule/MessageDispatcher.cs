@@ -65,7 +65,7 @@ namespace FileModule
             }
             else
             {
-                FileDeleted(sourceFile.Path);
+                FileDeleted(sourceFile);
                 FileCreated(FsObject<AbsPath>.NewLocal(targetFile.Path));
             }
 
@@ -75,15 +75,16 @@ namespace FileModule
             Console.WriteLine("File Moved or Renamed from: " + sourceFile.Path + " to: " + targetFile.Path);
         }
 
-        private void FileModified(FsObject<AbsPath> newDescriptor)
+        private void FileModified(FsFile<AbsPath> oldFileProps, FsFile<AbsPath> newFileProps)
         {
-            Console.WriteLine("File Modified: " + newDescriptor.Path);
+            Console.WriteLine("File Modified: " + newFileProps.Path);
         }
 
-        private void FileDeleted(AbsPath absPath)
+        private void FileDeleted(FsObject<AbsPath> storedDescr)
         {
 //            string relPath = _netContext.Path.CreateRelative(path);
-            Console.WriteLine("File Deleted: " + absPath);
+            Console.WriteLine("File Deleted: " + storedDescr.Path);
+            _netContext.TableOverseer.Remove(storedDescr.Path);
         }
 
         public FileOrFolder GetObjectType(string path)

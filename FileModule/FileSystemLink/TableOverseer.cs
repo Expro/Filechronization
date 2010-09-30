@@ -63,7 +63,7 @@ namespace FileModule
             {
                 return table.GetFile(fullPath);
             }
-            catch (ArgumentException)
+            catch (KeyNotFoundException)
             {
                 throw new FileNotFoundException("File: " + fullPath + "was not found.");
             }
@@ -112,6 +112,12 @@ namespace FileModule
         public void RunIndexingJob(IndexingJob indexing, Action<IndexingJob, bool, object> callback, object userState)
         {
             throw new NotImplementedException();
+        }
+
+        public void Remove(AbsPath path)
+        {
+            FileTable table = ChooseTable(path);
+            table.Remove(path);
         }
     }
 }

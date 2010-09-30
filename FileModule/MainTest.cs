@@ -5,10 +5,7 @@ namespace FileModule
     #region Usings
 
     using System;
-
-    #endregion
-
-    #region Usings
+    using CodeExecutionTools.Logging;
 
     #endregion
 
@@ -16,8 +13,9 @@ namespace FileModule
     {
         public static void Main()
         {
+            //LoggingService.Trace.Error("ss");
             NewFileModule mod = new NewFileModule(null);
-
+            
             while (Console.ReadLine() != "q")
             {
             }

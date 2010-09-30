@@ -89,5 +89,9 @@ namespace FileModule
 //        {
 //            return table.FirstOrDefault(fileDescriptor => fileDescriptor.Equals(pattern));
 //        }
+        public void Remove(AbsPath path)
+        {
+            table.Remove(path);
+        }
     }
 }
