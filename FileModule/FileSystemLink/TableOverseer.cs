@@ -6,6 +6,8 @@ namespace FileModule
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     #endregion
 
@@ -77,6 +79,12 @@ namespace FileModule
 //            
 //        }
 
+        
+        public Dictionary<AbsPath, FsObject<AbsPath>> GetIndexedFor(AbsPath folderPath)
+        {
+            FileTable table = ChooseTable(folderPath);
+            return table.GetIndexedFor(folderPath);
+        }
         public void IndexAllFiles()
         {
             foreach (KeyValuePair<GroupModel, FileTable> pair in tableList)
@@ -109,15 +117,16 @@ namespace FileModule
 //            var table = ChooseTable(folderPath);
 //            table.AddFolders(new []{folderPath});
 //        }
-        public void RunIndexingJob(IndexingJob indexing, Action<IndexingJob, bool, object> callback, object userState)
+        public void RunIndexingJob(IndexingJob indexing, Action<IndexingJob, Exception, object> callback, object userState)
         {
-            throw new NotImplementedException();
+            Task.Factory.StartNew(indexing.IndexAll)
+                .ContinueWith(prev => callback(indexing, prev.Exception, userState));
         }
 
-        public void Remove(AbsPath path)
+        public void Remove(FsObject<AbsPath> descriptor)
         {
-            FileTable table = ChooseTable(path);
-            table.Remove(path);
+            FileTable table = ChooseTable(descriptor.Path);
+            table.Remove(descriptor);
         }
     }
 }

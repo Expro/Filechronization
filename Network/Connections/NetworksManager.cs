@@ -88,7 +88,7 @@ namespace Network.Connections
             {
                 return _registeredNetworks[id];
             }
-            catch (ArgumentException)
+            catch (KeyNotFoundException)
             {
                 throw new UnknownNetworkException();
             }

@@ -43,7 +43,7 @@ namespace FileModule
 
         public object UserObject { get; set; }
 
-        public event Action<IndexingJob> Finished;
+      //  public event Action<IndexingJob> Finished;
 
 
         public void Cancel()
@@ -56,7 +56,7 @@ namespace FileModule
             _tokenSource.Token.ThrowIfCancellationRequested();
             AddAll(_dir);
             GetAllData();
-            Finished(this);
+   //         Finished(this);
         }
 
         private void GetAllData()

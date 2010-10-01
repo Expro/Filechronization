@@ -37,7 +37,13 @@ namespace FileModule
         {
             get { return _lastWrite; }
         }
-
+        /// <summary>
+        /// Gets file properies from the filesystem
+        /// </summary>
+        /// <param name="fullPath">Path to a file.</param>
+        /// <returns>Created FsFile></returns>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
         public static FsFile<AbsPath> LoadFrom(AbsPath fullPath)
         {
             FileInfo info = new FileInfo(fullPath);

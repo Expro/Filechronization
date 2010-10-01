@@ -71,6 +71,7 @@
     <Compile Include="FileMovedRenamedMessage.cs" />
     <Compile Include="FilesDetecting\IndexingJob.cs" />
     <Compile Include="FileSystemLink\AbsPath.cs" />
+    <Compile Include="FileSystemLink\Name.cs" />
     <Compile Include="FileSystemLink\FileOrFolder.cs" />
     <Compile Include="FileSystemLink\FileTable.cs" />
     <Compile Include="FilesDetecting\FileWatcher.cs" />

@@ -44,5 +44,22 @@ namespace FileModule
         {
             return Get;
         }
+
+        public bool Equals(AbsPath other)
+        {
+            return Equals(other._absolutePath, _absolutePath);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (obj.GetType() != typeof (AbsPath)) return false;
+            return Equals((AbsPath) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return _absolutePath.GetHashCode();
+        }
     }
 }

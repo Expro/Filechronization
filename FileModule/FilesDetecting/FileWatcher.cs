@@ -25,7 +25,7 @@ namespace FileModule
 
         public delegate void ObjectCreatedEventHandler(FsObject<AbsPath> fileObj);
 
-        public delegate void ObjectDeletedEventHandler(FsObject<AbsPath> storedProps);
+        public delegate void TimedActionHandler(FsObject<AbsPath> storedProps);
 
         public delegate void ObjectPathChangedEventHandler(FsObject<AbsPath> sourceObj, FsObject<AbsPath> targetObj);
 
@@ -33,12 +33,16 @@ namespace FileModule
 
         private const long DeleteWaitTime = 500;
         private const long NewFileCheckPeriod = 1000;
+        private const long PairedCheckWaitTime = 100;
+
         private readonly Dictionary<AbsPath, IndexingJob> _activeIndexings;
 
-        private readonly Dictionary<AbsPath, ObjectDeletedEvent> _deletedFolders;
-        private readonly Dictionary<AbsPath, ObjectDeletedEvent> _deletedFiles;
+        private readonly TimedMap<TimedFolderDeletion> _deletedFolders;
+        private readonly TimedMap<TimedAction> _deletedFiles;
 
-        private readonly Dictionary<AbsPath, NewFileTracking> _trackedNewFiles;
+        private readonly TimedMap<TimedAction> _trackedNewFiles;
+
+        private readonly TimedMap<TimedAction> _pairChangeTimings;
         //private readonly string folderPath;
         //private FileTable fileTable;
 
@@ -51,12 +55,14 @@ namespace FileModule
         public FileWatcher(NetworkContext netContext)
             : base(netContext)
         {
-            _deletedFolders = new Dictionary<AbsPath, ObjectDeletedEvent>();
-            _deletedFiles = new Dictionary<AbsPath, ObjectDeletedEvent>();
-            _activeIndexings = new Dictionary<AbsPath, IndexingJob>();
-            _trackedNewFiles = new Dictionary<AbsPath, NewFileTracking>();
+            _deletedFolders = new TimedMap<TimedFolderDeletion>();
+            _deletedFiles = new TimedMap<TimedAction>();
 
-            _watcher = new FileSystemWatcher(WorkPath.Get);
+            _activeIndexings = new Dictionary<AbsPath, IndexingJob>();
+            _trackedNewFiles = new TimedMap<TimedAction>();
+            _pairChangeTimings = new TimedMap<TimedAction>();
+
+            _watcher = new FileSystemWatcher(WorkPath.ToString());
 
             _watcher.IncludeSubdirectories = true;
 
@@ -73,7 +79,27 @@ namespace FileModule
             _queue = new QueingThread();
             _queue.Start();
         }
-
+//        public class DeletedFolderProps
+//        {
+//            private TimedAction _timing;
+//            private Dictionary<AbsPath, FsObject<AbsPath>> _indexedContent;
+//
+//            public DeletedFolderProps(TimedAction timing, Dictionary<AbsPath, FsObject<AbsPath>> indexedContent)
+//            {
+//                _timing = timing;
+//                _indexedContent = indexedContent;
+//            }
+//
+//            public TimedAction Timing
+//            {
+//                get { return _timing; }
+//            }
+//
+//            public Dictionary<AbsPath, FsObject<AbsPath>> IndexedContent
+//            {
+//                get { return _indexedContent; }
+//            }
+//        }
         public bool Active
         {
             get { return _watcher.EnableRaisingEvents; }
@@ -83,92 +109,89 @@ namespace FileModule
         public event ObjectPathChangedEventHandler MovedRenamed;
         public event FileReplacedEventHandler Replaced;
 
-        public event ObjectDeletedEventHandler Deleted;
+        public event TimedActionHandler Deleted;
         public event ObjectCreatedEventHandler Created;
         public event FileChangedEventHandler Modified;
 
 
+        #region FileEvents
+
         private void FileChanged(AbsPath path)
         {
-            
-            if(_trackedNewFiles.ContainsKey(path))
+            TimedAction timed;
+            if (_trackedNewFiles.TryGetValue(path, out timed))
             {
-                TrackedFileCheck(_trackedNewFiles[path]);
+                // File is new, not yet in the table
+                TrackedFileCheck(timed);
             }
-            else
+            else 
             {
-                FsObject<AbsPath> oldFileProps;
-                try
+
+                FsFile<AbsPath> oldFileProps;
+                FsFile<AbsPath> newFileProps;
+//                try
+//                {
+                oldFileProps = (FsFile<AbsPath>) IndexedTable.GetObject(path);
+                newFileProps = FsFile<AbsPath>.LoadFrom(path);
+                if(_pairChangeTimings.TryGetValue(path, out timed))
                 {
-                    oldFileProps = IndexedTable.GetObject(path);
+                    RemoveTimedEvent(_pairChangeTimings, timed);
+                    Modified(oldFileProps, newFileProps);
                 }
-                catch (FileNotFoundException)
+                else
                 {
+                    timed = new TimedAction(newFileProps, FireChanged, PairedCheckWaitTime, Timeout.Infinite);
+                    _pairChangeTimings.Add(path, timed);
                     return;
                 }
-                Modified((FsFile<AbsPath>)oldFileProps, FsFile<AbsPath>.LoadFrom(path));
+//                }
+//                catch (FileNotFoundException)
+//                {
+//                    return;
+//                }
+                
             }
-        }
-
-
-        private ObjectDeletedEvent AddDeleteEvent(FsObject<AbsPath> fsObject)
-        {
-//            FsObject<AbsPath> descr = IndexedTable.GetObject(path);
-
-            ObjectDeletedEvent events = new ObjectDeletedEvent(fsObject, FileEventsTimerEnded);
             
-            if (fsObject is FsFile<AbsPath>)
-            {
-                _deletedFiles.Add(fsObject.Path, events);
-            }
-            else
-            {
-                _deletedFolders.Add(fsObject.Path, events);
-            }
-
-            return events;
         }
 
-
-        private void FileEventsTimerEnded(object state)
+        private void FireChanged(object state)
         {
             _queue.Add(() =>
             {
-                ObjectDeletedEvent deletion = (ObjectDeletedEvent) state;
-
-                if (deletion.IsActive)
+                var timing = (TimedAction)state;
+                if (!timing.IsStopped)
                 {
-                    deletion.IsActive = false;
-
-                    if (deletion.StoredProps is FsFile<AbsPath>)
-                    {
-                        _deletedFiles.Remove(deletion.Path);
-                    }
-                    else
-                    {
-                        _deletedFolders.Remove(deletion.Path);
-                    }
-                    Deleted(deletion.StoredProps);
+                    RemoveTimedEvent(_pairChangeTimings, timing);
+                    //            _pairChangeTimings.Remove(timing.Path);
+                    //            timing.Stop();
+                    FsFile<AbsPath> oldFileProps = (FsFile<AbsPath>)IndexedTable.GetObject(timing.Path);
+                    Modified(oldFileProps, (FsFile<AbsPath>)timing.Descriptor);
                 }
+                
             });
+            
+
         }
+
+       
 
         private void FileCreated(AbsPath path)
         {
             var fsFile = FsFile<AbsPath>.LoadFrom(path);
 
-            List<ObjectDeletedEvent> deletedFilesList = new List<ObjectDeletedEvent>(_deletedFiles.Values);
+            List<TimedAction> deletedFilesList = new List<TimedAction>(_deletedFiles.Values);
 
             try
             {
-                ObjectDeletedEvent deleted = deletedFilesList.First(del => del.StoredProps.FastEqualityCheck(fsFile));
-                deleted.IsActive = false; // Bezpieczne, nie byloby juz na liscie gdyby bylo juz wczesniej false.
-                MovedRenamed(deleted.StoredProps, fsFile);
+                TimedAction deleted = deletedFilesList.First(del => del.Descriptor.FastEqualityCheck(fsFile));
+                RemoveTimedEvent(_deletedFiles, deleted);// Bezpieczne, nie byloby juz na liscie gdyby bylo juz wczesniej zatrzymane.
+                //   deleted.Stop(); 
+                MovedRenamed(deleted.Descriptor, fsFile);
             }
             catch (InvalidOperationException) // Matching deletion not found
             {
                 TrackNewFile(fsFile);
-         //       Created(fsFile);
+                //       Created(fsFile);
                 
             }
         }
@@ -183,7 +206,8 @@ namespace FileModule
             }
             else
             {
-                _trackedNewFiles.Add(fsFile.Path, new NewFileTracking(fsFile,TrackedFileCheck));
+                var tracking = new TimedAction(fsFile, TrackedFileCheck, NewFileCheckPeriod, NewFileCheckPeriod);
+                _trackedNewFiles.Add(fsFile.Path, tracking);
                 //Console.Out.WriteLine(e);
             }
             
@@ -191,94 +215,252 @@ namespace FileModule
         
         private void TrackedFileCheck(object state)
         {
-            var tracking = (NewFileTracking) state;
+            var tracking = (TimedAction) state;
 
-            if(!tracking.IsStopped && !IsFileBeingUsed(tracking.FileProps.Path))
+            if(!tracking.IsStopped && !IsFileBeingUsed(tracking.Descriptor.Path))
             {
-                tracking.Stop();
-                _trackedNewFiles.Remove(tracking.FileProps.Path);
-                Created(tracking.FileProps);
+                RemoveTimedEvent(_trackedNewFiles, tracking);
+//                tracking.Stop();
+//                _trackedNewFiles.Remove(tracking.Descriptor.Path);
+                Created(tracking.Descriptor);
             }
 
         }
 
+        #endregion
 
-        private void IndexingJobCallback(IndexingJob indexing, bool success, object userState)
+        #region Common: Deleted
+        private void ObjectDeleted(AbsPath path)
         {
-            if (_activeIndexings.ContainsKey(indexing.Dir) && _activeIndexings[indexing.Dir] == indexing)
+            FsObject<AbsPath> fsObject = IndexedTable.GetObject(path);
+
+      
+            if (fsObject is FsFile<AbsPath>)
             {
-                _activeIndexings.Remove(indexing.Dir);
-            }
-
-            if (success)
-            {
-                List<AbsPath> folderList = (List<AbsPath>) userState;
-                AbsPath path;
-                ObjectDeletedEvent delEvent = null;
-
-                // TODO: Czesciowe dopasowanie
-                if (TryFindMatch(indexing.Table, folderList, out path))
-                {
-                    delEvent = _deletedFolders[path];
-                }
-                if (delEvent != null && delEvent.IsActive)
-                {
-                    delEvent.IsActive = false;
-
-                    // Przeniesienie
-                    MovedRenamed(new FsFolder<AbsPath>(path), new FsFolder<AbsPath>(indexing.Dir));
-                    
-
-                    // przywrocenie timera dla pozostalych
-//                    foreach (var del in _deletedFolders.Values.Where(del => !del.Path.Equals(path)))
-//                    {
-//                        del.IsActive = true;
-//                    }
-                }
-                else
-                {
-                    // Stworzenie nowego
-                    foreach (var obj in indexing.Table.Values)
-                    {
-                        Created(obj);
-                    }
-                
-                }
+                TimedAction events = new TimedAction(fsObject, DeleteTimerEnded, DeleteWaitTime, Timeout.Infinite);
+                _deletedFiles.Add(fsObject.Path, events);
             }
             else
             {
-               // _interruptedIndexings.Add(indexing.Dir);
+                
+                var indexed = IndexedTable.GetIndexedFor(fsObject.Path);
+                TimedFolderDeletion events = new TimedFolderDeletion(fsObject, DeleteTimerEnded, indexed);
+                _deletedFolders.Add(fsObject.Path, events); 
             }
+            TryResetIndexings(fsObject.Path);
         }
 
-        private bool TryFindMatch(Dictionary<AbsPath, FsObject<AbsPath>> table, List<AbsPath> folderList,
-                                  out AbsPath path)
+        private void DeleteTimerEnded(object state)
         {
-            throw new NotImplementedException();
+            _queue.Add(() =>
+            {
+                TimedAction deletion = (TimedAction)state;
+
+                if (!deletion.IsStopped)
+                {
+                    if (deletion.Descriptor is FsFile<AbsPath>)
+                    {
+                        RemoveTimedEvent(_deletedFiles, deletion);
+                    }
+                    else
+                    {
+                        RemoveTimedEvent(_deletedFolders, deletion);
+                    }
+                    Deleted(deletion.Descriptor);
+                }
+            });
         }
-        private List<AbsPath> SortedDeletionList(Dictionary<AbsPath, ObjectDeletedEvent> deletedMap, AbsPath firstMatchPath)
+        #endregion
+
+        
+
+        private void IndexingJobCallback(IndexingJob finishedIndexing, Exception exception, object userState)
         {
-            List<AbsPath> folderList = new List<AbsPath>(deletedMap.Keys);
-            string name = Path.GetFileName(firstMatchPath);
+            _queue.Add(() =>
+            {
+                IndexingJob indexingJob;
+                if (_activeIndexings.TryGetValue(finishedIndexing.Dir, out indexingJob) && indexingJob == finishedIndexing)
+                {
+                    _activeIndexings.Remove(finishedIndexing.Dir);
+                }
+
+                if (exception==null)
+                {
+                    AbsPath path;
+                    TimedAction delEvent = null;
+                    List<FsObject<AbsPath>> deleted;
+                    List<FsFile<AbsPath>> modified;
+                    List<FsObject<AbsPath>> newObjects;
+                    // TODO: Czesciowe dopasowanie
+                    if (TryFindMatch(finishedIndexing.Table, userState as List<Tuple<AbsPath, Dictionary<AbsPath, FsObject<AbsPath>>>>
+                        , out path, out deleted, out newObjects, out modified))
+                    {
+                        delEvent = _deletedFolders[path];
+                    }
+                    if (delEvent != null && !delEvent.IsStopped)
+                    {
+
+                        RemoveTimedEvent(_deletedFolders, delEvent);
+
+                        MovedRenamed(new FsFolder<AbsPath>(path), new FsFolder<AbsPath>(finishedIndexing.Dir));
+                        foreach (FsObject<AbsPath> fsObject in deleted)
+                        {
+                            Deleted(fsObject);
+                        }
+                        foreach (FsFile<AbsPath> fsObject in modified)
+                        {
+                            Modified((FsFile<AbsPath>)IndexedTable.GetObject(fsObject.Path), fsObject);
+
+                        }
+                        foreach (FsObject<AbsPath> newObject in newObjects)
+                        {
+                            Created(newObject);
+                        }
+                    }
+                    else
+                    {
+                        Created(new FsFolder<AbsPath>(finishedIndexing.Dir));
+                        // Stworzenie nowego
+                        foreach (var obj in finishedIndexing.Table.Values)
+                        {
+                            Created(obj);
+                        }
+
+                    }
+                }
+                else
+                {
+                    LoggingService.Trace.Error(exception.ToString());
+                }
+            });
+            
+
+        }
+
+        #region MatchFunction
+        //TODO: Optymalizacja
+
+        /// <summary>
+        /// Finds a folder whose content matches given indexed object tree.
+        /// </summary>
+        /// <param name="indexedObjects">Newly indexed objects</param>
+        /// <param name="deletedFoldersToCheck">List of pairs of folder path and indexed folder content as Dictionary</param>
+        /// <param name="resultPath">Path to matching folder</param>
+        /// <param name="deleted"></param>
+        /// <param name="newObjects"></param>
+        /// <param name="modified"></param>
+        /// <returns></returns>
+        private static bool TryFindMatch(Dictionary<AbsPath, FsObject<AbsPath>> indexedObjects,
+            List<Tuple<AbsPath, Dictionary<AbsPath, FsObject<AbsPath>>>> deletedFoldersToCheck,
+                                  out AbsPath resultPath, out List<FsObject<AbsPath>> deleted, 
+            out List<FsObject<AbsPath>> newObjects, out List<FsFile<AbsPath>> modified)
+        {
+            resultPath = default(AbsPath);
+            deleted = default(List<FsObject<AbsPath>>);
+            newObjects = default(List<FsObject<AbsPath>>);
+            modified = default(List<FsFile<AbsPath>>);
+            if (deletedFoldersToCheck.Count == 0)
+            {
+                return false;
+            }
+//            List<FsObject<AbsPath>> deleted = new List<FsObject<AbsPath>>();
+//            List<FsObject<AbsPath>> newAndModified = new List<FsObject<AbsPath>>();
+
+            foreach (var pair in deletedFoldersToCheck)
+            {
+                int matchesCount = 0;
+                Dictionary<AbsPath, FsObject<AbsPath>> deletedContent = pair.Item2;
+                deleted = new List<FsObject<AbsPath>>();
+                newObjects = new List<FsObject<AbsPath>>();
+                modified = new List<FsFile<AbsPath>>();
+                foreach (var descriptor in indexedObjects.Values)
+                {
+
+                    FsObject<AbsPath> fsObject;
+
+                    if (deletedContent.TryGetValue(descriptor.Path, out fsObject) )
+                    {
+                        if(!fsObject.Equals(descriptor))
+                        {
+                            modified.Add((FsFile<AbsPath>) descriptor);
+                        }
+                        else
+                        {
+                            matchesCount++;
+                        }
+                        
+                    }
+                    else
+                    {
+                        newObjects.Add(descriptor);
+                    }
+                }
+                foreach (var descriptor in deletedContent.Values)
+                {
+
+                    FsObject<AbsPath> fsObject;
+
+                    if (!indexedObjects.TryGetValue(descriptor.Path, out fsObject))
+                    {
+                        deleted.Add(descriptor);
+                    }
+
+                }
+
+                if (modified.Count + deleted.Count +newObjects.Count< 2 * matchesCount)
+                {
+                    resultPath = pair.Item1;
+                    return true;
+                }
+                // var folder = table.Table[folderPath];
+
+
+            }
+
+            return false;
+        }
+        #endregion
+
+//        private static List<AbsPath> SortedDeletionList(TimedMap<TimedFolderDeletion> deletedMap, AbsPath firstMatchPath)
+//        {
+//            deletedMap.
+//            List<AbsPath> folderList = new List<AbsPath>(deletedMap.Keys);
+//            string name = Path.GetFileName(firstMatchPath);
+//             dodanie do listy wszystkich potencjalnych folderow);
+//             sortowanie aby folder o nazwie takiej samej jak ten folder
+//             znalazl sie na poczcatku jako najbardziej prawdopodobny
+//            folderList.Sort((one, two) =>
+//            {
+//                string n = Path.GetFileName(one);
+//                if (n != null && n.Equals(name))
+//                {
+//                    return -1;
+//                }
+//                return 1;
+//            });
+//            return folderList;
+//        }
+        private void FolderCreated(AbsPath fullPath)
+        {
+  
+            var folderList = 
+                _deletedFolders.Select(pair => Tuple.Create(pair.Key, pair.Value.IndexedContent)).ToList();
+          
+            string name = Path.GetFileName(fullPath);
             // dodanie do listy wszystkich potencjalnych folderow);
             // sortowanie aby folder o nazwie takiej samej jak ten folder
             // znalazl sie na poczcatku jako najbardziej prawdopodobny
             folderList.Sort((one, two) =>
             {
-                string n = Path.GetFileName(one);
+                string n = Path.GetFileName(one.Item1);
                 if (n != null && n.Equals(name))
                 {
                     return -1;
                 }
                 return 1;
             });
-            return folderList;
-        }
-        private void FolderCreated(AbsPath fullPath)
-        {
-            
+           
 
-            List<AbsPath> folderList = SortedDeletionList(_deletedFolders, fullPath);
 
             IndexingJob indexing = new IndexingJob(fullPath);
             _activeIndexings.Add(fullPath, indexing);
@@ -300,33 +482,10 @@ namespace FileModule
         }
 
 
-        private void ObjectDeleted(AbsPath path)
-        {
-            FsObject<AbsPath> obj = IndexedTable.GetObject(path);
+        
 
-            AddDeleteEvent(obj);
-            TryResetIndexings(obj.Path);
-//            if (obj is FsFile<AbsPath>)
-//            {
-//                FileDeleted(obj as FsFile<AbsPath>);
-//            }
-//            else
-//            {
-//                FolderDeleted(obj as FsFolder<AbsPath>);
-//            }
-        }
 
-//        private void FolderDeleted(FsFolder<AbsPath> fsFolder)
-//        {
-//            
-//        }
-//
-//
-//        private void FileDeleted(FsFile<AbsPath> fsFile)
-//        {
-//            throw new NotImplementedException();
-//        }
-
+        #region FileSystemWatcher events
 
         private void OnRenamed(object source, RenamedEventArgs eArgs)
         {
@@ -359,7 +518,7 @@ namespace FileModule
                         {
                             _queue.Add(() => FileChanged((AbsPath) eArgs.FullPath));
                             
-                        //    Console.Out.WriteLine("FileChanged " + eArgs.FullPath);
+                            //    Console.Out.WriteLine("FileChanged " + eArgs.FullPath);
                         }
                         // else nic nie rob
 
@@ -425,6 +584,27 @@ namespace FileModule
 
             //  Console.WriteLine("File: " + eArgs.FullPath + " " + eArgs.ChangeType);
         }
+
+        #endregion
+
+       
+        #region Helpers
+
+        private interface IOutTimedMap<out TAction>
+        {
+            bool Remove(AbsPath par);
+            
+        }
+        private class TimedMap<TAction> : Dictionary<AbsPath, TAction>, IOutTimedMap<TAction>
+        {
+            
+        }
+
+        private static void RemoveTimedEvent(IOutTimedMap<TimedAction> dictionary, TimedAction action)
+        {
+            action.Stop();
+            dictionary.Remove(action.Path);
+        }
         private static bool IsFileBeingUsed(AbsPath path)
         {
             try
@@ -438,9 +618,13 @@ namespace FileModule
                 return true;
             }
         }
-        public class NewFileTracking
+        #endregion
+
+        #region Nested type: TimedAction
+        
+        public class TimedAction
         {
-            private readonly FsObject<AbsPath> _fileProps;
+            private readonly FsObject<AbsPath> _descriptor;
             private readonly Timer _tickTimer;
             private bool _stopped;
 
@@ -449,54 +633,46 @@ namespace FileModule
                 get { return _stopped; }
             }
 
-            public NewFileTracking(FsObject<AbsPath> fileProps, TimerCallback callback)
+            public TimedAction(FsObject<AbsPath> descriptor, TimerCallback callback, long dueTile, long period)
             {
-                _fileProps = fileProps;
-                _tickTimer = new Timer(callback, this, NewFileCheckPeriod, NewFileCheckPeriod);
+                _descriptor = descriptor;
+                _tickTimer = new Timer(callback, this, dueTile, period);
             }
 
-            public FsObject<AbsPath> FileProps
+            public FsObject<AbsPath> Descriptor
             {
-                get { return _fileProps; }
+                get { return _descriptor; }
+            }
+            public AbsPath Path
+            {
+                get
+                {
+                    return _descriptor.Path;
+                }
             }
             public void Stop()
             {
+                if (_stopped)throw new InvalidOperationException();
                 _stopped = true;
                 _tickTimer.Dispose();
             }
         }
-        #region Nested type: ObjectDeletedEvent
+        #endregion
 
-        public class ObjectDeletedEvent
+        public class TimedFolderDeletion : TimedAction
         {
-            private readonly FsObject<AbsPath> _storedProps;
-            private readonly Timer _timer;
+            private Dictionary<AbsPath, FsObject<AbsPath>> _indexedContent;
 
-            public ObjectDeletedEvent(FsObject<AbsPath> storedProps, TimerCallback callback)
+            public TimedFolderDeletion(FsObject<AbsPath> descriptor, TimerCallback callback, Dictionary<AbsPath, FsObject<AbsPath>> indexedContent)
+                : base(descriptor, callback, DeleteWaitTime, Timeout.Infinite)
             {
-                _storedProps = storedProps;
-                _timer = new Timer(callback, this, DeleteWaitTime, Timeout.Infinite);
-                IsActive = true;
+                _indexedContent = indexedContent;
             }
 
-            public bool IsActive { get; set; }
-
-            public FsObject<AbsPath> StoredProps
+            public Dictionary<AbsPath, FsObject<AbsPath>> IndexedContent
             {
-                get { return _storedProps; }
-            }
-
-            public AbsPath Path
-            {
-                get { return _storedProps.Path; }
-            }
-
-            public Timer Timer
-            {
-                get { return _timer; }
+                get { return _indexedContent; }
             }
         }
-
-        #endregion
     }
 }

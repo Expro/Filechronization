@@ -84,7 +84,7 @@ namespace FileModule
         {
 //            string relPath = _netContext.Path.CreateRelative(path);
             Console.WriteLine("File Deleted: " + storedDescr.Path);
-            _netContext.TableOverseer.Remove(storedDescr.Path);
+            _netContext.TableOverseer.Remove(storedDescr);
         }
 
         public FileOrFolder GetObjectType(string path)

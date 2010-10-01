@@ -3,18 +3,17 @@ namespace FileModule
 {
     #region Usings
 
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     #endregion
 
-    #region Usings
-
-    #endregion
 
     public class MainStoragePath
     {
-        private const string AnySlash = @"[\\\/]";
+        public const string AnySlash = @"[\\\/]";
 
 
         private readonly AbsPath mainPath;
@@ -30,7 +29,16 @@ namespace FileModule
             get { return mainPath; }
         }
 
-
+        public ICollection<Name> GetParentFolders(AbsPath path)
+        {
+            AbsPath parentPath = (AbsPath) Path.GetDirectoryName(path);
+            if (parentPath.Equals(mainPath))
+            {
+                return new List<Name>();
+            }
+            RelPath relativeParent = CreateRelative(parentPath);
+            return Regex.Split(relativeParent, AnySlash).Select(name => (Name)name).ToList();
+        }
         /// <summary>
         ///   Zwraca nazwe bezposredniego podfolderu sciezki glownej, w ktorym znajduje sie dany plik
         /// </summary>
@@ -51,6 +59,11 @@ namespace FileModule
         public AbsPath ToFull(RelPath relativePath)
         {
             return (AbsPath) Path.Combine(mainPath, relativePath);
+        }
+
+        public override string ToString()
+        {
+            return mainPath;
         }
     }
 }

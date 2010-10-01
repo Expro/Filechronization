@@ -23,7 +23,13 @@ namespace FileModule
         {
             get { return _path; }
         }
-
+        public Name Name
+        {
+            get
+            {
+                return (Name) System.IO.Path.GetFileName(Path.ToString());
+            }
+        }
         public bool IsSynchronized
         {
             get { return _synchronized; }
@@ -40,10 +46,12 @@ namespace FileModule
         }
 
         /// <summary>
+        /// Creates new FsObject
         /// </summary>
-        /// <param name = "fullPath"></param>
+        /// <param name = "fullPath">Given path</param>
         /// <exception cref = "System.IO.FileNotFoundException"></exception>
-        /// <returns></returns>
+        /// <exception cref = "System.IO.IOException"></exception>
+        /// <returns>New FsObject</returns>
         public static FsObject<AbsPath> NewLocal(AbsPath fullPath)
         {
             if (File.Exists(fullPath))
