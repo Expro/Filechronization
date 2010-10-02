@@ -48,8 +48,8 @@ namespace FileModule
 
         public void LoginEnded()
         {
-            _context.TableOverseer.IndexAllFiles();
-            _context.FileWatcher.Active = true;
+            _context.MainFileIndex.IndexAllFiles();
+            _context.ChangeWatcher.Active = true;
         }
     }
 }

@@ -5,13 +5,13 @@ namespace FileModule
     using System.Text.RegularExpressions;
 
     [Serializable]
-    public class Name : IPath
+    public class Name : IRelPath
     {
         private readonly string _name;
 
         public Name(string name)
         {
-            if (String.IsNullOrEmpty(name) ||  Regex.IsMatch(name, MainStoragePath.AnySlash))
+            if (String.IsNullOrEmpty(name) ||  Regex.IsMatch(name, PathUtils.AnySlash))
             {
                 throw new ArgumentException("Path " + name + " is not filename.");
             }
@@ -25,9 +25,9 @@ namespace FileModule
                 return _name;
             }
         }
-        public static implicit operator string(Name path)
+        public static implicit operator string(Name name)
         {
-            return path.Get;
+            return name._name;
         }
 
         public static explicit operator Name(string name)
@@ -37,7 +37,7 @@ namespace FileModule
 
         public override string ToString()
         {
-            return Get;
+            return _name;
         }
 
         public bool Equals(Name other)

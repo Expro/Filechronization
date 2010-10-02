@@ -20,19 +20,19 @@ namespace FileModule
             get { return _network.FileModule; }
         }
 
-        protected MainStoragePath WorkPath
+        protected MainStoragePath MainPath
         {
-            get { return _network.Path; }
+            get { return _network.MainPath; }
         }
 
-        protected TableOverseer IndexedTable
+        protected MainFileIndex FileIndex
         {
-            get { return _network.TableOverseer; }
+            get { return _network.MainFileIndex; }
         }
 
-        protected FileWatcher FileWatcher
+        protected ChangeWatcher ChangeWatcher
         {
-            get { return _network.FileWatcher; }
+            get { return _network.ChangeWatcher; }
         }
     }
 }

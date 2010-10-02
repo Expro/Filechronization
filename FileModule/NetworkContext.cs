@@ -14,22 +14,22 @@ namespace FileModule
     public class NetworkContext
     {
         private readonly NewFileModule _fileModule;
-        private readonly FileWatcher _fileWatcher;
+        private readonly ChangeWatcher _changeWatcher;
         private readonly NetworkModel _netModel;
-        private readonly MainStoragePath _path;
-        private readonly TableOverseer _tableOverseer;
+        private readonly MainStoragePath _mainPath;
+        private readonly MainFileIndex _mainFileIndex;
 
 
-        private MessageDispatcher _dispatcher;
+        private ChangeMaster _dispatcher;
 
-        public NetworkContext(NewFileModule module, NetworkModel model, MainStoragePath path)
+        public NetworkContext(NewFileModule module, NetworkModel model, MainStoragePath mainPath)
         {
             _fileModule = module;
-            _path = path;
+            _mainPath = mainPath;
             _netModel = model;
-            _tableOverseer = new TableOverseer(this);
-            _fileWatcher = new FileWatcher(this);
-            _dispatcher = new MessageDispatcher(this);
+            _mainFileIndex = new MainFileIndex(this);
+            _changeWatcher = new ChangeWatcher(this);
+            _dispatcher = new ChangeMaster(this);
         }
 
         public List<GroupModel> GroupList
@@ -43,25 +43,25 @@ namespace FileModule
             get { return _fileModule; }
         }
 
-        public MainStoragePath Path
+        public MainStoragePath MainPath
         {
-            get { return _path; }
+            get { return _mainPath; }
         }
 
-        public TableOverseer TableOverseer
+        public MainFileIndex MainFileIndex
         {
-            get { return _tableOverseer; }
+            get { return _mainFileIndex; }
         }
 
-        public FileWatcher FileWatcher
+        public ChangeWatcher ChangeWatcher
         {
-            get { return _fileWatcher; }
+            get { return _changeWatcher; }
         }
 
         public FsObject<AbsPath> GetFile(RelPath fileName)
         {
-            AbsPath path = Path.ToFull(fileName);
-            return TableOverseer.GetObject(path);
+            AbsPath path = fileName.AbsoluteIn(MainPath);
+            return MainFileIndex.GetObjectAbs(path);
         }
 
         public LocalBlockInfo ToLocal(BlockInfo block)

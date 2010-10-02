@@ -20,12 +20,12 @@ namespace FileModule
     ///   Each subfolder is bound to only one group
     ///   One group (=) One FileTable
     /// </summary>
-    public class TableOverseer : NetworkContextModule
+    public class MainFileIndex : NetworkContextModule
     {
         /// <summary>
         ///   nazwie podfolderu przyporzadkowuje tablice w ktorej sie on znajduje
         /// </summary>
-        private readonly Dictionary<string /*Folder name*/, FileTable> subfolderShortcuts;
+        private readonly Dictionary<Name /*Folder name*/, FileTable> _subfolderShortcuts;
 
         /// <summary>
         ///   Kazda grupa zarzadza jedn¹ tablic¹ plikow
@@ -33,18 +33,18 @@ namespace FileModule
         private readonly Dictionary<GroupModel, FileTable> tableList;
 
 
-        public TableOverseer(NetworkContext network)
+        public MainFileIndex(NetworkContext network)
             : base(network)
         {
-            subfolderShortcuts = new Dictionary<string, FileTable>();
+            _subfolderShortcuts = new Dictionary<Name, FileTable>();
             tableList = new Dictionary<GroupModel, FileTable>();
             foreach (GroupModel group in network.GroupList)
             {
-                FileTable table = new FileTable(WorkPath);
+                FileTable table = new FileTable(MainPath);
                 tableList.Add(group, table);
                 foreach (string folder in group.FolderList)
                 {
-                    subfolderShortcuts.Add(folder, table);
+                    _subfolderShortcuts.Add((Name) folder, table);
                 }
             }
         }
@@ -55,11 +55,21 @@ namespace FileModule
         /// <param name = "fullPath">Path of the object</param>
         /// <returns>Object descriptor</returns>
         /// <exception cref = "System.IO.FileNotFoundException"></exception>
-        public FsObject<AbsPath> GetObject(AbsPath fullPath)
+        public FsObject<AbsPath> GetObjectAbs(AbsPath fullPath)
+        {
+
+            return GetObject(fullPath.RelativeTo(MainPath)).AbsoluteIn(fullPath);
+            
+        }
+        /// <summary>
+        ///   Searches indexed file table for an object with given path
+        /// </summary>
+        /// <param name = "fullPath">Path of the object</param>
+        /// <returns>Object descriptor</returns>
+        /// <exception cref = "System.IO.FileNotFoundException"></exception>
+        public FsObject<RelPath> GetObject(RelPath fullPath)
         {
             FileTable table = ChooseTable(fullPath);
-
-            //string relativePath = network.MainPath.CreateRelative(fullPath);
 
             try
             {
@@ -70,7 +80,6 @@ namespace FileModule
                 throw new FileNotFoundException("File: " + fullPath + "was not found.");
             }
         }
-
 //        public void IndexFiles(string folderPath)
 //        {
 //            var table = ChooseTable(folderPath);
@@ -79,8 +88,8 @@ namespace FileModule
 //            
 //        }
 
-        
-        public Dictionary<AbsPath, FsObject<AbsPath>> GetIndexedFor(AbsPath folderPath)
+
+        public IndexedObjects GetIndexedFor(RelPath folderPath)
         {
             FileTable table = ChooseTable(folderPath);
             return table.GetIndexedFor(folderPath);
@@ -98,14 +107,14 @@ namespace FileModule
         /// </summary>
         /// <param name = "path">Path to file in subfolder</param>
         /// <returns></returns>
-        public FileTable ChooseTable(IPath path)
+        public FileTable ChooseTable(RelPath path)
         {
-            string subfolder = WorkPath.ExtractSubfolderName(path);
-            return subfolderShortcuts[subfolder];
+            Name subfolder = MainPath.ExtractSubfolderName(path);
+            return _subfolderShortcuts[subfolder];
             //   subfolderShortcuts.Add();
         }
 
-        public void AddFile(FsObject<AbsPath> descriptor)
+        public void Add(FsObject<RelPath> descriptor)
         {
             FileTable table = ChooseTable(descriptor.Path);
 
@@ -117,13 +126,13 @@ namespace FileModule
 //            var table = ChooseTable(folderPath);
 //            table.AddFolders(new []{folderPath});
 //        }
-        public void RunIndexingJob(IndexingJob indexing, Action<IndexingJob, Exception, object> callback, object userState)
+        public void RunIndexingJob(IndexingJob indexing, Action<IndexingJob, Exception> callback)
         {
             Task.Factory.StartNew(indexing.IndexAll)
-                .ContinueWith(prev => callback(indexing, prev.Exception, userState));
+                .ContinueWith(prev => callback(indexing, prev.Exception));
         }
 
-        public void Remove(FsObject<AbsPath> descriptor)
+        public void Remove(FsObject<RelPath> descriptor)
         {
             FileTable table = ChooseTable(descriptor.Path);
             table.Remove(descriptor);

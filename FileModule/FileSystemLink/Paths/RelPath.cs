@@ -8,14 +8,17 @@ namespace FileModule
 
     #endregion
 
+    /// <summary>
+    /// A relative path. In most cases represents path relative to MainStoragePath in given network.
+    /// </summary>
     [Serializable]
-    public struct RelPath : IPath
+    public struct RelPath : IRelPath
     {
         private readonly string _relativePath;
 
         public RelPath(string relativePath)
         {
-            if (String.IsNullOrEmpty(relativePath) || Path.IsPathRooted(relativePath))
+            if (relativePath == null || Path.IsPathRooted(relativePath))
             {
                 throw new ArgumentException("Path " + relativePath + " is not relative.");
             }
@@ -31,14 +34,14 @@ namespace FileModule
 
         #endregion
 
-        public static implicit operator string(RelPath path)
-        {
-            return path.Get;
-        }
+//        public static implicit operator string(RelPath path)
+//        {
+//            return path.Get;
+//        }
 
-        public static explicit operator RelPath(string absPath)
+        public static explicit operator RelPath(string relPath)
         {
-            return new RelPath(absPath);
+            return new RelPath(relPath);
         }
 
         public override string ToString()

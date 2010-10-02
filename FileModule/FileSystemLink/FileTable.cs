@@ -10,115 +10,20 @@ namespace FileModule
 
     #endregion
 
-    public class DirNode
-    {
-        private Name _name;
-        private DirNode _parent;
-        private Dictionary<Name, DirNode> _directories;
-        private Dictionary<Name, FsFile<Name>> _files;
-
-        public DirNode(Name name, DirNode parent)
-        {
-            _name = name;
-            _parent = parent;
-            _directories=new Dictionary<Name, DirNode>();
-            _files=new Dictionary<Name, FsFile<Name>>();
-        }
-
-        public Name Name
-        {
-            get { return _name; }
-        }
-
-        public Dictionary<Name, DirNode> Directories
-        {
-            get { return _directories; }
-        }
-
-        public Dictionary<Name, FsFile<Name>> Files
-        {
-            get { return _files; }
-        }
-
-        public DirNode Parent
-        {
-            get { return _parent; }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="descriptor"></param>
-        /// <returns>Created DirNode if parameter is a directory, null otherwise.</returns>
-        public DirNode Add(FsObject<AbsPath> descriptor)
-        {
-            var name = descriptor.Name;
-            if (descriptor is FsFile<AbsPath>)
-            {
-                FsFile<AbsPath> file = (FsFile<AbsPath>)descriptor;
-                _files.Add(name, new FsFile<Name>(name, file.Size, file.LastWrite));
-                return null;
-            }
-            else
-            {
-                var dir = new DirNode(name, this);
-                _directories.Add(name, dir);
-                return dir;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="descriptor"></param>
-        /// <returns>True if parameter is a directory, false otherwise.</returns>
-        public bool Remove(FsObject<AbsPath> descriptor)
-        {
-            var name = descriptor.Name;
-            if (descriptor is FsFile<AbsPath>)
-            {
-                _files.Remove(name);
-                return false;
-            }
-            else
-            {
-                _directories.Remove(name);
-                return true;
-            }
-        }
-
-
-        public void GetIndexed(AbsPath currentPath, Dictionary<AbsPath, FsObject<AbsPath>> result)
-        {
-            foreach (var file in _files.Values)
-            {
-                AbsPath fullPath = (AbsPath) Path.Combine(currentPath, file.Name);
-                result.Add(fullPath, new FsFile<AbsPath>(fullPath, file.Size, file.LastWrite));
-            }
-
-            foreach (var dir in _directories.Values)
-            {
-                AbsPath childPath = (AbsPath) Path.Combine(currentPath, dir.Name);
-                result.Add(childPath, new FsFolder<AbsPath>(childPath));
-                dir.GetIndexed(childPath, result);
-            }
-        }
-
-
-    }
-
-
+    
     [Serializable]
     public class FileTable
     {
         private readonly MainStoragePath _mainPath;
 
 
-        private readonly Dictionary<AbsPath, FsObject<AbsPath>> _table;
+        private readonly Dictionary<RelPath, FsObject<RelPath>> _table;
 
-        private readonly Dictionary<AbsPath, DirNode> _indexedDirectories;
+        private readonly Dictionary<RelPath, DirNode> _indexedDirectories;
 
         private DirNode _rootDirectory;
 
-        public Dictionary<AbsPath, FsObject<AbsPath>> Table
+        public Dictionary<RelPath, FsObject<RelPath>> Table
         {
             get { return _table; }
         }
@@ -130,16 +35,16 @@ namespace FileModule
         public FileTable(MainStoragePath mainPath)
         {
             _mainPath = mainPath;
-            _table = new Dictionary<AbsPath, FsObject<AbsPath>>();
+            _table = new Dictionary<RelPath, FsObject<RelPath>>();
             _rootDirectory = new DirNode((Name) Path.GetFileName(mainPath.ToString()),null);
-            _indexedDirectories = new Dictionary<AbsPath, DirNode>();
+            _indexedDirectories = new Dictionary<RelPath, DirNode>();
         }
-        public Dictionary<AbsPath, FsObject<AbsPath>> GetIndexedFor(AbsPath folderPath)
+        public IndexedObjects GetIndexedFor(RelPath folderPath)
         {
-            Dictionary<AbsPath, FsObject<AbsPath>> result = new Dictionary<AbsPath, FsObject<AbsPath>>();
+            var result = new IndexedObjects(folderPath);
 
             var parent = _indexedDirectories[folderPath];
-            parent.GetIndexed(folderPath, result);
+            parent.GetIndexed((RelPath) string.Empty, result);
             return result;
         }
 //        private void GetAll(DirNode current, string currentPath, Dictionary<AbsPath, FsObject<AbsPath>> result)
@@ -170,7 +75,7 @@ namespace FileModule
         {
             foreach (string fol in subfoldersNames)
             {
-                var path = _mainPath.ToFull((RelPath) fol);
+                var path = ((RelPath) fol).AbsoluteIn(_mainPath);
                 AddFile(path);
                 AddAll(path);
             }
@@ -199,17 +104,17 @@ namespace FileModule
             FsObject<AbsPath> obj;
             try
             {
-                obj = FsObject<AbsPath>.NewLocal(path);
+                obj = FsObject<AbsPath>.ReadFrom(path);
             }
             catch (IOException e) // Might be a bbug.
             {
                 LoggingService.Trace.Warning(e.ToString(), sender: this);
                 return;
             }
-            AddFile(obj);
+            AddFile(obj.RelativeTo(_mainPath));
         }
 
-        public void AddFile(FsObject<AbsPath> descriptor)
+        public void AddFile(FsObject<RelPath> descriptor)
         {
             
             _table.Add(descriptor.Path, descriptor);
@@ -224,18 +129,19 @@ namespace FileModule
             }
             
         }
-        private DirNode GetParentDir(FsObject<AbsPath> descriptor)
+        private DirNode GetParentDir(FsObject<RelPath> descriptor)
         {
-            var folders = _mainPath.GetParentFolders(descriptor.Path);
-
+            var folders = descriptor.Path.GetParentFolders();
+            
             DirNode current = _rootDirectory;
             foreach (Name folderName in folders)
             {
                 current = current.Directories[folderName];
             }
             return current;
+      
         }
-        public FsObject<AbsPath> GetFile(AbsPath absPath)
+        public FsObject<RelPath> GetFile(RelPath absPath)
         {
             return _table[absPath];
         }
@@ -244,7 +150,7 @@ namespace FileModule
 //        {
 //            return table.FirstOrDefault(fileDescriptor => fileDescriptor.Equals(pattern));
 //        }
-        public void Remove(FsObject<AbsPath> descriptor)
+        public void Remove(FsObject<RelPath> descriptor)
         {
             _table.Remove(descriptor.Path);
             DirNode parent = GetParentDir(descriptor);
@@ -255,6 +161,113 @@ namespace FileModule
             }
         }
 
-      
+        public class DirNode
+        {
+            private Name _name;
+            private DirNode _parent;
+            private Dictionary<Name, DirNode> _directories;
+            private Dictionary<Name, FsFile<Name>> _files;
+
+            public DirNode(Name name, DirNode parent)
+            {
+                _name = name;
+                _parent = parent;
+                _directories = new Dictionary<Name, DirNode>();
+                _files = new Dictionary<Name, FsFile<Name>>();
+            }
+
+            public Name Name
+            {
+                get
+                {
+                    return _name;
+                }
+            }
+
+            public Dictionary<Name, DirNode> Directories
+            {
+                get
+                {
+                    return _directories;
+                }
+            }
+
+            public Dictionary<Name, FsFile<Name>> Files
+            {
+                get
+                {
+                    return _files;
+                }
+            }
+
+            public DirNode Parent
+            {
+                get
+                {
+                    return _parent;
+                }
+            }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="descriptor"></param>
+            /// <returns>Created DirNode if parameter is a directory, null otherwise.</returns>
+            public DirNode Add(FsObject<RelPath> descriptor)
+            {
+                var name = descriptor.Name;
+                if (descriptor is FsFile<RelPath>)
+                {
+                    FsFile<RelPath> file = (FsFile<RelPath>)descriptor;
+                    _files.Add(name, new FsFile<Name>(name, file.Size, file.LastWrite));
+                    return null;
+                }
+                else
+                {
+                    var dir = new DirNode(name, this);
+                    _directories.Add(name, dir);
+                    return dir;
+                }
+            }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="descriptor"></param>
+            /// <returns>True if parameter is a directory, false otherwise.</returns>
+            public bool Remove(FsObject<RelPath> descriptor)
+            {
+                var name = descriptor.Name;
+                if (descriptor is FsFile<RelPath>)
+                {
+                    _files.Remove(name);
+                    return false;
+                }
+                else
+                {
+                    _directories.Remove(name);
+                    return true;
+                }
+            }
+
+
+            public void GetIndexed(RelPath currentPath, IndexedObjects result)
+            {
+                foreach (var file in _files.Values)
+                {
+                    RelPath path = file.Name.RelativeIn(currentPath);
+                    result.Index.Add(path, new FsFile<RelPath>(path, file.Size, file.LastWrite));
+                }
+
+                foreach (var dir in _directories.Values)
+                {
+                    RelPath childPath = dir.Name.RelativeIn(currentPath);
+                    result.Index.Add(childPath, new FsFolder<RelPath>(childPath));
+                    dir.GetIndexed(childPath, result);
+                }
+            }
+
+
+        }
+
+
     }
 }

@@ -92,5 +92,10 @@ namespace FileModule
                 return (Size.GetHashCode()*397) ^ LastWrite.GetHashCode();
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("File: Path:{0}, LW:{1}, Size:{2}, Ver:{3}", Path, _lastWrite, _size, _version);
+        }
     }
 }

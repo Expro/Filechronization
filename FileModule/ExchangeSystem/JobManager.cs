@@ -21,7 +21,7 @@ namespace FileModule.ExchangeSystem
 
 
         private readonly NewFileModule fileModule;
-        private readonly Dictionary<string, TransferJob> jobList;
+        private readonly Dictionary<RelPath, TransferJob> jobList;
 
 
         private readonly Random random;
@@ -30,7 +30,7 @@ namespace FileModule.ExchangeSystem
 
         public JobManager()
         {
-            jobList = new Dictionary<string, TransferJob>();
+            jobList = new Dictionary<RelPath, TransferJob>();
             activePieces = new Dictionary<PieceInfo, ActivePiece>();
 
             //requested = new HashSet<BlockInfo>();
@@ -81,7 +81,7 @@ namespace FileModule.ExchangeSystem
 
         private bool CheckPieceData(TransferJob job, PieceInfo piece)
         {
-            string path = fileModule._context.Path.ToFull(piece.RelFilePath);
+            string path = fileModule._context.MainPath.ToFull(piece.RelFilePath);
             // TODO: to jest zle na razie (stala wielkosc)
             byte[] data = _dataManager.ReadPiece(path, ExchUtils.GetInFilePosition(piece),
                                                  ExchUtils.StandardPieceSize);

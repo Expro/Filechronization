@@ -44,7 +44,7 @@ namespace FileModule
             var file = other as FsFile<TPath>;
             return file == null || file.FastEqualityCheck((FsFile<TPath>) this);
         }
-
+        
         /// <summary>
         /// Creates new FsObject
         /// </summary>
@@ -52,7 +52,7 @@ namespace FileModule
         /// <exception cref = "System.IO.FileNotFoundException"></exception>
         /// <exception cref = "System.IO.IOException"></exception>
         /// <returns>New FsObject</returns>
-        public static FsObject<AbsPath> NewLocal(AbsPath fullPath)
+        public static FsObject<AbsPath> ReadFrom(AbsPath fullPath)
         {
             if (File.Exists(fullPath))
             {

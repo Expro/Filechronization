@@ -8,7 +8,7 @@ namespace FileModule
 
     #endregion
 
-    public struct AbsPath : IPath
+    public struct AbsPath : IAbsPath
     {
         private readonly string _absolutePath;
 

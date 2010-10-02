@@ -69,14 +69,18 @@
     <Compile Include="ExchangeSystem\PieceInfo.cs" />
     <Compile Include="ExchangeSystem\TransferJob.cs" />
     <Compile Include="FileMovedRenamedMessage.cs" />
-    <Compile Include="FilesDetecting\IndexingJob.cs" />
-    <Compile Include="FileSystemLink\AbsPath.cs" />
-    <Compile Include="FileSystemLink\Name.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\IndexingJob.cs" />
+    <Compile Include="FileSystemLink\Paths\AbsPath.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\ContentMatchResult.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\IndexedObjects.cs" />
+    <Compile Include="FileSystemLink\Paths\IAbsPath.cs" />
+    <Compile Include="FileSystemLink\Paths\IRelPath.cs" />
+    <Compile Include="FileSystemLink\Paths\Name.cs" />
     <Compile Include="FileSystemLink\FileOrFolder.cs" />
     <Compile Include="FileSystemLink\FileTable.cs" />
-    <Compile Include="FilesDetecting\FileWatcher.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\ChangeWatcher.cs" />
     <Compile Include="FileSystemLink\FileVersion.cs" />
-    <Compile Include="FileSystemLink\IPath.cs" />
+    <Compile Include="FileSystemLink\Paths\IPath.cs" />
     <Compile Include="FileSystemLink\FsFile.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -84,19 +88,20 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FileSystemLink\FsObject.cs" />
-    <Compile Include="FileSystemLink\RelPath.cs" />
+    <Compile Include="FileSystemLink\Paths\PathUtils.cs" />
+    <Compile Include="FileSystemLink\Paths\RelPath.cs" />
     <Compile Include="GroupModel.cs" />
-    <Compile Include="FileSystemLink\MainStoragePath.cs" />
+    <Compile Include="FileSystemLink\Paths\MainStoragePath.cs" />
     <Compile Include="MainTest.cs" />
-    <Compile Include="MessageDispatcher.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\ChangeMaster.cs" />
     <Compile Include="NetworkContext.cs" />
     <Compile Include="NetworkContextModule.cs" />
     <Compile Include="NetworkModel.cs" />
     <Compile Include="NewFileModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueingThread.cs" />
-    <Compile Include="FilesDetecting\SinglePathFileEvent.cs" />
-    <Compile Include="FileSystemLink\TableOverseer.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\SinglePathFileEvent.cs" />
+    <Compile Include="FileSystemLink\MainFileIndex.cs" />
     <Compile Include="Tasks\FileCreatedFirstSideTask.cs" />
     <Compile Include="Tasks\FileCreatedMessage.cs" />
     <Compile Include="Tasks\FileCreatedSecondSideTask.cs" />

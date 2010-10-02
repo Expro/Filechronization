@@ -4,6 +4,7 @@ namespace FileModule.ExchangeSystem.Messages
     #region Usings
 
     using System;
+    using System.IO;
     using Filechronization.Modularity.Messages;
 
     #endregion
@@ -20,9 +21,10 @@ namespace FileModule.ExchangeSystem.Messages
         public PieceMessage(RelPath fileName, int pieceIndex)
         {
             pieceInfo = new PieceInfo(fileName, pieceIndex);
+            
         }
 
-        public string FileName
+        public RelPath FileName
         {
             get { return pieceInfo.RelFilePath; }
         }

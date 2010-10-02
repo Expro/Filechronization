@@ -15,12 +15,12 @@ namespace FileModule.ExchangeSystem.Messages
     public class NewFileSignal : Message
     {
         private readonly FsFile<RelPath> descriptor;
-        private readonly string fileName;
+        private readonly RelPath fileName;
 
         private readonly IList<PieceHash> hashes;
 
 
-        public NewFileSignal(string fileName, FsFile<RelPath> descriptor, IList<PieceHash> hashes)
+        public NewFileSignal(RelPath fileName, FsFile<RelPath> descriptor, IList<PieceHash> hashes)
         {
             this.fileName = fileName;
             this.descriptor = descriptor;
@@ -28,7 +28,7 @@ namespace FileModule.ExchangeSystem.Messages
             this.hashes = hashes;
         }
 
-        public string FileName
+        public RelPath FileName
         {
             get { return fileName; }
         }

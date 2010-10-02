@@ -10,41 +10,36 @@ namespace FileModule
 
     #endregion
 
-    public class IndexingJob
+    public class IndexingJob : IndexedObjects
     {
-        private readonly AbsPath _dir;
-        private readonly LinkedList<string> _objectsList;
-        private readonly Dictionary<AbsPath, FsObject<AbsPath>> _table;
+        private readonly AbsPath _absDirPath;
+
+        private readonly LinkedList<AbsPath> _objectsList;
+
         private readonly CancellationTokenSource _tokenSource;
 
-        public IndexingJob(AbsPath dir)
+        public IndexingJob(AbsPath absDirPath, RelPath relDirPath, List<IndexedObjects> folderList)
+            : base(relDirPath)
         {
-            _dir = dir;
+            _absDirPath = absDirPath;
+
             _tokenSource = new CancellationTokenSource();
+            _objectsList = new LinkedList<AbsPath>();
 
-            _table = new Dictionary<AbsPath, FsObject<AbsPath>>();
-            _objectsList = new LinkedList<string>();
+            UserObject = folderList;
         }
 
-        public Dictionary<AbsPath, FsObject<AbsPath>> Table
+        public AbsPath AbsDirPath
         {
-            get
-            {
-//                if (_tokenSource.Token.IsCancellationRequested || !finished)
-
-                return _table;
-            }
+            get { return _absDirPath; }
         }
 
-        public AbsPath Dir
+        public List<IndexedObjects> UserObject
         {
-            get { return _dir; }
+            get; private set;
         }
 
-        public object UserObject { get; set; }
-
-      //  public event Action<IndexingJob> Finished;
-
+   
 
         public void Cancel()
         {
@@ -54,18 +49,17 @@ namespace FileModule
         public void IndexAll()
         {
             _tokenSource.Token.ThrowIfCancellationRequested();
-            AddAll(_dir);
+            AddAll(_absDirPath);
             GetAllData();
    //         Finished(this);
         }
 
         private void GetAllData()
         {
-            foreach (string path in _objectsList)
+            foreach (AbsPath absPath in _objectsList)
             {
-                AbsPath absPath = (AbsPath) path;
                 _tokenSource.Token.ThrowIfCancellationRequested();
-                _table.Add(absPath, FsObject<AbsPath>.NewLocal(absPath));
+                Index.Add(absPath.RelativeTo(_absDirPath), FsObject<AbsPath>.ReadFrom(absPath).RelativeTo(_absDirPath));
             }
         }
 
@@ -75,18 +69,18 @@ namespace FileModule
 
             foreach (string s in files)
             {
-                AddFile(s);
+                AddFile((AbsPath) s);
             }
 
             string[] dirs = Directory.GetDirectories(dir, "*");
             foreach (string s in dirs)
             {
-                AddFile(s);
+                AddFile((AbsPath) s);
                 AddAll(s);
             }
         }
 
-        private void AddFile(string path)
+        private void AddFile(AbsPath path)
         {
             _tokenSource.Token.ThrowIfCancellationRequested();
 
