@@ -47,7 +47,7 @@ namespace FileModule
         }
 
 
-        public IEnumerable<FsObject<RelPath>> ValuesRelativeToMainPath
+        public IEnumerable<DescriptorPair> RelativeDescriptorPairs
         {
             get
             {
@@ -55,8 +55,28 @@ namespace FileModule
             }
             
         }
+        public class DescriptorPair
+        {
+            private FsObject<RelPath> _relToMainPath;
+            private FsObject<RelPath> _relToRootDir;
 
-        public class Transformer : IEnumerable<FsObject<RelPath>>
+            public DescriptorPair(FsObject<RelPath> relToMainPath, FsObject<RelPath> relToRootDir)
+            {
+                _relToMainPath = relToMainPath;
+                _relToRootDir = relToRootDir;
+            }
+
+            public FsObject<RelPath> RelToMainPath
+            {
+                get { return _relToMainPath; }
+            }
+
+            public FsObject<RelPath> RelToRootDir
+            {
+                get { return _relToRootDir; }
+            }
+        }
+        public class Transformer : IEnumerable<DescriptorPair>
         {
             private readonly IndexedObjects _indexed;
 
@@ -65,7 +85,7 @@ namespace FileModule
                 _indexed = indexed;
             }
 
-            public IEnumerator<FsObject<RelPath>> GetEnumerator()
+            public IEnumerator<DescriptorPair> GetEnumerator()
             {
                 return new Transformerator(_indexed);
             }
@@ -76,7 +96,7 @@ namespace FileModule
             }
         }
 
-        public struct Transformerator : IEnumerator<FsObject<RelPath>>
+        public struct Transformerator : IEnumerator<DescriptorPair>
         {
             private readonly IndexedObjects _indexed;
             private IEnumerator<FsObject<RelPath>> _valueEnumerator;
@@ -103,11 +123,11 @@ namespace FileModule
                 _valueEnumerator.Reset();
             }
 
-            public FsObject<RelPath> Current
+            public DescriptorPair Current
             {
                 get
                 {
-                    return _valueEnumerator.Current.RelativeIn(_indexed.RootDir);
+                    return new DescriptorPair(_valueEnumerator.Current.RelativeIn(_indexed.RootDir), _valueEnumerator.Current);
                 }
             }
 

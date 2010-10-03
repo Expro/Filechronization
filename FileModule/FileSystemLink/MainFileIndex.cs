@@ -64,20 +64,20 @@ namespace FileModule
         /// <summary>
         ///   Searches indexed file table for an object with given path
         /// </summary>
-        /// <param name = "fullPath">Path of the object</param>
+        /// <param name = "path">Path of the object</param>
         /// <returns>Object descriptor</returns>
         /// <exception cref = "System.IO.FileNotFoundException"></exception>
-        public FsObject<RelPath> GetObject(RelPath fullPath)
+        public FsObject<RelPath> GetObject(RelPath path)
         {
-            FileTable table = ChooseTable(fullPath);
+            FileTable table = ChooseTable(path);
 
             try
             {
-                return table.GetFile(fullPath);
+                return table.GetFile(path);
             }
             catch (KeyNotFoundException)
             {
-                throw new FileNotFoundException("File: " + fullPath + "was not found.");
+                throw new FileNotFoundException("File: " + path + "was not found.");
             }
         }
 //        public void IndexFiles(string folderPath)

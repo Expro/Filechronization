@@ -10,23 +10,26 @@ namespace FileModule
 
     #endregion
 
-    public class IndexingJob : IndexedObjects
+    public class IndexingJob : TimedAction
     {
         private readonly AbsPath _absDirPath;
+     //   private readonly TimedAction _timing;
 
-        private readonly LinkedList<AbsPath> _objectsList;
+//        private readonly LinkedList<AbsPath> _objectsList;
 
         private readonly CancellationTokenSource _tokenSource;
+        private IndexedObjects _indexedObjects;
 
-        public IndexingJob(AbsPath absDirPath, RelPath relDirPath, List<IndexedObjects> folderList)
-            : base(relDirPath)
+        public IndexingJob(AbsPath absDirPath, RelPath relDirPath, List<IndexedObjects> folderList, TimerCallback callback, long dueTime)
+            : base(new FsFolder<RelPath>(relDirPath),callback, dueTime, Timeout.Infinite)
         {
             _absDirPath = absDirPath;
 
+            _indexedObjects = new IndexedObjects(relDirPath);
             _tokenSource = new CancellationTokenSource();
-            _objectsList = new LinkedList<AbsPath>();
+//            _objectsList = new LinkedList<AbsPath>();
 
-            UserObject = folderList;
+            DeletedContentList = folderList;
         }
 
         public AbsPath AbsDirPath
@@ -34,12 +37,41 @@ namespace FileModule
             get { return _absDirPath; }
         }
 
-        public List<IndexedObjects> UserObject
+        public List<IndexedObjects> DeletedContentList
         {
             get; private set;
         }
 
-   
+        public IEnumerable<IndexedObjects.DescriptorPair> RelativeDescriptorPairs
+        {
+            get
+            {
+                return _indexedObjects.RelativeDescriptorPairs;
+            }
+      
+        }
+
+        public RelPath RootDir
+        {
+            get { return _indexedObjects.RootDir; }
+            
+        }
+
+        public Dictionary<RelPath, FsObject<RelPath>> Index
+        {
+            get {return _indexedObjects.Index; }
+            
+        }
+        public override TimedAction Clone()
+        {
+            return new IndexingJob(_absDirPath, _indexedObjects.RootDir, DeletedContentList, _callback, _dueTime);
+        }
+
+        
+//        public TimedAction Timing
+//        {
+//            get { return _timing; }
+//        }
 
         public void Cancel()
         {
@@ -49,42 +81,45 @@ namespace FileModule
         public void IndexAll()
         {
             _tokenSource.Token.ThrowIfCancellationRequested();
-            AddAll(_absDirPath);
-            GetAllData();
+            var list = new LinkedList<AbsPath>();
+            AddAll(_absDirPath, list);
+            GetAllData(list);
    //         Finished(this);
         }
 
-        private void GetAllData()
+        private void GetAllData(IEnumerable<AbsPath> list)
         {
-            foreach (AbsPath absPath in _objectsList)
+            foreach (AbsPath absPath in list)
             {
                 _tokenSource.Token.ThrowIfCancellationRequested();
                 Index.Add(absPath.RelativeTo(_absDirPath), FsObject<AbsPath>.ReadFrom(absPath).RelativeTo(_absDirPath));
             }
         }
 
-        private void AddAll(string dir)
+
+
+        private void AddAll(string dir, LinkedList<AbsPath> objects)
         {
             string[] files = Directory.GetFiles(dir, "*");
 
             foreach (string s in files)
             {
-                AddFile((AbsPath) s);
+                AddFile((AbsPath)s, objects);
             }
 
             string[] dirs = Directory.GetDirectories(dir, "*");
             foreach (string s in dirs)
             {
-                AddFile((AbsPath) s);
-                AddAll(s);
+                AddFile((AbsPath)s, objects);
+                AddAll(s, objects);
             }
         }
 
-        private void AddFile(AbsPath path)
+        private void AddFile(AbsPath path, LinkedList<AbsPath> objects)
         {
             _tokenSource.Token.ThrowIfCancellationRequested();
 
-            _objectsList.AddLast(path);
+            objects.AddLast(path);
         }
     }
 }

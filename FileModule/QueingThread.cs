@@ -7,6 +7,7 @@ namespace FileModule
     using System;
     using System.Collections.Concurrent;
     using System.Threading;
+    using CodeExecutionTools.Logging;
 
     #endregion
 
@@ -14,119 +15,69 @@ namespace FileModule
 
     public class QueingThread : IDisposable
     {
-        private readonly BlockingCollection<Action> queue;
-        private readonly Thread thread;
+        private readonly BlockingCollection<Action> _queue;
+        private readonly Thread _thread;
+        private bool _disposed;
 
-
-        private bool running;
+        private bool _running;
 
         public QueingThread()
         {
-            queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
-            thread = new Thread(Run);
-
-
-            running = false;
+            _queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
+            _thread = new Thread(Run);
         }
 
         #region IDisposable Members
 
         public void Dispose()
         {
-            running = false;
-            queue.CompleteAdding();
+            _running = false;
+            _disposed = true;
+            _queue.CompleteAdding();
         }
 
         #endregion
 
         public void Start()
         {
-            if (!running)
+            if (!_running && !_disposed)
             {
-                running = true;
-                thread.Start();
+                _running = true;
+                _thread.Start();
+            }
+            else
+            {
+                throw new InvalidOperationException("Is running or disposed.");
             }
         }
 
-        public void Add(Action comm)
+        public void Add(Action action)
         {
-            queue.Add(comm);
+            _queue.Add(action);
         }
 
 
         private void Run()
         {
-            foreach (Action action in queue.GetConsumingEnumerable())
+            foreach (Action action in _queue.GetConsumingEnumerable())
             {
-//#if !DEBUG
-//                try
-//                {
-//#endif     
+#if !DEBUG
+                try
+                {
+#endif     
                 action();
-//#if !DEBUG
-//                }
-//                catch (Exception e)
-//                {
-//                    Console.Out.WriteLine(e);
-//                }
-//#endif
+#if !DEBUG
+                }
+                catch (Exception e)
+                {
+                    LoggingService.Trace.Error(e.toString());
+                    // Kill the program anyway.
+                    throw;
+                }
+#endif
             }
         }
 
 
-//        private readonly BlockingQueue<QueedJob> queue;
-//        private readonly Thread thread;
-//
-//        private bool running;
-//
-//        public QueingThread()
-//        {
-//            queue = new BlockingQueue<QueedJob>();
-//            thread = new Thread(Run);
-//            running = false;
-//        }
-//
-//        public void Start()
-//        {
-//            Monitor.Enter(queue);
-//            if (!running)
-//            {
-//                running = true;
-//                thread.Start();
-//            }
-//            Monitor.Exit(queue);
-//        }
-//
-//        public void Stop()
-//        {
-//   
-//            running = false;
-//            queue.Unblock();
-//
-//
-//        }
-//
-//        public void Add(QueedJob comm)
-//        {
-//            queue.Enqueue(comm);
-//        }
-//
-//        public void Clear()
-//        {
-//            queue.Clear();
-//        }
-//
-//        private void Run()
-//        {
-//            while (running)
-//            {
-//                var task = queue.Dequeue();
-//                if(task!= null)
-//                {
-//                    task();
-//                }
-//                
-//            }
-//        }
     }
 }
