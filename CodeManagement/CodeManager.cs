@@ -448,7 +448,7 @@ namespace CodeManagement
 			return areModulesLoaded;
 		}
 		
-		public MarshalByRefObject ProvideSharedCode(string entityName)
+		public ICode ProvideSharedCode(string entityName)
 		{
 			Contract.Requires(entityName != null);
 			
@@ -466,7 +466,7 @@ namespace CodeManagement
 				representative = ProvideRepresentative(details);
 				
 				if (representative.Initialize())
-					return (MarshalByRefObject)representative.Instance;
+					return (ICode)representative.Instance;
 				else
 					throw new MissingSharedCodeException(entityName);
 			}
