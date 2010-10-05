@@ -16,6 +16,35 @@ namespace FileModule
     {
         public const string AnySlash = @"[\\\/]";
 
+        public static Name FileName(this IPath objPath)
+        {
+            return (Name)Path.GetFileName(objPath.ToString());
+        }
+
+        private static FsObject<Name> NewAsName<TPath>(this FsObject<TPath> fsObject) where TPath : IPath
+        {
+            Name name = fsObject.Path.FileName();
+            if (fsObject is FsFile<TPath>)
+            {
+                var fsFile = fsObject as FsFile<TPath>;
+                return new FsFile<Name>(name, fsFile.Size, fsFile.LastWrite);
+            }
+            return new FsFolder<Name>(name);
+        }
+        public static FsFile<Name> NewAsName<TPath>(this FsFile<TPath> fsFile) where TPath : IPath
+        {
+            return new FsFile<Name>(fsFile.Path.FileName(), fsFile.Size, fsFile.LastWrite);
+        }
+
+
+//        public static FsObject<Name> ToName(this FsObject<IPath> fsObject, IAbsPath path)
+//        {
+//            return new Fs
+//
+//        }
+
+
+
         /// <summary>
         /// Extends objPath making it relative to parentFolderPath
         /// </summary>

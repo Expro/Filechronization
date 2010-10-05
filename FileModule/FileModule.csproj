@@ -69,6 +69,7 @@
     <Compile Include="ExchangeSystem\PieceInfo.cs" />
     <Compile Include="ExchangeSystem\TransferJob.cs" />
     <Compile Include="FileMovedRenamedMessage.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\FileTree.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\IndexingJob.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\TimedAction.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\TimedFolderDeletion.cs" />

@@ -23,13 +23,15 @@ namespace FileModule
         {
             get { return _path; }
         }
-        public Name Name
-        {
-            get
-            {
-                return (Name) System.IO.Path.GetFileName(Path.ToString());
-            }
-        }
+//        public Name Name
+//        {
+//            get
+//            {
+//                throw new NotImplementedException("Do not use.");
+                //return (Name) System.IO.Path.GetFileName(Path.ToString());
+//            }
+//        }
+        
         public bool IsSynchronized
         {
             get { return _synchronized; }

@@ -61,20 +61,20 @@ namespace FileModule
         {
             foreach (Action action in _queue.GetConsumingEnumerable())
             {
-#if !DEBUG
-                try
-                {
-#endif     
+//#if !DEBUG
+//                try
+//                {
+//#endif     
                 action();
-#if !DEBUG
-                }
-                catch (Exception e)
-                {
-                    LoggingService.Trace.Error(e.toString());
+//#if !DEBUG
+//                }
+//                catch (Exception e)
+//                {
+//                    LoggingService.Trace.Error(e.toString());
                     // Kill the program anyway.
-                    throw;
-                }
-#endif
+//                    throw;
+//                }
+//#endif
             }
         }
 
