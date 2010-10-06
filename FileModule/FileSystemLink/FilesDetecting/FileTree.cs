@@ -3,6 +3,7 @@ namespace FileModule
 
     #region Usings
 
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
@@ -23,16 +24,14 @@ namespace FileModule
         }
 
 
-        public void AddAll(AbsPath indexRoot, IAbsPath mainPath)
+        public void AddAllFromFileSystem(AbsPath indexRoot)
         {
-            FileTree tree = new FileTree(indexRoot.RelativeTo(mainPath));
-
 
             Stack<AbsPath> directories = new Stack<AbsPath>();
             Stack<DirNode> nodes = new Stack<DirNode>();
 
             directories.Push(indexRoot);
-            nodes.Push(tree._rootDirectory);
+            nodes.Push(_rootDirectory);
 
             while (directories.Count != 0)
             {
@@ -42,7 +41,7 @@ namespace FileModule
                 foreach (AbsPath dir in Directory.GetDirectories(currentDir, "*"))
                 {
                     directories.Push(dir);
-                    currentNode.AddDirNode(dir.FileName());
+                    currentNode.EnsureDirNode(dir.FileName());
                 }
 
                 foreach (AbsPath path in Directory.GetFiles(currentDir, "*"))
@@ -55,22 +54,40 @@ namespace FileModule
 
 
         }
-        public void AddFile(FsObject<RelPath> descriptor)
+        /// <summary>
+        /// RelPath must be relative to rootDirectory
+        /// </summary>
+        /// <param name="descriptor"></param>
+        public void AddFile(FsFile<RelPath> descriptor)
         {
 
-            DirNode parent = GetParentDir(descriptor);
+            DirNode parent = GetParentDir(descriptor.Path);
 
-            var dir = parent.AddFile(descriptor.);
+            parent.AddFile(descriptor.NewAsName());
 
-            if (dir != null)
-            {
-                _indexedDirectories.Add(descriptor.Path, dir);
-            }
+//            if (dir != null)
+//            {
+//                _indexedDirectories.Add(descriptor.Path, dir);
+//            }
 
         }
-        private DirNode GetParentDir(FsObject<RelPath> descriptor)
+        public void MoveDirectory(RelPath sourcePath, RelPath targetPath)
         {
-            var folders = descriptor.Path.GetParentFolders();
+            DirNode parent = GetParentDir(sourcePath);
+            DirNode node = parent.RemoveDirNode(sourcePath.FileName());
+
+            DirNode current = _rootDirectory;
+            var folders = targetPath.GetAncestorFolders();
+            foreach (Name folderName in folders)
+            {
+                current = current.EnsureDirNode(folderName);
+            }
+            current.AddDirNode(targetPath.FileName(), node);
+        }
+
+        private DirNode GetParentDir(RelPath dirPath)
+        {
+            var folders = dirPath.GetAncestorFolders();
 
             DirNode current = _rootDirectory;
             foreach (Name folderName in folders)
@@ -78,8 +95,26 @@ namespace FileModule
                 current = current.Directories[folderName];
             }
             return current;
-
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="objPath">Object, whose parent must exist.</param>
+        /// <returns></returns>
+        private DirNode EnsureParentDir(RelPath objPath)
+        {
+            var folders = dirPath.GetParentFolders();
+
+            DirNode current = _rootDirectory;
+            foreach (Name folderName in folders)
+            {
+                current = current.Directories[folderName];
+            }
+            return current;
+        }
+
+
+
 //        private void AddFile(AbsPath path)
 //        {
 //            FsObject<AbsPath> obj;
@@ -152,11 +187,21 @@ namespace FileModule
                     return _parent;
                 }
             }
-            public DirNode AddDirNode(Name name)
+            public DirNode EnsureDirNode(Name name)
             {
-                DirNode node = new DirNode(name, this);
-                _directories.Add(name, node);
+                DirNode node;
+                if (!_directories.TryGetValue(name, out node))
+                {
+                    node = new DirNode(name, this);
+                    _directories.Add(name, node);
+                }
                 return node;
+            }
+            public void AddDirNode(Name newName, DirNode node)
+            {
+                node._name = newName;
+                node._parent = this;
+                _directories.Add(node._name, node);
             }
             /// <summary>
             /// 
@@ -221,6 +266,14 @@ namespace FileModule
             }
 
 
+            public DirNode RemoveDirNode(Name dirName)
+            {
+                DirNode node = _directories[dirName];
+                _directories.Remove(dirName);
+                return node;
+            }
+
+            
         }
     }
 }

@@ -130,7 +130,7 @@ namespace FileModule
             }
 
         }
-        public static ICollection<Name> GetParentFolders(this RelPath path)
+        public static ICollection<Name> GetAncestorFolders(this RelPath path)
         {
 
             RelPath parentPath = (RelPath) Path.GetDirectoryName(path.ToString());

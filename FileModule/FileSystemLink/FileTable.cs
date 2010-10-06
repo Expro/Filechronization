@@ -131,7 +131,7 @@ namespace FileModule
         }
         private DirNode GetParentDir(FsObject<RelPath> descriptor)
         {
-            var folders = descriptor.Path.GetParentFolders();
+            var folders = descriptor.Path.GetAncestorFolders();
             
             DirNode current = _rootDirectory;
             foreach (Name folderName in folders)
