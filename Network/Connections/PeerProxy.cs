@@ -21,7 +21,7 @@ namespace Network.Connections
         private const int DisconnectTimeout = 30000;
         private readonly Timer _disconnectTimer;
         private readonly object _locker;
-        private readonly ConnectionManager _manager;
+        private readonly ConnectionManagerLower _managerLower;
         private AsyncConnection _connection;
 
 
@@ -30,9 +30,9 @@ namespace Network.Connections
         private Queue<object> _messageQueue;
         private bool _persistent;
 
-        internal PeerProxy(ConnectionManager manager)
+        internal PeerProxy(ConnectionManagerLower managerLower)
         {
-            _manager = manager;
+            _managerLower = managerLower;
             _locker = new object();
             _messageQueue = new Queue<object>();
             _disconnectTimer = new Timer(TimerTick, null, DisconnectTimeout, Timeout.Infinite);

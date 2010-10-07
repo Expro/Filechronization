@@ -27,7 +27,7 @@ namespace Network.Connections
     ///   Global manager for connections. Handles connections lifes
     ///   and sending and receiving of objects.
     /// </summary>
-    public class ConnectionManager
+    public class ConnectionManagerLower
     {
         private const int PortNumber = 49334;
         private readonly Thread _connectThread;
@@ -38,7 +38,7 @@ namespace Network.Connections
 
         private readonly Dictionary<IPAddress, TcpClient> _unfinishedConnections;
 
-        public ConnectionManager()
+        public ConnectionManagerLower()
         {
             _listener = new TcpListener(IPAddress.Any, PortNumber);
             _connectThread = new Thread(ListenForConnections);

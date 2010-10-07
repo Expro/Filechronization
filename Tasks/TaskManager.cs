@@ -62,7 +62,7 @@ using CodeManagement.Definitions;
 namespace Filechronization.Tasks
 {
 	public delegate int TaskHandler(Message message);
-	public delegate Task TaskCreator();
+	public delegate SymTask TaskCreator();
 	public delegate bool Condition();
 	
 	[Name("Task Manager")]
@@ -71,7 +71,7 @@ namespace Filechronization.Tasks
 	[Description("Provides task handling and synchronization.")]
 	public class TaskManager: SharedCode
 	{
-		private ConcurrentDictionary<Object, ConcurrentDictionary<uint, Task>> tasksLists;
+		private ConcurrentDictionary<Object, ConcurrentDictionary<uint, SymTask>> tasksLists;
 		private ConcurrentDictionary<Type, TaskCreator> initializableTasks;
 		private Service service;
 		
@@ -80,7 +80,7 @@ namespace Filechronization.Tasks
 			if (service == null)
 				throw new ArgumentNullException(String.Format("{0} canot be null.", typeof(Service)));
 			
-			tasksLists = new ConcurrentDictionary<Object, ConcurrentDictionary<uint, Task>>();
+			tasksLists = new ConcurrentDictionary<Object, ConcurrentDictionary<uint, SymTask>>();
 			initializableTasks = new ConcurrentDictionary<Type, TaskCreator>();
 			this.service = service;
 			
@@ -93,17 +93,17 @@ namespace Filechronization.Tasks
 			//Notification.Diagnostic(this, "Assigned " + messageType.Name + " with task creator");
 		}
 		
-		public uint AddTask(Object key, Task task)
+		public uint AddTask(Object key, SymTask symTask)
 		{
 			uint result = 0;
 			bool found = false;
-			ConcurrentDictionary<uint, Task> tasks = null;
+			ConcurrentDictionary<uint, SymTask> tasks = null;
 			
-			if ((key != null) && (task != null))
+			if ((key != null) && (symTask != null))
 			{
 				if (!tasksLists.ContainsKey(key))
 				{
-					tasks = new ConcurrentDictionary<uint, Task>();
+					tasks = new ConcurrentDictionary<uint, SymTask>();
 					//tasksLists.Add(key, tasks);
 				}
 				else
@@ -112,7 +112,7 @@ namespace Filechronization.Tasks
 					while (!found)
 					{
 						found = true;
-						foreach (Task t in tasks.Values)
+						foreach (SymTask t in tasks.Values)
 						{
 							if (t.taskID == result)
 							{
@@ -126,11 +126,11 @@ namespace Filechronization.Tasks
 					}
 				}
 				
-				if (task.isUnique)
+				if (symTask.isUnique)
 				{
-					foreach (Task t in tasks.Values)
+					foreach (SymTask t in tasks.Values)
 					{
-						if (t.GetType().Equals(task.GetType()))
+						if (t.GetType().Equals(symTask.GetType()))
 						{
 							//tasks.Remove(t.taskID);
 							//Notification.Diagnostic(this, "Due to isUnique flag, task (" + t.ToString() + ") was removed and will be replaced by task (" + task.ToString() + ")");
@@ -139,9 +139,9 @@ namespace Filechronization.Tasks
 					}
 				}
 				
-				task.key = key;
-				task.taskID = result;
-				task.messageQueue = service.InputAdapter();
+				symTask.key = key;
+				symTask.taskID = result;
+				symTask.messageQueue = service.InputAdapter();
 				//tasks.Add(result, task);
 				
 				//Notification.Diagnostic(this, "Task added: " + task.ToString());
@@ -155,8 +155,8 @@ namespace Filechronization.Tasks
 		public void ProcessMessage(Message message)
 		{
 			LocalTaskMessage taskMessage = null;
-			ConcurrentDictionary<uint, Task> tasks = null;
-			Task task = null;
+			ConcurrentDictionary<uint, SymTask> tasks = null;
+			SymTask symTask = null;
 			
 			taskMessage = (LocalTaskMessage)message;
 			
@@ -175,15 +175,15 @@ namespace Filechronization.Tasks
 				tasks = tasksLists[taskMessage.key];
 				if (tasks.ContainsKey(taskMessage.taskID))
 				{
-					task = tasks[taskMessage.taskID];
+					symTask = tasks[taskMessage.taskID];
 					
 					//TODO: Dodac szeregowanie elementow o tym samym kluczu
 					System.Threading.Tasks.Task.Factory.StartNew(delegate()
 					{
-				 		if (!task.synchronized)
-				 			task.foreignTaskID = taskMessage.foreignTaskID;
+				 		if (!symTask.synchronized)
+				 			symTask.foreignTaskID = taskMessage.foreignTaskID;
 	
-						if (task.ProcessMessage(taskMessage.message))
+						if (symTask.ProcessMessage(taskMessage.message))
 						{
 							//tasks.Remove(taskMessage.taskID);
 							//Notification.Diagnostic(this, "Task finished: " + task.ToString());

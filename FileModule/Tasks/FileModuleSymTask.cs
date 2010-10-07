@@ -12,11 +12,11 @@ namespace FileModule.Tasks
 
     #endregion
 
-    public abstract class FileModuleTask : Task
+    public abstract class FileModuleSymTask : SymTask
     {
         protected NewFileModule fileModule;
 
-        protected FileModuleTask(NewFileModule fileModule, bool isUnique)
+        protected FileModuleSymTask(NewFileModule fileModule, bool isUnique)
             : base(isUnique)
         {
             this.fileModule = fileModule;

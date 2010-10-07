@@ -25,13 +25,13 @@ namespace Network.Tasks.Authorization
     /* To zadanie powstaje po stronie arbitra autoryzujacego nieznane IP */
     /* kluczem do tego zadania musi byc obiekt klasy IPEndPoint */
 
-    public class AuthorizationServerTask : NetworkTask
+    public class AuthorizationServerSymTask : NetworkSymTask
     {
         private readonly SaltGenerator generator;
         private readonly Users users;
         private Entropy salt;
 
-        public AuthorizationServerTask(NetworkModule netModule, Users users) : base(netModule, true)
+        public AuthorizationServerSymTask(NetworkModule netModule, Users users) : base(netModule, true)
         {
             generator = new SaltGenerator();
 
@@ -95,7 +95,7 @@ namespace Network.Tasks.Authorization
                     /* tutaj nalezy dodac jeszcze broadcastowa informacje o IP pod jakim zalogowal sie
 			 		* uzytkownik
 			 		*/
-                    _netModule.PeerCenter.EndUserLogin(user, PeerHandle);
+                    _netModule.NetworkManager.EndUserLogin(user, PeerHandle);
 
                     PeerHandle.Send(new AuthorizationAccepted(userMessage.login, _netModule.CurrentUser.login, map));
                     

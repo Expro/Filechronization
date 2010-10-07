@@ -16,9 +16,9 @@ namespace Network.Tasks.ArbiterInfo
 
     #endregion
 
-    internal class ServerArbiterInfoTask : NetworkTask
+    internal class ServerArbiterInfoSymTask : NetworkSymTask
     {
-        public ServerArbiterInfoTask(NetworkModule netModule)
+        public ServerArbiterInfoSymTask(NetworkModule netModule)
             : base(netModule, false)
         {
             AddHandler(typeof (ReqArbiterInfo), HandleReqArbiterInfo, 0);

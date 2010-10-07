@@ -48,7 +48,7 @@ namespace Network.System.Connections
         public override void Send(Message netMessage)
         {
             _netModule.netQueue.Add(() =>
-                                    _netModule.PeerCenter.ObjectReceived(this, netMessage));
+                                    _netModule.NetworkManager.ObjectReceived(this, netMessage));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Network.System.MainParts
         {
             Send sendMessage = (Send) incMessage;
 
-            _netModule.PeerCenter.SendTo(sendMessage.reciver, sendMessage.message);
+            _netModule.NetworkManager.SendTo(sendMessage.reciver, sendMessage.message);
         }
 
         /// <summary>

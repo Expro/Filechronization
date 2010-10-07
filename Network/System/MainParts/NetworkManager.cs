@@ -36,9 +36,11 @@ namespace Network.System.MainParts
     #endregion
 
     /// <summary>
-    ///   Modul zarzadzajacy polaczeniami i ich skojarzeniami z uzytkownikami
+    /// Object managing networking of single network. Creates abstraction
+    /// layer between users and their connections that is presented to 
+    /// other parts of the program.
     /// </summary>
-    public class PeerCenter
+    public class NetworkManager
     {
         /// <summary>
         ///   Obiekt zajmujacy sie polaczeniami na nizszym poziomie
@@ -66,13 +68,13 @@ namespace Network.System.MainParts
         /// </summary>
         private readonly UserConnectionMap _userConnectionMap;
 
-        private NetworksManager _manager;
+        private ConnectionManagerHigher _managerHigher;
 
         /// <summary>
         ///   Tworzy modul zarzadzajacy polaczeniami
         /// </summary>
         /// <param name = "netModule"></param>
-        public PeerCenter(NetworkModule netModule)
+        public NetworkManager(NetworkModule netModule)
         {
             _netModule = netModule;
             _netQueue = netModule.netQueue;
@@ -288,7 +290,7 @@ namespace Network.System.MainParts
             {
                 if (user.isConnected)
                 {
-                    peer = _manager.Connect(this, user.currentAddress.Address);
+                    peer = _managerHigher.Connect(this, user.currentAddress.Address);
                     _userConnectionMap.LinkUserAndConnection(user, peer);
                 }
                 else

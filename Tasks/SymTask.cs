@@ -20,7 +20,7 @@ namespace Filechronization.Tasks
 	 * 	zadanie (klucz, ID), obsluge filtrowania wiadomosci (przez warunek oraz faze) oraz podstawowy
 	 * 	kontekst do komunikacy (messageQueue przekazuje komunikaty do obiektu klasy Service).
 	 */
-    public abstract class Task
+    public abstract class SymTask
     {
         private class TaskHandlerDescriptor
         {
@@ -68,7 +68,7 @@ namespace Filechronization.Tasks
         public const int PHASE_NEXT = -4;
         public const int PHASE_PREVIOUS = -5;
 		
-        public Task(bool isUnique)
+        public SymTask(bool isUnique)
         {
             pKey = null;
             pTaskID = 0;

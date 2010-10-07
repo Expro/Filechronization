@@ -105,10 +105,10 @@
     <Compile Include="QueingThread.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\SinglePathFileEvent.cs" />
     <Compile Include="FileSystemLink\MainFileIndex.cs" />
-    <Compile Include="Tasks\FileCreatedFirstSideTask.cs" />
+    <Compile Include="Tasks\FileCreatedFirstSideSymTask.cs" />
     <Compile Include="Tasks\FileCreatedMessage.cs" />
-    <Compile Include="Tasks\FileCreatedSecondSideTask.cs" />
-    <Compile Include="Tasks\FileModuleTask.cs" />
+    <Compile Include="Tasks\FileCreatedSecondSideSymTask.cs" />
+    <Compile Include="Tasks\FileModuleSymTask.cs" />
     <Compile Include="Tasks\SingleFileMessage.cs" />
     <Compile Include="UserID.cs" />
   </ItemGroup>

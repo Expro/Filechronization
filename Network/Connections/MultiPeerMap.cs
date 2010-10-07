@@ -23,15 +23,15 @@ namespace Network.Connections
     public class MultiPeerMap
     {
         private readonly Dictionary<PeerProxy, ConnProperties> _connections;
-        private readonly NetworksManager _manager;
+        private readonly ConnectionManagerHigher _managerHigher;
 
-        public MultiPeerMap(NetworksManager manager)
+        public MultiPeerMap(ConnectionManagerHigher managerHigher)
         {
-            _manager = manager;
+            _managerHigher = managerHigher;
             _connections = new Dictionary<PeerProxy, ConnProperties>();
         }
 
-        public RemotePeer GetOrCreatePeer(PeerCenter net, PeerProxy proxy)
+        public RemotePeer GetOrCreatePeer(NetworkManager net, PeerProxy proxy)
         {
             RemotePeer retValue;
             lock (_connections)
@@ -45,7 +45,7 @@ namespace Network.Connections
                 else
                 {
                     // polaczenie jeszcze nie wpisane do mapy
-                    prop = new ConnProperties(_manager, proxy);
+                    prop = new ConnProperties(_managerHigher, proxy);
                     retValue = prop.GetOrRegister(net);
                     _connections.Add(proxy, prop);
                 }
@@ -54,13 +54,13 @@ namespace Network.Connections
             return retValue;
         }
 
-        public void ForEachNetwork(PeerProxy proxy, Action<PeerCenter, RemotePeer> action)
+        public void ForEachNetwork(PeerProxy proxy, Action<NetworkManager, RemotePeer> action)
         {
-            List<KeyValuePair<PeerCenter, RemotePeer>> tmpList = new List<KeyValuePair<PeerCenter, RemotePeer>>();
+            List<KeyValuePair<NetworkManager, RemotePeer>> tmpList = new List<KeyValuePair<NetworkManager, RemotePeer>>();
 
             lock (_connections) tmpList.AddRange(_connections[proxy].Networks);
 
-            foreach (KeyValuePair<PeerCenter, RemotePeer> pair in tmpList)
+            foreach (KeyValuePair<NetworkManager, RemotePeer> pair in tmpList)
             {
                 action(pair.Key, pair.Value);
             }
@@ -79,16 +79,16 @@ namespace Network.Connections
 
         private class ConnProperties
         {
-            private readonly NetworksManager _manager;
-            private readonly Dictionary<PeerCenter, RemotePeer> _owners;
+            private readonly ConnectionManagerHigher _managerHigher;
+            private readonly Dictionary<NetworkManager, RemotePeer> _owners;
             private readonly PeerProxy _proxy;
             private Dictionary<RemotePeer, bool> _persistent;
 
-            public ConnProperties(NetworksManager manager, PeerProxy proxy)
+            public ConnProperties(ConnectionManagerHigher managerHigher, PeerProxy proxy)
             {
-                _manager = manager;
+                _managerHigher = managerHigher;
                 _proxy = proxy;
-                _owners = new Dictionary<PeerCenter, RemotePeer>();
+                _owners = new Dictionary<NetworkManager, RemotePeer>();
             }
 
             public int PersistentCount { get; set; }
@@ -98,13 +98,13 @@ namespace Network.Connections
                 get { return _persistent; }
             }
 
-            public Dictionary<PeerCenter, RemotePeer> Networks
+            public Dictionary<NetworkManager, RemotePeer> Networks
             {
                 get { return _owners; }
             }
 
 
-            public RemotePeer GetOrRegister(PeerCenter net)
+            public RemotePeer GetOrRegister(NetworkManager net)
             {
                 RemotePeer peer;
                 if (_owners.TryGetValue(net, out peer))
@@ -113,7 +113,7 @@ namespace Network.Connections
                     return peer;
                 }
                 // polaczenie nie zwiazane z tym managerem
-                peer = new RemotePeer(_manager, _proxy);
+                peer = new RemotePeer(_managerHigher, _proxy);
                 _owners.Add(net, peer);
                 return peer;
             }

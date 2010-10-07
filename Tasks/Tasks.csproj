@@ -53,12 +53,10 @@
     <Compile Include="Messages\LocalTaskMessage.cs" />
     <Compile Include="Messages\TaskMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Task.cs" />
+    <Compile Include="SymTask.cs" />
     <Compile Include="TaskManager.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Messages" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\CodeManagement\CodeManagement.csproj">
       <Project>{636AB20A-1A90-4413-AEA9-D912C669F503}</Project>
