@@ -22,11 +22,11 @@ namespace Network.Tasks.Authorization
 	 * metode Start nalezy wykonac PO dodaniu zadania do modulu zadan (dopiero wowczas znane bedzie ID)
 	 */
 
-    public class AuthorizationClientTask : NetworkTask
+    public class AuthorizationClientSymTask : NetworkSymTask
     {
         private readonly User user;
 
-        public AuthorizationClientTask(NetworkModule netModule, User user)
+        public AuthorizationClientSymTask(NetworkModule netModule, User user)
             : base(netModule, true)
         {
             this.user = user;
@@ -71,7 +71,7 @@ namespace Network.Tasks.Authorization
             /* tutaj nalezy dodac kod reagujacy na poprawna autoryzacje */
 
 
-            _netModule.PeerCenter.EndLoginToNetwork(PeerHandle, mess.ArbiterLogin, mess.UserAddresses);
+            _netModule.NetworkManager.EndLoginToNetwork(PeerHandle, mess.ArbiterLogin, mess.UserAddresses);
            // Global.Service.EnqueueMessage(new ToInterfaceLoginResult(true, null));
 
             return PHASE_END;

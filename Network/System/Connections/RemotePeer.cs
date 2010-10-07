@@ -25,16 +25,16 @@ namespace Network.System.Connections
     /// </summary>
     public class RemotePeer : Peer
     {
-        private readonly NetworksManager _manager;
+        private readonly ConnectionManagerHigher _managerHigher;
         private readonly PeerProxy _proxy;
 
 
         private IPEndPoint _endPointAddress;
         private bool _persistent;
 
-        public RemotePeer(NetworksManager manager, PeerProxy proxy)
+        public RemotePeer(ConnectionManagerHigher managerHigher, PeerProxy proxy)
         {
-            _manager = manager;
+            _managerHigher = managerHigher;
             _proxy = proxy;
         }
 
@@ -47,7 +47,7 @@ namespace Network.System.Connections
         public override bool Persistent
         {
             get { return _proxy.Persistent; }
-            set { _manager.SetPersistent(this, _proxy, value); }
+            set { _managerHigher.SetPersistent(this, _proxy, value); }
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Network.System.Connections
 
         public override void Send(Message message)
         {
-            _manager.HandleSend(_proxy, message);
+            _managerHigher.HandleSend(_proxy, message);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Network.States
         private void HandleConnectionLost(User sender, Message message)
         {
             sender.currentAddress = null;
-            _netModule.PeerCenter.SendToAll(new UserStateChanged(sender.login, UserState.OFFLINE, null));
+            _netModule.NetworkManager.SendToAll(new UserStateChanged(sender.login, UserState.OFFLINE, null));
         }
 
 

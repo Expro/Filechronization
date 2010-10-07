@@ -47,7 +47,7 @@ namespace Network.System.MainParts
 
             _interfaceLink = new InterfaceModuleLink(this);
             _fileLink = new FileModulelLink(this);
-            PeerCenter = new PeerCenter(this);
+            NetworkManager = new NetworkManager(this);
             TaskCenter = new TaskCenter(this);
 
 
@@ -76,7 +76,7 @@ namespace Network.System.MainParts
         }
 
 
-        public PeerCenter PeerCenter { get; private set; }
+        public NetworkManager NetworkManager { get; private set; }
 
         public TaskCenter TaskCenter { get; private set; }
 

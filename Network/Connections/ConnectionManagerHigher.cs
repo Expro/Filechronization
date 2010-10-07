@@ -15,25 +15,25 @@ namespace Network.Connections
 
     #endregion
 
-    public class NetworksManager
+    public class ConnectionManagerHigher
     {
-        private readonly ConnectionManager _manager;
+        private readonly ConnectionManagerLower _managerLower;
 
         private readonly MultiPeerMap _multiPeerMap;
-        private readonly Dictionary<NetworkID, PeerCenter> _registeredNetworks;
+        private readonly Dictionary<NetworkID, NetworkManager> _registeredNetworks;
 
-        public NetworksManager(ConnectionManager manager)
+        public ConnectionManagerHigher(ConnectionManagerLower managerLower)
         {
-            _manager = manager;
-            _registeredNetworks = new Dictionary<NetworkID, PeerCenter>();
+            _managerLower = managerLower;
+            _registeredNetworks = new Dictionary<NetworkID, NetworkManager>();
 
 
             _multiPeerMap = new MultiPeerMap(this);
 
 
-            _manager.ObjectReceived += ObjectReceived;
+            _managerLower.ObjectReceived += ObjectReceived;
 
-            _manager.ConnectionClosed += ConnectionClosed;
+            _managerLower.ConnectionClosed += ConnectionClosed;
         }
 
         private void ConnectionClosed(PeerProxy proxy)
@@ -59,7 +59,7 @@ namespace Network.Connections
             if (netObject != null)
             {
                 bool createdMapping;
-                PeerCenter net = SelectNetwork(netObject);
+                NetworkManager net = SelectNetwork(netObject);
                 RemotePeer peer = _multiPeerMap.GetOrCreatePeer(net, proxy);
 
 //                if (createdMapping)
@@ -75,13 +75,13 @@ namespace Network.Connections
             }
         }
 
-        public void RegisterNetwork(PeerCenter net)
+        public void RegisterNetwork(NetworkManager net)
         {
             _registeredNetworks.Add(null, net);
         }
 
 
-        private PeerCenter SelectNetwork(NetworkSend obj)
+        private NetworkManager SelectNetwork(NetworkSend obj)
         {
             NetworkID id = ReadNetworkId(obj);
             try
@@ -100,16 +100,16 @@ namespace Network.Connections
             throw new UnknownNetworkException();
         }
 
-        public RemotePeer Connect(PeerCenter net, IPAddress address)
+        public RemotePeer Connect(NetworkManager net, IPAddress address)
         {
             
-            return _multiPeerMap.GetOrCreatePeer(net, _manager.InstantConnect(address));
+            return _multiPeerMap.GetOrCreatePeer(net, _managerLower.InstantConnect(address));
         }
 
-        public Task<RemotePeer> ConnectTask(PeerCenter net, IPAddress address)
+        public Task<RemotePeer> ConnectTask(NetworkManager net, IPAddress address)
         {
             
-            return _manager.ConnectTask(address)
+            return _managerLower.ConnectTask(address)
                 .ContinueWith(prev => _multiPeerMap.GetOrCreatePeer(net, prev.Result));
         }
 

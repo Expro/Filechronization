@@ -18,13 +18,13 @@ namespace Network.Tasks.ArbiterInfo
     /// <summary>
     ///   Zadanie zapytania innego komputera o adres arbitra
     /// </summary>
-    public class ClientArbiterInfoTask : NetworkTask
+    public class ClientArbiterInfoSymTask : NetworkSymTask
     {
         /// <summary>
         ///   Tworzy nowe zadanie zapytania innego komputera o adres arbitra
         /// </summary>
         /// <param name = "netModule">Modul sieciowy</param>
-        public ClientArbiterInfoTask(NetworkModule netModule)
+        public ClientArbiterInfoSymTask(NetworkModule netModule)
             : base(netModule, false)
         {
             AddHandler(typeof (ArbiterInfo), HandleArbiterInfo, 0);

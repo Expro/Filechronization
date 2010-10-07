@@ -63,12 +63,12 @@
     <Compile Include="Bug.cs" />
     <Compile Include="Connections\CannotConnectException.cs" />
     <Compile Include="Connections\ConnectionClosedException.cs" />
-    <Compile Include="Connections\ConnectionManager.cs" />
+    <Compile Include="Connections\ConnectionManagerLower.cs" />
     <Compile Include="Connections\HostAddress.cs" />
     <Compile Include="Connections\MultiPeerMap.cs" />
     <Compile Include="Connections\NetHeader.cs" />
     <Compile Include="Connections\NetworkObject.cs" />
-    <Compile Include="Connections\NetworksManager.cs" />
+    <Compile Include="Connections\ConnectionManagerHigher.cs" />
     <Compile Include="Connections\PeerProxy.cs" />
     <Compile Include="P.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,20 +88,20 @@
     <Compile Include="System\MainParts\FileModulelLink.cs" />
     <Compile Include="System\MainParts\InterfaceModuleLink.cs" />
     <Compile Include="System\MainParts\NetworkModule.cs" />
-    <Compile Include="System\MainParts\PeerCenter.cs" />
+    <Compile Include="System\MainParts\NetworkManager.cs" />
     <Compile Include="System\MainParts\TaskCenter.cs" />
-    <Compile Include="Tasks\ArbiterInfo\ClientArbiterInfoTask.cs" />
+    <Compile Include="Tasks\ArbiterInfo\ClientArbiterInfoSymTask.cs" />
     <Compile Include="Tasks\ArbiterInfo\Messages\ArbiterInfo.cs" />
     <Compile Include="Tasks\ArbiterInfo\Messages\ReqArbiterInfo.cs" />
-    <Compile Include="Tasks\ArbiterInfo\ServerArbiterInfoTask.cs" />
-    <Compile Include="Tasks\Authorization\AuthorizationClientTask.cs" />
-    <Compile Include="Tasks\Authorization\AuthorizationServerTask.cs" />
+    <Compile Include="Tasks\ArbiterInfo\ServerArbiterInfoSymTask.cs" />
+    <Compile Include="Tasks\Authorization\AuthorizationClientSymTask.cs" />
+    <Compile Include="Tasks\Authorization\AuthorizationServerSymTask.cs" />
     <Compile Include="Tasks\Authorization\Messages\AuthorizationAccepted.cs" />
     <Compile Include="Tasks\Authorization\Messages\AuthorizationRejected.cs" />
     <Compile Include="Tasks\Authorization\Messages\SaltRequest.cs" />
     <Compile Include="Tasks\Authorization\Messages\SaltResponse.cs" />
     <Compile Include="Tasks\Authorization\Messages\UserAuthorization.cs" />
-    <Compile Include="Tasks\NetworkTask.cs" />
+    <Compile Include="Tasks\NetworkSymTask.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -12,12 +12,12 @@ namespace FileModule.Tasks
 
     #endregion
 
-    public class FileCreatedFirstSideTask : FileModuleTask
+    public class FileCreatedFirstSideSymTask : FileModuleSymTask
     {
         public readonly SingleFileMessage Message;
 
 
-        public FileCreatedFirstSideTask(NewFileModule fileModule, SingleFileMessage message) : base(fileModule, false)
+        public FileCreatedFirstSideSymTask(NewFileModule fileModule, SingleFileMessage message) : base(fileModule, false)
         {
             Message = message;
         }

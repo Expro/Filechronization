@@ -15,11 +15,11 @@ namespace Network.Tasks
 
     #endregion
 
-    public abstract class NetworkTask : Task
+    public abstract class NetworkSymTask : SymTask
     {
         protected readonly NetworkModule _netModule;
 
-        protected NetworkTask(NetworkModule netModule, bool isUnique) : base(isUnique)
+        protected NetworkSymTask(NetworkModule netModule, bool isUnique) : base(isUnique)
         {
             _netModule = netModule;
         }

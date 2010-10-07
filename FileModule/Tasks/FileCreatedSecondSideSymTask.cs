@@ -13,9 +13,9 @@ namespace FileModule.Tasks
 
     #endregion
 
-    public class FileCreatedSecondSideTask : FileModuleTask
+    public class FileCreatedSecondSideSymTask : FileModuleSymTask
     {
-        public FileCreatedSecondSideTask(NewFileModule fileModule, bool isUnique) : base(fileModule, isUnique)
+        public FileCreatedSecondSideSymTask(NewFileModule fileModule, bool isUnique) : base(fileModule, isUnique)
         {
             AddHandler(typeof (SingleFileMessage), HandleFileCreated, 0);
         }

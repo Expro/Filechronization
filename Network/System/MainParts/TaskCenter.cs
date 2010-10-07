@@ -32,7 +32,7 @@ namespace Network.System.MainParts
     public class TaskCenter
     {
         private readonly NetworkModule _netModule;
-        private NetworksManager _manager;
+        private ConnectionManagerHigher _managerHigher;
 
         public TaskCenter(NetworkModule netModule)
         {
@@ -47,8 +47,8 @@ namespace Network.System.MainParts
         /// </summary>
         private void AssignTaskInitiators()
         {
-            AddTaskInit(typeof (SaltRequest), () => new AuthorizationServerTask(_netModule, _netModule.UsersStructure));
-            AddTaskInit(typeof (ReqArbiterInfo), () => new ServerArbiterInfoTask(_netModule));
+            AddTaskInit(typeof (SaltRequest), () => new AuthorizationServerSymTask(_netModule, _netModule.UsersStructure));
+            AddTaskInit(typeof (ReqArbiterInfo), () => new ServerArbiterInfoSymTask(_netModule));
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Network.System.MainParts
         /// <param name = "peer">Polaczenie ktore ma zostac zapytane</param>
         public void StartConnectionTask(RemotePeer peer)
         {
-            ClientArbiterInfoTask task = new ClientArbiterInfoTask(_netModule);
+            ClientArbiterInfoSymTask task = new ClientArbiterInfoSymTask(_netModule);
             Global.TaskManager.AddTask(peer, task);
             task.Start();
         }
@@ -139,10 +139,10 @@ namespace Network.System.MainParts
         /// <param name = "arbiter">adres arbitra</param>
         public void BeginLogin(IPAddress arbiter)
         {
-            _manager.ConnectTask(_netModule.PeerCenter, arbiter)
+            _managerHigher.ConnectTask(_netModule.NetworkManager, arbiter)
                 .ContinueWith(prev =>
                 {
-                    AuthorizationClientTask task = new AuthorizationClientTask(_netModule, _netModule.CurrentUser);
+                    AuthorizationClientSymTask task = new AuthorizationClientSymTask(_netModule, _netModule.CurrentUser);
                     Global.TaskManager.AddTask(prev.Result, task);
                     task.Start();
                 });
