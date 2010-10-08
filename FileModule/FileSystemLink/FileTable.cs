@@ -10,7 +10,31 @@ namespace FileModule
 
     #endregion
 
-    
+
+
+    public class FileTable : FileTree
+    {
+        private MainStoragePath _mainPath;
+
+
+
+        public FileTable(MainStoragePath mainPath)
+            : base(mainPath)
+        {
+            _mainPath = mainPath;
+            //_table = new Dictionary<RelPath, FsObject<RelPath>>();
+            //_rootDirectory = new DirNode((Name)Path.GetFileName(mainPath.ToString()), null);
+            //_indexedDirectories = new Dictionary<RelPath, DirNode>();
+        
+        }
+
+    }
+
+
+
+
+
+    /*
     [Serializable]
     public class FileTable
     {
@@ -214,7 +238,7 @@ namespace FileModule
             /// <returns>Created DirNode if parameter is a directory, null otherwise.</returns>
             public DirNode Add(FsObject<RelPath> descriptor)
             {
-                var name = descriptor.Name;
+                var name = descriptor.Path.FileName();
                 if (descriptor is FsFile<RelPath>)
                 {
                     FsFile<RelPath> file = (FsFile<RelPath>)descriptor;
@@ -235,7 +259,7 @@ namespace FileModule
             /// <returns>True if parameter is a directory, false otherwise.</returns>
             public bool Remove(FsObject<RelPath> descriptor)
             {
-                var name = descriptor.Name;
+                var name = descriptor.Path.FileName();
                 if (descriptor is FsFile<RelPath>)
                 {
                     _files.Remove(name);
@@ -253,7 +277,7 @@ namespace FileModule
             {
                 foreach (var file in _files.Values)
                 {
-                    RelPath path = file.Name.RelativeIn(currentPath);
+                    RelPath path = file.Path.FileName().RelativeIn(currentPath);
                     result.Index.Add(path, new FsFile<RelPath>(path, file.Size, file.LastWrite));
                 }
 
@@ -264,10 +288,10 @@ namespace FileModule
                     dir.GetIndexed(childPath, result);
                 }
             }
-
-
         }
 
 
     }
+*/
+
 }

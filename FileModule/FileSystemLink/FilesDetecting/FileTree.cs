@@ -12,15 +12,27 @@ namespace FileModule
 
     #endregion
 
-    public class FileTree
+    public class FileTree : IFileIndex
     {
-        private readonly RelPath _relativeTo;
+        private readonly IPath _relativeTo;
+        /// <summary>
+        /// Root of this FileTree
+        /// </summary>
         private DirNode _rootDirectory;
 
-        public FileTree(RelPath relativeTo)
+        public FileTree(IPath relativeTo)
         {
             _relativeTo = relativeTo;
             _rootDirectory = new DirNode(relativeTo.FileName(), null);
+        }
+
+        protected IPath RootPath
+        {
+            get
+            {
+                return _relativeTo;
+            }
+          
         }
 
 
@@ -71,6 +83,46 @@ namespace FileModule
 //            }
 
         }
+
+
+        public FsFile<RelPath> GetFile(RelPath path)
+        {
+            DirNode current = _rootDirectory;
+            var folders = path.GetAncestorFolders();
+            foreach (Name folderName in folders)
+            {
+                current = current.Directories[folderName];
+            }
+            Name fName = path.FileName();
+            folders.Add(fName);
+            return current.Files[fName].WithNewPath(RelPath.FromNames(folders));
+
+        }
+
+        public bool TryGetFile(RelPath path, out FsFile<RelPath> file)
+        {
+            DirNode current = _rootDirectory;
+            var folders = path.GetAncestorFolders();
+            try
+            {
+                foreach (Name folderName in folders)
+                {
+                    current = current.Directories[folderName];
+                }
+                Name fName = path.FileName();
+                folders.Add(fName);
+                file = current.Files[fName].WithNewPath(RelPath.FromNames(folders));
+                return true;
+            }
+            catch (KeyNotFoundException )
+            {
+                file = default(FsFile<RelPath>);
+                return false;
+            }
+            
+        }
+
+
         public void MoveDirectory(RelPath sourcePath, RelPath targetPath)
         {
             DirNode parent = GetParentDir(sourcePath);
@@ -103,12 +155,12 @@ namespace FileModule
         /// <returns></returns>
         private DirNode EnsureParentDir(RelPath objPath)
         {
-            var folders = dirPath.GetParentFolders();
+            var folders = objPath.GetAncestorFolders();
 
             DirNode current = _rootDirectory;
             foreach (Name folderName in folders)
             {
-                current = current.Directories[folderName];
+                current = current.EnsureDirNode(folderName);
             }
             return current;
         }

@@ -12,39 +12,41 @@ namespace FileModule
     /// <summary>
     /// Dictionary of indexed objects contained in rootDir.
     /// </summary>
-    public class IndexedObjects
+    public class IndexedObjects : FileTree
     {
         /// <summary>
         /// Relative to MainStoragePath
         /// </summary>
-        private RelPath _rootDir;
+      //  private RelPath _rootDir;
 
         /// <summary>
         /// NOTICE: Here AbsPath represents path relative to rootDir.
         /// </summary>
         private readonly Dictionary<RelPath, FsObject<RelPath>> _index;
 
-        public IndexedObjects(RelPath rootDir, Dictionary<RelPath, FsObject<RelPath>> index)
-        {
-            _rootDir = rootDir;
-            _index = index;
-        }
+//        public IndexedObjects(RelPath rootDir, Dictionary<RelPath, FsObject<RelPath>> index)
+//            : base(rootDir)
+//        {
+//            _rootDir = rootDir;
+//            _index = index;
+//        }
 
         public IndexedObjects(RelPath rootDir)
+            : base(rootDir)
         {
-            _rootDir = rootDir;
+          //  _rootDir = rootDir;
             _index = new Dictionary<RelPath, FsObject<RelPath>>();
         }
 
         public RelPath RootDir
         {
-            get { return _rootDir; }
+            get { return (RelPath) base.RootPath; }
         }
 
-        public Dictionary<RelPath, FsObject<RelPath>> Index
-        {
-            get { return _index; }
-        }
+//        public Dictionary<RelPath, FsObject<RelPath>> Index
+//        {
+//            get { return _index; }
+//        }
 
 
         public IEnumerable<DescriptorPair> RelativeDescriptorPairs
@@ -76,7 +78,8 @@ namespace FileModule
                 get { return _relToRootDir; }
             }
         }
-        public class Transformer : IEnumerable<DescriptorPair>
+
+        private class Transformer : IEnumerable<DescriptorPair>
         {
             private readonly IndexedObjects _indexed;
 
@@ -96,7 +99,7 @@ namespace FileModule
             }
         }
 
-        public struct Transformerator : IEnumerator<DescriptorPair>
+        private struct Transformerator : IEnumerator<DescriptorPair>
         {
             private readonly IndexedObjects _indexed;
             private IEnumerator<FsObject<RelPath>> _valueEnumerator;

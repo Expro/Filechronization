@@ -70,6 +70,7 @@
     <Compile Include="ExchangeSystem\TransferJob.cs" />
     <Compile Include="FileMovedRenamedMessage.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\FileTree.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\IFileIndex.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\IndexingJob.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\TimedAction.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\TimedFolderDeletion.cs" />
@@ -137,7 +138,6 @@
     <ProjectReference Include="..\Tasks\Tasks.csproj">
       <Project>{A5AD0D10-B9D9-4FD4-931D-C84588D37382}</Project>
       <Name>Tasks</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\UserManagement\UserManagement.csproj">
       <Project>{351C22EB-698A-4AAA-888A-A787625C18F0}</Project>

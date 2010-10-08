@@ -4,7 +4,9 @@ namespace FileModule
     #region Usings
 
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Text;
 
     #endregion
 
@@ -38,6 +40,21 @@ namespace FileModule
 //        {
 //            return path.Get;
 //        }
+
+        public static RelPath FromNames(IEnumerable<Name> args)
+        {
+//            return Path.Combine(args);
+
+            StringBuilder sBuilder = new StringBuilder();
+            foreach (Name name in args)
+            {
+                sBuilder.Append(name + PathUtils.Slash);
+            }
+            sBuilder.Remove(sBuilder.Length - 1, 1);
+            return (RelPath) sBuilder.ToString();
+        }
+
+
 
         public static explicit operator RelPath(string relPath)
         {

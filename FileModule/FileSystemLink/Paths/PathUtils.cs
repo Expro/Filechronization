@@ -14,6 +14,7 @@ namespace FileModule
 
     public static class PathUtils
     {
+        public static readonly char Slash = Path.PathSeparator;//@"\";
         public const string AnySlash = @"[\\\/]";
 
         public static Name FileName(this IPath objPath)
@@ -36,7 +37,13 @@ namespace FileModule
             return new FsFile<Name>(fsFile.Path.FileName(), fsFile.Size, fsFile.LastWrite);
         }
 
+        public static FsFile<TPathResult> WithNewPath<TPath1, TPathResult>(this FsFile<TPath1> fsFile, TPathResult newPath)
+            where TPath1 : IPath
+            where TPathResult : IPath
+        {
 
+            return new FsFile<TPathResult>(newPath, fsFile.Size, fsFile.LastWrite);
+        }
 //        public static FsObject<Name> ToName(this FsObject<IPath> fsObject, IAbsPath path)
 //        {
 //            return new Fs

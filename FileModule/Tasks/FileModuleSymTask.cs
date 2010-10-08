@@ -2,17 +2,10 @@
 
 namespace FileModule.Tasks
 {
-    #region Usings
+   
 
-    using Filechronization.Tasks;
 
-    #endregion
-
-    #region Usings
-
-    #endregion
-
-    public abstract class FileModuleSymTask : SymTask
+    public abstract class FileModuleSymTask : Filechronization.Tasks.SymTask
     {
         protected NewFileModule fileModule;
 
