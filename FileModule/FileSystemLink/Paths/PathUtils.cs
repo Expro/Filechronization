@@ -37,6 +37,8 @@ namespace FileModule
             return new FsFile<Name>(fsFile.Path.FileName(), fsFile.Size, fsFile.LastWrite);
         }
 
+        #region WithNewPath
+
         public static FsFile<TPathResult> WithNewPath<TPath1, TPathResult>(this FsFile<TPath1> fsFile, TPathResult newPath)
             where TPath1 : IPath
             where TPathResult : IPath
@@ -44,13 +46,38 @@ namespace FileModule
 
             return new FsFile<TPathResult>(newPath, fsFile.Size, fsFile.LastWrite);
         }
+
+        public static FsFolder<TPathResult> WithNewPath<TPath1, TPathResult>(this FsFolder<TPath1> fsFolder, TPathResult newPath)
+            where TPath1 : IPath
+            where TPathResult : IPath
+        {
+
+            return new FsFolder<TPathResult>(newPath);
+        }
+
+        public static FsObject<TPathResult> WithNewPath<TPath1, TPathResult>(this FsObject<TPath1> fsObj, TPathResult newPath)
+            where TPath1 : IPath
+            where TPathResult : IPath
+        {
+            if (fsObj is FsFile<TPath1>)
+            {
+                return ((FsFile<TPath1>) fsObj).WithNewPath(newPath);
+            }
+            return ((FsFolder<TPath1>) fsObj).WithNewPath(newPath);
+        }
+
+        #endregion
+
+
+
 //        public static FsObject<Name> ToName(this FsObject<IPath> fsObject, IAbsPath path)
 //        {
 //            return new Fs
 //
-//        }
+        //        }
 
 
+        #region RelativeIn
 
         /// <summary>
         /// Extends objPath making it relative to parentFolderPath
@@ -68,6 +95,10 @@ namespace FileModule
             return NewRelative(fsObject, relPath);
 
         }
+
+        #endregion
+
+        #region RelativeTo
 
         /// <summary>
         /// From objPath creates path relative to parentFolderPath.
@@ -92,6 +123,9 @@ namespace FileModule
             return new FsFile<RelPath>(relPath, fsFile.Size, fsFile.LastWrite);
         }
 
+        #endregion
+
+
 
 
 
@@ -106,6 +140,7 @@ namespace FileModule
         }
 
 
+        #region AbsoluteIn
 
         /// <summary>
         /// Creates absolute path combining parentFolderPath with objPath
@@ -137,6 +172,9 @@ namespace FileModule
             }
 
         }
+
+        #endregion
+
         public static ICollection<Name> GetAncestorFolders(this RelPath path)
         {
 
@@ -179,8 +217,8 @@ namespace FileModule
             accumulated.Reverse();
             return accumulated;
 
-           // string combined = list.Aggregate("", Path.Combine);
-           // return combined.Select(elem => (RelPath)elem).Reverse();
+            // string combined = list.Aggregate("", Path.Combine);
+            // return combined.Select(elem => (RelPath)elem).Reverse();
         }
     }
 }

@@ -53,7 +53,8 @@ namespace FileModule
                 foreach (AbsPath dir in Directory.GetDirectories(currentDir, "*"))
                 {
                     directories.Push(dir);
-                    currentNode.EnsureDirNode(dir.FileName());
+                    DirNode node = currentNode.EnsureDirNode(dir.FileName());
+                    nodes.Push(node);
                 }
 
                 foreach (AbsPath path in Directory.GetFiles(currentDir, "*"))
@@ -84,34 +85,40 @@ namespace FileModule
 
         }
 
-
-        public FsFile<RelPath> GetFile(RelPath path)
+        public FsObject<RelPath> GetObject(RelPath path)
         {
-            DirNode current = _rootDirectory;
+            
             var folders = path.GetAncestorFolders();
-            foreach (Name folderName in folders)
-            {
-                current = current.Directories[folderName];
-            }
+            DirNode current = GetNode(folders);
             Name fName = path.FileName();
             folders.Add(fName);
-            return current.Files[fName].WithNewPath(RelPath.FromNames(folders));
+
+            FsFile<Name> fsFile;
+            if (current.Files.TryGetValue(fName, out fsFile))
+            {
+                return fsFile.WithNewPath(RelPath.FromNames(folders));
+            }
+
+            return current.Directories[fName].FolderInfo.WithNewPath(RelPath.FromNames(folders));
+
+        }
+        public FsFile<RelPath> GetFile(RelPath path)
+        {
+            
+            var folders = path.GetAncestorFolders();
+            DirNode parent = GetNode(folders);
+
+            Name fName = path.FileName();
+            folders.Add(fName);
+            return parent.Files[fName].WithNewPath(RelPath.FromNames(folders));
 
         }
 
         public bool TryGetFile(RelPath path, out FsFile<RelPath> file)
         {
-            DirNode current = _rootDirectory;
-            var folders = path.GetAncestorFolders();
             try
             {
-                foreach (Name folderName in folders)
-                {
-                    current = current.Directories[folderName];
-                }
-                Name fName = path.FileName();
-                folders.Add(fName);
-                file = current.Files[fName].WithNewPath(RelPath.FromNames(folders));
+                file = GetFile(path);
                 return true;
             }
             catch (KeyNotFoundException )
@@ -122,19 +129,20 @@ namespace FileModule
             
         }
 
+        public bool TryGetObject(RelPath path, out FsObject<RelPath> fsObject)
+        {
+            throw new NotImplementedException();
+        }
 
         public void MoveDirectory(RelPath sourcePath, RelPath targetPath)
         {
             DirNode parent = GetParentDir(sourcePath);
             DirNode node = parent.RemoveDirNode(sourcePath.FileName());
 
-            DirNode current = _rootDirectory;
-            var folders = targetPath.GetAncestorFolders();
-            foreach (Name folderName in folders)
-            {
-                current = current.EnsureDirNode(folderName);
-            }
-            current.AddDirNode(targetPath.FileName(), node);
+            DirNode target = EnsureNode(targetPath.GetAncestorFolders());
+
+
+            target.AddDirNode(targetPath.FileName(), node);
         }
 
         private DirNode GetParentDir(RelPath dirPath)
@@ -182,10 +190,61 @@ namespace FileModule
 //            AddFile(obj.RelativeTo(_mainPath));
 //        }
 
+        private DirNode GetNode(IEnumerable<Name> ancestors)
+        {
+            DirNode current = _rootDirectory;
+            foreach (Name folderName in ancestors)
+            {
+                current = current.Directories[folderName];
+            }
+            return current;
+        }
+        private DirNode EnsureNode(IEnumerable<Name> ancestors)
+        {
+            DirNode current = _rootDirectory;
+            foreach (Name folderName in ancestors)
+            {
+                current = current.EnsureDirNode(folderName);
+            }
+            return current;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootPath">Path relative to rootDirectory</param>
+        /// <param name="relativeTo">First part of the path of returned files </param>
+        /// <returns></returns>
+        public FileTree CloneSubTree(RelPath rootPath, IPath relativeTo)
+        {
+            var tree = new FileTree(relativeTo);
+
+            Stack<DirNode> targetNodes = new Stack<DirNode>();
+            Stack<DirNode> sourceNodes = new Stack<DirNode>();
 
 
+            DirNode localRoot = GetNode(rootPath.GetAncestorFolders());
 
+            tree._rootDirectory = localRoot.Clone(null);
+      
+            sourceNodes.Push(localRoot);
+            targetNodes.Push(tree._rootDirectory);
 
+            while (sourceNodes.Count != 0)
+            {
+                DirNode currentSource = sourceNodes.Pop();
+                DirNode currentTarget = targetNodes.Pop();
+
+                foreach (DirNode sourceChild in currentSource.Directories.Values)
+                {
+                    var cloned = sourceChild.Clone(currentTarget);
+                    currentTarget.Directories.Add(cloned.Name,cloned);
+
+                    sourceNodes.Push(sourceChild);
+                    targetNodes.Push(cloned);
+                }
+            }
+            return tree;
+        }
 
 
 
@@ -195,24 +254,40 @@ namespace FileModule
 
         public class DirNode
         {
-            private Name _name;
+            private FsFolder<Name> _folderInfo;
             private DirNode _parent;
             private Dictionary<Name, DirNode> _directories;
             private Dictionary<Name, FsFile<Name>> _files;
 
             public DirNode(Name name, DirNode parent)
             {
-                _name = name;
+                _folderInfo = new FsFolder<Name>(name);
                 _parent = parent;
                 _directories = new Dictionary<Name, DirNode>();
                 _files = new Dictionary<Name, FsFile<Name>>();
+            }
+            public DirNode(FsFolder<Name> dirInfo, DirNode parent, Dictionary<Name, FsFile<Name>> files)
+            {
+                _folderInfo = dirInfo;
+                _parent = parent;
+                _directories = new Dictionary<Name, DirNode>();
+                _files = files;
+            }
+            public DirNode Clone(DirNode parent)
+            {
+                return new DirNode(_folderInfo, parent, new Dictionary<Name, FsFile<Name>>(_files));
+         
+            }
+            public FsFolder<Name> FolderInfo
+            {
+                get { return _folderInfo; }
             }
 
             public Name Name
             {
                 get
                 {
-                    return _name;
+                    return _folderInfo.Path;
                 }
             }
 
@@ -251,9 +326,9 @@ namespace FileModule
             }
             public void AddDirNode(Name newName, DirNode node)
             {
-                node._name = newName;
+                node._folderInfo = node._folderInfo.WithNewPath(newName);
                 node._parent = this;
-                _directories.Add(node._name, node);
+                _directories.Add(newName, node);
             }
             /// <summary>
             /// 
@@ -299,23 +374,23 @@ namespace FileModule
                     return true;
                 }
             }
+            
 
-
-            public void GetIndexed(RelPath currentPath, IndexedObjects result)
-            {
-                foreach (var file in _files.Values)
-                {
-                    RelPath path = file.Path.FileName().RelativeIn(currentPath);
-                    result.Index.Add(path, new FsFile<RelPath>(path, file.Size, file.LastWrite));
-                }
-
-                foreach (var dir in _directories.Values)
-                {
-                    RelPath childPath = dir.Name.RelativeIn(currentPath);
-                    result.Index.Add(childPath, new FsFolder<RelPath>(childPath));
-                    dir.GetIndexed(childPath, result);
-                }
-            }
+//            public void GetIndexed(RelPath currentPath, IndexedObjects result)
+//            {
+//                foreach (var file in _files.Values)
+//                {
+//                    RelPath path = file.Path.FileName().RelativeIn(currentPath);
+//                    result.Index.Add(path, new FsFile<RelPath>(path, file.Size, file.LastWrite));
+//                }
+//
+//                foreach (var dir in _directories.Values)
+//                {
+//                    RelPath childPath = dir.Name.RelativeIn(currentPath);
+//                    result.Index.Add(childPath, new FsFolder<RelPath>(childPath));
+//                    dir.GetIndexed(childPath, result);
+//                }
+//            }
 
 
             public DirNode RemoveDirNode(Name dirName)

@@ -92,7 +92,7 @@ namespace FileModule
         public IndexedObjects GetIndexedFor(RelPath folderPath)
         {
             FileTable table = ChooseTable(folderPath);
-            return table.GetIndexedFor(folderPath);
+            return table.CloneSubTree(folderPath, MainPath);
         }
         public void IndexAllFiles()
         {

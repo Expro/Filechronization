@@ -403,7 +403,7 @@ namespace FileModule
                    
                     FsObject<RelPath> fsObject;
 
-                    if (deletedContent.Index.TryGetValue(descriptorPair.RelToRootDir.Path, out fsObject))
+                    if (deletedContent.TryGetObject(descriptorPair.RelToRootDir.Path, out fsObject))
                     {
                         if(fsObject is FsFile<RelPath> && !fsObject.Equals(descriptorPair.RelToRootDir))
                         {
@@ -425,7 +425,7 @@ namespace FileModule
 
                     FsObject<RelPath> fsObject;
 
-                    if (!indexedObjects.Index.TryGetValue(descriptor.RelToRootDir.Path, out fsObject))
+                    if (!indexedObjects.Index.TryGetFile(descriptor.RelToRootDir.Path, out fsObject))
                     {
                         result.Deleted.Add(descriptor.RelToMainPath);
                     }

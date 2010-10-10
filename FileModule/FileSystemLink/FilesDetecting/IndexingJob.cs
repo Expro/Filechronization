@@ -57,9 +57,9 @@ namespace FileModule
             
         }
 
-        public Dictionary<RelPath, FsObject<RelPath>> Index
+        public IndexedObjects Index
         {
-            get {return _indexedObjects.Index; }
+            get {return _indexedObjects; }
             
         }
         public override TimedAction Clone()
@@ -80,46 +80,49 @@ namespace FileModule
 
         public void IndexAll()
         {
-            _tokenSource.Token.ThrowIfCancellationRequested();
-            var list = new LinkedList<AbsPath>();
-            AddAll(_absDirPath, list);
-            GetAllData(list);
+            _indexedObjects.AddAllFromFileSystem(_absDirPath);
+
+
+//            _tokenSource.Token.ThrowIfCancellationRequested();
+//            var list = new LinkedList<AbsPath>();
+//            AddAll(_absDirPath, list);
+//            GetAllData(list);
    //         Finished(this);
         }
-
-        private void GetAllData(IEnumerable<AbsPath> list)
-        {
-            foreach (AbsPath absPath in list)
-            {
-                _tokenSource.Token.ThrowIfCancellationRequested();
-                Index.Add(absPath.RelativeTo(_absDirPath), FsObject<AbsPath>.ReadFrom(absPath).RelativeTo(_absDirPath));
-            }
-        }
-
-
-
-        private void AddAll(string dir, LinkedList<AbsPath> objects)
-        {
-            string[] files = Directory.GetFiles(dir, "*");
-
-            foreach (string s in files)
-            {
-                AddFile((AbsPath)s, objects);
-            }
-
-            string[] dirs = Directory.GetDirectories(dir, "*");
-            foreach (string s in dirs)
-            {
-                AddFile((AbsPath)s, objects);
-                AddAll(s, objects);
-            }
-        }
-
-        private void AddFile(AbsPath path, LinkedList<AbsPath> objects)
-        {
-            _tokenSource.Token.ThrowIfCancellationRequested();
-
-            objects.AddLast(path);
-        }
+        
+//        private void GetAllData(IEnumerable<AbsPath> list)
+//        {
+//            foreach (AbsPath absPath in list)
+//            {
+//                _tokenSource.Token.ThrowIfCancellationRequested();
+//                Index.Add(absPath.RelativeTo(_absDirPath), FsObject<AbsPath>.ReadFrom(absPath).RelativeTo(_absDirPath));
+//            }
+//        }
+//
+//
+//
+//        private void AddAll(string dir, LinkedList<AbsPath> objects)
+//        {
+//            string[] files = Directory.GetFiles(dir, "*");
+//
+//            foreach (string s in files)
+//            {
+//                AddFile((AbsPath)s, objects);
+//            }
+//
+//            string[] dirs = Directory.GetDirectories(dir, "*");
+//            foreach (string s in dirs)
+//            {
+//                AddFile((AbsPath)s, objects);
+//                AddAll(s, objects);
+//            }
+//        }
+//
+//        private void AddFile(AbsPath path, LinkedList<AbsPath> objects)
+//        {
+//            _tokenSource.Token.ThrowIfCancellationRequested();
+//
+//            objects.AddLast(path);
+//        }
     }
 }
