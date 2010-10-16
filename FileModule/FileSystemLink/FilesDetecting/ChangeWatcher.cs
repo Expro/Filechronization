@@ -303,8 +303,8 @@ namespace FileModule
         }
         #endregion
 
-        
 
+        [ForeignThreadEntryPoint]
         private void IndexingJobCallback(IndexingJob newIndexed, Exception exception)
         {
             _queue.Add(() =>
@@ -446,14 +446,14 @@ namespace FileModule
         private void FolderCreated(AbsPath fullPath)
         {
             RelPath relPath = fullPath.RelativeTo(MainPath);
-            var folderList = _deletedFolders.Values.Select(deletion => deletion.IndexedContent).ToList();
+            var deletedFoldersList = _deletedFolders.Values.Select(deletion => deletion.IndexedContent).ToList();
 //                _deletedFolders.Select(pair => Tuple.Create(pair.Key, pair.Value.IndexedContent)).ToList();
           
             string name = Path.GetFileName(fullPath);
             // dodanie do listy wszystkich potencjalnych folderow);
             // sortowanie aby folder o nazwie takiej samej jak ten folder
             // znalazl sie na poczcatku jako najbardziej prawdopodobny
-            folderList.Sort((one, two) =>
+            deletedFoldersList.Sort((one, two) =>
             {
                 string n = Path.GetFileName(one.RootDir.ToString());
                 if (n != null && n.Equals(name))
@@ -465,7 +465,7 @@ namespace FileModule
 
 
          //   TimedAction timing = new TimedAction(new FsFolder<RelPath>(relPath),StartIndexingCallback, IndexingDelay, Timeout.Infinite);
-            IndexingJob indexing = new IndexingJob(fullPath, relPath, folderList, StartIndexingCallback, IndexingDelay);
+            IndexingJob indexing = new IndexingJob(fullPath, relPath, deletedFoldersList, StartIndexingCallback, IndexingDelay, _queue);
             _activeIndexings.Add(relPath, indexing);
 
             
@@ -475,6 +475,7 @@ namespace FileModule
             
         }
 
+        [ForeignThreadEntryPoint]
         private void StartIndexingCallback(object state)
         {
             
@@ -535,6 +536,7 @@ namespace FileModule
 
         #region FileSystemWatcher events
 
+        [ForeignThreadEntryPoint]
         private void OnRenamed(object source, RenamedEventArgs eArgs)
         {
             _queue.Add(() =>
@@ -556,6 +558,7 @@ Console.Out.WriteLine(">>>> RN: " + eArgs.FullPath);
             
         }
 
+        [ForeignThreadEntryPoint]
         private void OnChanged(object source, FileSystemEventArgs eArgs)
         {
             try

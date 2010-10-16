@@ -19,23 +19,12 @@ namespace FileModule
         /// </summary>
       //  private RelPath _rootDir;
 
-        /// <summary>
-        /// NOTICE: Here AbsPath represents path relative to rootDir.
-        /// </summary>
-        private readonly Dictionary<RelPath, FsObject<RelPath>> _index;
-
-//        public IndexedObjects(RelPath rootDir, Dictionary<RelPath, FsObject<RelPath>> index)
-//            : base(rootDir)
-//        {
-//            _rootDir = rootDir;
-//            _index = index;
-//        }
 
         public IndexedObjects(RelPath rootDir)
             : base(rootDir)
         {
           //  _rootDir = rootDir;
-            _index = new Dictionary<RelPath, FsObject<RelPath>>();
+    
         }
 
         public RelPath RootDir

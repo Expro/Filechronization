@@ -69,7 +69,9 @@
     <Compile Include="ExchangeSystem\PieceInfo.cs" />
     <Compile Include="ExchangeSystem\TransferJob.cs" />
     <Compile Include="FileMovedRenamedMessage.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\FileEvents.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\FileTree.cs" />
+    <Compile Include="FileSystemLink\FilesDetecting\ForeignThreadEntryPointAttribute.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\IFileIndex.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\IndexingJob.cs" />
     <Compile Include="FileSystemLink\FilesDetecting\TimedAction.cs" />

@@ -98,7 +98,14 @@ namespace FileModule
         {
             foreach (KeyValuePair<GroupModel, FileTable> pair in tableList)
             {
-                pair.Value.AddFolders(pair.Key.FolderList);
+                foreach (string fol in pair.Key.FolderList)
+                {
+                    var path = ((RelPath)fol).AbsoluteIn(MainPath);
+
+                    pair.Value.AddAllFromFileSystem(path);
+
+                }
+                
             }
         }
 
@@ -118,7 +125,7 @@ namespace FileModule
         {
             FileTable table = ChooseTable(descriptor.Path);
 
-            table.AddFile(descriptor);
+            table.AddObject(descriptor);
         }
 
 //        public bool CreateIndexingJob(AbsPath folderPath)
@@ -128,7 +135,7 @@ namespace FileModule
 //        }
         public void RunIndexingJob(IndexingJob indexing, Action<IndexingJob, Exception> callback)
         {
-            Task.Factory.StartNew(indexing.IndexAll)
+            Task.Factory.StartNew(indexing.StartJob)
                 .ContinueWith(prev => callback(indexing, prev.Exception));
         }
 

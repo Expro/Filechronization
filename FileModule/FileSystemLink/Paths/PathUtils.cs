@@ -32,6 +32,10 @@ namespace FileModule
             }
             return new FsFolder<Name>(name);
         }
+        public static FsFolder<Name> NewAsName<TPath>(this FsFolder<TPath> dir) where TPath : IPath
+        {
+            return new FsFolder<Name>(dir.Path.FileName());
+        }
         public static FsFile<Name> NewAsName<TPath>(this FsFile<TPath> fsFile) where TPath : IPath
         {
             return new FsFile<Name>(fsFile.Path.FileName(), fsFile.Size, fsFile.LastWrite);
@@ -185,6 +189,11 @@ namespace FileModule
             }
 //            RelPath relativeParent = ((AbsPath) parentPath);
             return Regex.Split(parentPath.ToString(), AnySlash).Select(name => (Name)name).ToList();
+        }
+        public static ICollection<Name> SplitPath(this RelPath path)
+        {
+            //            RelPath relativeParent = ((AbsPath) parentPath);
+            return Regex.Split(path.ToString(), AnySlash).Select(name => (Name)name).ToList();
         }
         public static ICollection<Name> GetParentFoldersUntil(this AbsPath path, AbsPath parentFolderPath)
         {
