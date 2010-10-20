@@ -108,12 +108,12 @@ namespace FileModule
                 _timer.Interval = FinishDelay;
                 return true;
             }
-            else
+            if (!_timerFired2)
             {
                 _toRemove.Enqueue(path);
-
                 return false;
             }
+            return false;
         }
 
 
@@ -171,7 +171,15 @@ namespace FileModule
                         {
                             case FileEvents.Created:
                             {
-                                //TODO: zindeksowac trzeba
+                                try
+                                {
+                                    _indexedObjects.AddObject(LoadFile(fileEvent.Path));
+                                }
+                                catch (FileNotFoundException)
+                                {
+                                    // it was probably already deleted
+                                }
+                                
                                 break;
                             }
                             case FileEvents.Changed:
@@ -179,9 +187,9 @@ namespace FileModule
 
                                 try
                                 {
-                                    _indexedObjects.ChangeFile(LoadFile(fileEvent.Path));
+                                    _indexedObjects.ChangeFile((FsFile<RelPath>) LoadFile(fileEvent.Path));
                                 }
-                                catch (FileNotFoundException e)
+                                catch (FileNotFoundException)
                                 {
                                     // it was probably already deleted
                                 }
@@ -203,16 +211,17 @@ namespace FileModule
             });
             
         }
-        private FsFile<RelPath> LoadFile(RelPath path)
+        private FsObject<RelPath> LoadFile(RelPath path)
         {
             AbsPath absPath = path.AbsoluteIn(_absDirPath);
-            return FsFile<AbsPath>.LoadFrom(absPath).RelativeTo(_absDirPath);
+            return FsObject<AbsPath>.ReadFrom(absPath).RelativeTo(_absDirPath);
         }
         [ForeignThreadEntryPoint]
         private void Finish2(object sender, ElapsedEventArgs elapsedEventArgs)
         {
             _queue.Add(() =>
             {
+                _timerFired2 = true;
                 foreach (var relPath in _toRemove)
                 {
                     _indexedObjects.Remove(relPath);
