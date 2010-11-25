@@ -45,6 +45,11 @@ namespace FilechronizationGUI
 
 			return tab;
 		}
+		
+		public IConfiguration Configuration
+		{
+			get {return null;}
+		}
 
 		public void Start()
 		{

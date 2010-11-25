@@ -194,5 +194,10 @@ namespace DebugCodeGUI
 			(controller as ControllableCodeController).Restore();
 			RefreshState();
 		}
+		
+		public IConfiguration Configuration
+		{
+			get {return null;}
+		}
 	}
 }

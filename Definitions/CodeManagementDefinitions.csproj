@@ -54,7 +54,11 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractSettings.cs" />
     <Compile Include="AuthorAttribute.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="IConfiguration.cs" />
+    <Compile Include="ISettings.cs" />
     <Compile Include="NameAttribute.cs" />
     <Compile Include="DescriptionAttribute.cs" />
     <Compile Include="ICode.cs" />
@@ -63,6 +67,13 @@
     <Compile Include="SharedCode.cs" />
     <Compile Include="SharedControllableCode.cs" />
     <Compile Include="VersionAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Patterns\Patterns.csproj">
+      <Project>{BEE85151-0FDE-48DB-94F5-7D578A9ADE64}</Project>
+      <Name>Patterns</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
