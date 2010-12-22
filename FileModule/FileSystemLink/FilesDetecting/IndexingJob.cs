@@ -25,17 +25,17 @@ namespace FileModule
         private readonly Queue<RelPath> _toRemove;
         private readonly IndexedObjects _indexedObjects;
 
-        private readonly Timer _timer;
-        private readonly Timer _timer2;
+        private readonly Timer _startDelayTimer;
+        private readonly Timer _endingTimer;
 
         private QueingThread _queue;
         private readonly CancellationTokenSource _tokenSource;
 
         private const int FinishDelay = 200;
 
-//        private SyncObject _syncObject;
-        private bool _timerFired;
-        private bool _timerFired2;
+        //        private SyncObject _syncObject;
+        private bool _startDelayTimerFired;
+        private bool _endingTimerFired;
 //        private class SyncObject : ISynchronizeInvoke
 //        {
 //            public bool TimerStopped;
@@ -52,15 +52,17 @@ namespace FileModule
             _eventQueue = new BlockingCollection<FileEvent>();
             DeletedContentList = folderList;
 
-            _timer = new Timer();
-            _timer.Elapsed += Finish;
-            _timer.AutoReset = false;
-            _timer.Interval = FinishDelay;
+            _toRemove = new Queue<RelPath>();
 
-            _timer2 = new Timer();
-            _timer2.Elapsed += Finish2;
-            _timer2.AutoReset = false;
-            _timer2.Interval = FinishDelay;
+            _startDelayTimer = new Timer();
+            _startDelayTimer.Elapsed += FireDeepScan;
+            _startDelayTimer.AutoReset = false;
+            _startDelayTimer.Interval = FinishDelay;
+
+            _endingTimer = new Timer();
+            _endingTimer.Elapsed += Finish2;
+            _endingTimer.AutoReset = false;
+            _endingTimer.Interval = FinishDelay;
         }
 
         #region Properties
@@ -102,23 +104,32 @@ namespace FileModule
         /// <param name = "eventType"></param>
         public bool AddEvent(RelPath path, FileEvents eventType)
         {
-            if (!_timerFired)
+            if (!_startDelayTimerFired)
             {
-                _eventQueue.Add(new FileEvent(path, eventType));
-                _timer.Interval = FinishDelay;
+               
+                //_eventQueue.Add(new FileEvent(path, eventType));
+                // refresh timer.
+                _startDelayTimer.Interval = FinishDelay;
                 return true;
             }
-            if (!_timerFired2)
+            if (!_endingTimerFired)
             {
                 _toRemove.Enqueue(path);
                 return false;
             }
             return false;
         }
-
-
-        public void StartJob()
+        public void Start()
         {
+            _startDelayTimer.Start();
+        }
+
+        [ForeignThreadEntryPoint]
+        private void FireDeepScan(object sender, ElapsedEventArgs elapsedEventArgs)
+        {
+
+            _startDelayTimerFired = true;
+            //           TODO: przerzucic na inny watek:
             ICollection<AbsPath> notFoundList = _indexedObjects.AddAllFromFileSystem(_absDirPath);
 
             foreach (AbsPath absPath in notFoundList)
@@ -134,7 +145,7 @@ namespace FileModule
                 }
             }
             
-            _queue.Add(() => _timer.Start());
+            _queue.Add(() => _endingTimer.Start());
            
 
 //            _tokenSource.Token.ThrowIfCancellationRequested();
@@ -153,17 +164,18 @@ namespace FileModule
         {
             _tokenSource.Cancel();
         }
+/*
 
         [ForeignThreadEntryPoint]
         private void Finish(object sender, ElapsedEventArgs elapsedEventArgs)
         {
             _queue.Add(() =>
             {
-                if(!_timerFired)
+                if(!_startDelayTimerFired)
                 {
-                    _timerFired = true;
+                    _startDelayTimerFired = true;
 
-     //           TODO: przerzucic na inny watek:
+     
 
                     foreach (FileEvent fileEvent in _eventQueue)
                     {
@@ -203,7 +215,7 @@ namespace FileModule
                         }
                     }
 
-                    _timer2.Start();
+                    _endingTimer.Start();
 
 
                 }
@@ -211,6 +223,8 @@ namespace FileModule
             });
             
         }
+*/
+
         private FsObject<RelPath> LoadFile(RelPath path)
         {
             AbsPath absPath = path.AbsoluteIn(_absDirPath);
@@ -221,14 +235,14 @@ namespace FileModule
         {
             _queue.Add(() =>
             {
-                _timerFired2 = true;
+                _endingTimerFired = true;
                 foreach (var relPath in _toRemove)
                 {
                     _indexedObjects.Remove(relPath);
                 }
 
 
-                
+
 
             });
 

@@ -5,6 +5,7 @@ namespace FileModule
 
     using System;
     using System.IO;
+    using System.Threading;
 
     #endregion
 
@@ -37,6 +38,7 @@ namespace FileModule
         {
             get { return _lastWrite; }
         }
+
         /// <summary>
         /// Gets file properies from the filesystem
         /// </summary>

@@ -52,8 +52,8 @@ namespace Filechronization.Modularity
 	[Module]
 	public class Service
 	{
-		private ConcurrentDictionary<Type, MessageEvent> pServices;
-		private ConcurrentDictionary<Processor, BlockingCollection<ServiceTask>> pCores;
+        private ConcurrentDictionary<Type, Action<Message>> pServices;
+		private ConcurrentDictionary<Processor, BlockingCollection<Action>> pCores;
 		private ConcurrentDictionary<Type, Processor> pProcessors;
 		
 		private event MessageEvent pDefaultMessageHandler;
@@ -70,8 +70,8 @@ namespace Filechronization.Modularity
 		#endregion
 		public Service()
 		{
-			pServices = new ConcurrentDictionary<Type, MessageEvent>();
-			pCores = new ConcurrentDictionary<Processor, BlockingCollection<ServiceTask>>();
+            pServices = new ConcurrentDictionary<Type, Action<Message>>();
+            pCores = new ConcurrentDictionary<Processor, BlockingCollection<Action>>();
 			pProcessors = new ConcurrentDictionary<Type, Processor>();
 			
 			pDefaultMessageHandler = NullHandler;
@@ -88,7 +88,7 @@ namespace Filechronization.Modularity
 		public void EnqueueMessage(Message message)
 		{
 			Processor processor;
-			MessageEvent messageService = null;
+            Action<Message> messageService = null;
 			
 			Monitor.Enter(this);
 			
@@ -165,7 +165,18 @@ namespace Filechronization.Modularity
 			
 			Monitor.Exit(this);
 		}
-		
+
+        private Dictionary<Type, Action<Message>> actdict;
+        public void Register<TMessage>(Action<TMessage> messageEvent)where TMessage : Message
+        {
+            
+            actdict.Add(typeof(TMessage), (message) =>
+            {
+
+                messageEvent((TMessage)message);
+                //messageService(message);
+            });
+        }
 		#region Comment
 		/// <summary>
 		/// 	Removes method from list of handlers for this type of message.
@@ -177,7 +188,7 @@ namespace Filechronization.Modularity
 		/// 	Handler to be removed.
 		/// </param>
 		#endregion
-		public void Unregister(Type messageType, MessageEvent messageEvent)
+        public void Unregister(Type messageType, Action<Message> messageEvent)
 		{
 			Monitor.Enter(this);
 			
@@ -309,11 +320,11 @@ namespace Filechronization.Modularity
 		/// 	Access to particular message handlers.
 		/// </summary>
 		#endregion
-		public MessageEvent this[Type messageType]
+        public Action<Message> this[Type messageType]
 		{
 			get
 			{
-				MessageEvent result;
+                Action<Message> result;
 				
 				Monitor.Enter(this);
 				
@@ -363,8 +374,8 @@ namespace Filechronization.Modularity
 			set
 			{
 				Monitor.Enter(this);
-				
-				MessageEvent messageEvent;
+
+                Action<Message> messageEvent;
 				
 				if (pDefaultMessageHandler != null)
 				{
