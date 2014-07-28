@@ -7,6 +7,7 @@
  * 
  */
 using System;
+using Patterns;
 
 namespace CodeManagement.Definitions
 {
@@ -17,6 +18,6 @@ namespace CodeManagement.Definitions
 	#endregion
 	public interface ICode: IDisposable
 	{
-		
+		IConfiguration Configuration {get;}
 	}
 }

@@ -41,12 +41,12 @@ namespace CodeManagement
 		#endregion
 
 		#region Private Methods	
-		private MarshalByRefObject[] ProvideParameters(ConstructorInfo constructor)
+		private ICode[] ProvideParameters(ConstructorInfo constructor)
 		{
 			Contract.Requires(constructor != null);
 			
 			ParameterInfo[] parameters = constructor.GetParameters();
-			MarshalByRefObject[] result = new MarshalByRefObject[parameters.Length];
+			ICode[] result = new ICode[parameters.Length];
 			int i = 0;
 			
 			foreach (ParameterInfo parameter in parameters)
@@ -277,3 +277,4 @@ namespace CodeManagement
 		#endregion		
 	}
 }
+ 

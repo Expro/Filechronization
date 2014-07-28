@@ -20,10 +20,18 @@ namespace CodeManagement.Definitions
 	#endregion
 	public abstract class SharedCode: MarshalByRefObject, ICode
 	{
-		protected SharedCode()
+		private IConfiguration configuration;
+		
+		protected SharedCode(IConfiguration configuration = null)
 		{
+			this.configuration = configuration;
 		}
 		
 		public abstract void Dispose();
+		
+		public IConfiguration Configuration
+		{
+			get {return configuration;}
+		}
 	}
 }

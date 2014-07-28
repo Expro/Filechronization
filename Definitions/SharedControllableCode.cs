@@ -17,6 +17,10 @@ namespace CodeManagement.Definitions
 	#endregion
 	public abstract class SharedControllableCode: SharedCode, IControllableCode
 	{
+		protected SharedControllableCode(IConfiguration configuration): base(configuration)
+		{
+		}
+		
 		public abstract void Start();
 		
 		public abstract void Pause();

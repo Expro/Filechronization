@@ -32,5 +32,10 @@ namespace CodeGUI
 			
 			windowControl = mainWindow.AddContentToCenter("Code", this);
 		}
+		
+		public IConfiguration Configuration
+		{
+			get {return null;}
+		}
 	}
 }

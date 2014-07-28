@@ -54,6 +54,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractSettingsProvider.cs" />
     <Compile Include="Author.cs" />
     <Compile Include="CodeAnalizer.cs" />
     <Compile Include="CodeController.cs" />
@@ -65,7 +66,10 @@
     <Compile Include="ControllableCodeRepresentative.cs" />
     <Compile Include="ControllableState.cs" />
     <Compile Include="ICodeController.cs" />
+    <Compile Include="IdentifierVersionSettingsProvider.cs" />
+    <Compile Include="ISettingsProvider.cs" />
     <Compile Include="ISharedCodeProvider.cs" />
+    <Compile Include="IStorage.cs" />
     <Compile Include="MissingSharedCodeException.cs" />
     <Compile Include="ModuleAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
