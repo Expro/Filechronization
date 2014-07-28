@@ -1,22 +1,22 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
     #region Usings
 
-    using System;
-    using System.Collections;
     using System.Collections.Generic;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
     public class ActivePiece
     {
-        
-
-
-        private readonly PieceInfo pieceInfo;
-        private readonly int pieceByteSize;
-        private readonly int blocksCount;
         private readonly List<BlockStatus> blocks;
+        private readonly int blocksCount;
+        private readonly int pieceByteSize;
+        private readonly PieceInfo pieceInfo;
 
 
         private short currentPosition;
@@ -24,26 +24,34 @@ namespace FileModule.ExchangeSystem
 
 //        private bool complete;
 
-        
 
         public ActivePiece(RelPath fileName, int pieceIndex, int pieceByteSize)
-            :this(new PieceInfo(fileName,pieceIndex),pieceByteSize )
+            : this(new PieceInfo(fileName, pieceIndex), pieceByteSize)
         {
-            
-            
         }
+
         public ActivePiece(PieceInfo piece, int pieceByteSize)
         {
-            this.pieceInfo = piece;
+            pieceInfo = piece;
             this.pieceByteSize = pieceByteSize;
             blocksCount = ExchUtils.BlockCount(pieceByteSize);
-
 
 
             blocks = new List<BlockStatus>(blocksCount);
 
             Reset();
         }
+
+        public PieceInfo PieceInfo
+        {
+            get { return pieceInfo; }
+        }
+
+        public bool Complete
+        {
+            get { return receivedCount >= blocksCount; }
+        }
+
         public void Reset()
         {
 //            complete = false;
@@ -69,15 +77,15 @@ namespace FileModule.ExchangeSystem
             {
                 currentPosition += ExchUtils.StandardBlockSize;
             }
-            
+
             return new BlockInfo(pieceInfo, ret);
         }
 
         public bool WasRequested(BlockInfo blockInfo)
         {
-
             return blocks[blockInfo.InPieceOffset] == BlockStatus.Requested;
         }
+
         public void ReceivedBlock(BlockInfo blockInfo)
         {
             blocks[blockInfo.InPieceOffset] = BlockStatus.Received;
@@ -90,25 +98,9 @@ namespace FileModule.ExchangeSystem
 //
 //        
 //            }
-            
-
         }
 
-
-        public PieceInfo PieceInfo
-        {
-            get
-            {
-                return pieceInfo;
-            }
-        }
-        public bool Complete
-        {
-            get
-            {
-                return receivedCount >= blocksCount;
-            }
-        }
+        #region Nested type: BlockStatus
 
         private enum BlockStatus
         {
@@ -116,5 +108,7 @@ namespace FileModule.ExchangeSystem
             Requested,
             Received,
         }
+
+        #endregion
     }
 }

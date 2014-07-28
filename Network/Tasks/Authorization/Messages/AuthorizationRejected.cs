@@ -1,16 +1,17 @@
-﻿/*
- * 
- * Author: Maciej Grabowski
- * 
- */
-
-namespace Filechronization.Network.Tasks.Authorization.Messages
+﻿// Author: Piotr Trzpil
+namespace Network.Tasks.Authorization.Messages
 {
-	#region
-	using global::System;
-	using Modularity.Messages;
-	#endregion
-		
+    #region Usings
+
+    using Filechronization.Modularity.Messages;
+    using global::System;
+
+    #endregion
+
+    #region
+
+    #endregion
+
     [Serializable]
     public class AuthorizationRejected : NamedMessage
     {

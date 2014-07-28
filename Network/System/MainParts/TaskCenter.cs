@@ -1,25 +1,30 @@
-﻿/*
- * Author: Piotr Trzpil
- */
- 
+﻿// Author: Piotr Trzpil
+
 #region Usings
-using Filechronization.Network.System.Connections;
-using Filechronization.Network.System.Exceptions;
-using Filechronization.Tasks;
-using Filechronization.Tasks.Messages;
-using System;
-using System.Net;
-using Filechronization.Modularity.Messages;
-using Filechronization.Network.Tasks.ArbiterInfo;
-using Filechronization.Network.Tasks.ArbiterInfo.Messages;
-using Filechronization.UserManagement;
+
+
+
 #endregion
- 
-namespace Filechronization.Network.System.MainParts
+
+namespace Network.System.MainParts
 {
-    using ConsoleApplication1;
+    #region Usings
+
+    using Connections;
+    using Exceptions;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.Tasks;
+    using Filechronization.Tasks.Messages;
+    using Filechronization.UserManagement;
+    using global::System;
+    using global::System.Net;
+    using Network.Connections;
+    using Tasks.ArbiterInfo;
+    using Tasks.ArbiterInfo.Messages;
     using Tasks.Authorization;
     using Tasks.Authorization.Messages;
+
+    #endregion
 
     /// <summary>
     ///   Modul zajmujacy sie polaczeniami na wyzszym poziomie abstrakcji
@@ -27,7 +32,7 @@ namespace Filechronization.Network.System.MainParts
     public class TaskCenter
     {
         private readonly NetworkModule _netModule;
-        private NetworksManager _manager;
+        private ConnectionManagerHigher _managerHigher;
 
         public TaskCenter(NetworkModule netModule)
         {
@@ -42,8 +47,8 @@ namespace Filechronization.Network.System.MainParts
         /// </summary>
         private void AssignTaskInitiators()
         {
-            AddTaskInit(typeof (SaltRequest), () => new AuthorizationServerTask(_netModule, _netModule.UsersStructure));
-            AddTaskInit(typeof (ReqArbiterInfo), () => new ServerArbiterInfoTask(_netModule));
+            AddTaskInit(typeof (SaltRequest), () => new AuthorizationServerSymTask(_netModule, _netModule.UsersStructure));
+            AddTaskInit(typeof (ReqArbiterInfo), () => new ServerArbiterInfoSymTask(_netModule));
         }
 
         /// <summary>
@@ -57,7 +62,7 @@ namespace Filechronization.Network.System.MainParts
             {
                 throw new ArgumentException();
             }
-            SharedContext.taskManager.AddInitializableTask(messageType, deleg);
+            Global.TaskManager.AddInitializableTask(messageType, deleg);
         }
 
 
@@ -73,10 +78,9 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "message">Otrzymana wiadomosc</param>
         public void ObjectReceived(Peer sender, User user, Message message)
         {
-
             if (message is TaskMessage)
             {
-                var taskMessage = (TaskMessage) message;
+                TaskMessage taskMessage = (TaskMessage) message;
 
                 if (user == null)
                 {
@@ -104,7 +108,7 @@ namespace Filechronization.Network.System.MainParts
                 {
                     if (message is UserMessage)
                     {
-                        var userMessage = (UserMessage) message;
+                        UserMessage userMessage = (UserMessage) message;
                         userMessage.UserSender = user;
                     }
 
@@ -124,8 +128,8 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "peer">Polaczenie ktore ma zostac zapytane</param>
         public void StartConnectionTask(RemotePeer peer)
         {
-            var task = new ClientArbiterInfoTask(_netModule);
-            SharedContext.taskManager.AddTask(peer, task);
+            ClientArbiterInfoSymTask task = new ClientArbiterInfoSymTask(_netModule);
+            Global.TaskManager.AddTask(peer, task);
             task.Start();
         }
 
@@ -135,18 +139,13 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "arbiter">adres arbitra</param>
         public void BeginLogin(IPAddress arbiter)
         {
-            _manager.ConnectTask(_netModule.PeerCenter, arbiter)
+            _managerHigher.ConnectTask(_netModule.NetworkManager, arbiter)
                 .ContinueWith(prev =>
-                    {
-                        var task = new AuthorizationClientTask(_netModule, _netModule.CurrentUser);
-                        SharedContext.taskManager.AddTask(peer.EndPointAddress, task);
-                        task.Start();
-                    });
-
-           
+                {
+                    AuthorizationClientSymTask task = new AuthorizationClientSymTask(_netModule, _netModule.CurrentUser);
+                    Global.TaskManager.AddTask(prev.Result, task);
+                    task.Start();
+                });
         }
-
-
-       
     }
 }

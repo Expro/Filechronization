@@ -1,8 +1,11 @@
-﻿namespace FileModule
+﻿// Author: Piotr Trzpil
+namespace FileModule
 {
+    #region Usings
+
     using CodeManagement.Definitions;
 
-  
+    #endregion
 
     [Name("File Module")]
     [Version(1, 0, 0)]
@@ -45,8 +48,8 @@
 
         public void LoginEnded()
         {
-            _context.TableOverseer.IndexAllFiles();
-            _context.FileWatcher.Active = true;
+            _context.MainFileIndex.IndexAllFiles();
+            _context.ChangeWatcher.Active = true;
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.Messages
+﻿// Author: Piotr Trzpil
+namespace Network.Messages
 {
     #region Usings
 
     using global::System;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 

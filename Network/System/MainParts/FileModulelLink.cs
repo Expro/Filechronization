@@ -1,12 +1,14 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.System.MainParts
+﻿// Author: Piotr Trzpil
+namespace Network.System.MainParts
 {
     #region Usings
 
+    using Filechronization.Modularity.Messages;
     using Messages;
-    using Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -30,9 +32,9 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "incMessage">Wiadomosc enkapsulujaca</param>
         private void HandleExternalSend(Message incMessage)
         {
-            var sendMessage = (Send) incMessage;
+            Send sendMessage = (Send) incMessage;
 
-            _netModule.PeerCenter.SendTo(sendMessage.reciver, sendMessage.message);
+            _netModule.NetworkManager.SendTo(sendMessage.reciver, sendMessage.message);
         }
 
         /// <summary>
@@ -41,9 +43,9 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "incMessage">Wiadomosc enkapsulujaca</param>
         private void HandleToAllMessage(Message incMessage)
         {
-            var toAllMessage = (ToAllMessage) incMessage;
-
-            _netModule.PeerCenter.SendToAll(toAllMessage.message);
+//            var toAllMessage = (ToAllMessage) incMessage;
+//
+//            _netModule.PeerCenter.SendToAll(toAllMessage.message);
         }
 
         /// <summary>
@@ -52,9 +54,9 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "incMessage">Wiadomosc enkapsulujaca</param>
         private void HandleToAllButMessage(Message incMessage)
         {
-            var toAllButMessage = (ToAllButMessage) incMessage;
-
-            _netModule.PeerCenter.SendToAllBut(toAllButMessage.message, toAllButMessage.ExcludedUser);
+//            var toAllButMessage = (ToAllButMessage) incMessage;
+//
+//            _netModule.PeerCenter.SendToAllBut(toAllButMessage.message, toAllButMessage.ExcludedUser);
         }
 
         /// <summary>
@@ -63,11 +65,10 @@ namespace Filechronization.Network.System.MainParts
         /// <param name = "incMessage">Wiadomosc enkapsulujaca</param>
         private void HandleToArbiterMessage(Message incMessage)
         {
-            var arbiterMessage = (ArbiterMessage) incMessage;
-
-            // var message = new FileModuleMessage(arbiterMessage.message);
-
-            _netModule.PeerCenter.SendToArbiter(arbiterMessage.message);
+//            var arbiterMessage = (ArbiterMessage) incMessage;
+//
+//            
+//            _netModule.PeerCenter.SendToArbiter(arbiterMessage.message);
         }
     }
 }

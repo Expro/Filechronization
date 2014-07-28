@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem.Messages
 {
     #region Usings
@@ -7,13 +8,17 @@ namespace FileModule.ExchangeSystem.Messages
 
     #endregion
 
+    #region Usings
+
+    #endregion
+
     [Serializable]
     public class BlockMessage : UserMessage
     {
         private readonly BlockInfo blockInfo;
 
         public BlockMessage(RelPath fileName, int pieceIndex, short inPieceOffset)
-            
+
         {
             blockInfo = new BlockInfo(fileName, pieceIndex, inPieceOffset);
         }

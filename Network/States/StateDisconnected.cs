@@ -1,20 +1,22 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.States
+﻿// Author: Piotr Trzpil
+namespace Network.States
 {
     #region Usings
 
     using System.MainParts;
-    using UserManagement;
+    using Filechronization.UserManagement;
 
     #endregion
+
+    #region Usings
+
+    #endregion
+
     /// <summary>
-    /// Oznacza, ze nie ma polaczenia z siecia
+    ///   Oznacza, ze nie ma polaczenia z siecia
     /// </summary>
     public class StateDisconnected : StateAbstract
     {
-    
         public User arbiter;
 
 

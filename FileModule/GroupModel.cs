@@ -1,3 +1,5 @@
+// Author: Piotr Trzpil
+
 namespace FileModule
 {
     #region Usings
@@ -6,19 +8,22 @@ namespace FileModule
 
     #endregion
 
+    #region Usings
+
+    #endregion
+
     public class GroupModel
     {
-        private List<string> _folderList;
-
-        public List<string> FolderList
-        {
-            get { return _folderList; }
-        }
+        private readonly List<string> _folderList;
 
         public GroupModel(IEnumerable<string> folders)
         {
             _folderList = new List<string>(folders);
-           
+        }
+
+        public List<string> FolderList
+        {
+            get { return _folderList; }
         }
     }
 }

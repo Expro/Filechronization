@@ -1,7 +1,5 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.States
+﻿// Author: Piotr Trzpil
+namespace Network.States
 {
     #region Usings
 
@@ -9,8 +7,13 @@ namespace Filechronization.Network.States
     using global::System.Net;
 
     #endregion
+
+    #region Usings
+
+    #endregion
+
     /// <summary>
-    /// Reprezentuje stan polaczony sie sieci
+    ///   Reprezentuje stan polaczony sie sieci
     /// </summary>
     public abstract class StateConnected : StateAbstract
     {

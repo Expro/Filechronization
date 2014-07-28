@@ -1,6 +1,11 @@
-﻿namespace FileModule
+﻿// Author: Piotr Trzpil
+namespace FileModule
 {
+    #region Usings
+
     using System;
+
+    #endregion
 
     [Serializable]
     public class FsFolder<TPath> : FsObject<TPath> where TPath : IPath
@@ -9,6 +14,5 @@
             : base(path)
         {
         }
-
     }
 }

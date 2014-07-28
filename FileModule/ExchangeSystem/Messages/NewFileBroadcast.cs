@@ -1,19 +1,22 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem.Messages
 {
-    using System;
+    #region Usings
+
     using System.Collections.Generic;
     using Filechronization.Modularity.Messages;
 
+    #endregion
+
     public class NewFileBroadcast : Message
     {
-
         private readonly FsFile<RelPath> descriptor;
-        private readonly string fileName;
+        private readonly RelPath fileName;
 
         private readonly IList<PieceHash> hashes;
         private readonly string seedUser;
 
-        public NewFileBroadcast(string fileName, FsFile<RelPath> descriptor, string seedUser, IList<PieceHash> hashes)
+        public NewFileBroadcast(RelPath fileName, FsFile<RelPath> descriptor, string seedUser, IList<PieceHash> hashes)
         {
             this.fileName = fileName;
             this.descriptor = descriptor;
@@ -21,7 +24,7 @@ namespace FileModule.ExchangeSystem.Messages
             this.hashes = hashes;
         }
 
-        public string FileName
+        public RelPath FileName
         {
             get { return fileName; }
         }
@@ -36,10 +39,9 @@ namespace FileModule.ExchangeSystem.Messages
             get { return seedUser; }
         }
 
-        public IList<PieceHash>  Hashes
+        public IList<PieceHash> Hashes
         {
             get { return hashes; }
         }
-
     }
 }

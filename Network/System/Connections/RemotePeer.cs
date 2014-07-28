@@ -1,24 +1,22 @@
-﻿/*
- * Author: Piotr Trzpil
- */
+﻿// Author: Piotr Trzpil
 
 #region Usings
-using Filechronization.Tasks.Messages;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using Filechronization.Network.System.MainParts;
-using Filechronization.Network.Messages;
-using Filechronization.CommonClasses;
+
+
+
 #endregion
- 
-namespace Filechronization.Network.System.Connections
+
+namespace Network.System.Connections
 {
-    using ConsoleApplication1;
-    using Modularity.Messages;
+    #region Usings
+
+    using Filechronization.CommonClasses;
+    using Filechronization.Modularity.Messages;
+    using global::System;
+    using global::System.Net;
+    using Network.Connections;
+
+    #endregion
 
     public delegate void DisconnectionHandler(RemotePeer peer);
 
@@ -27,37 +25,29 @@ namespace Filechronization.Network.System.Connections
     /// </summary>
     public class RemotePeer : Peer
     {
-        private readonly NetworksManager _manager;
+        private readonly ConnectionManagerHigher _managerHigher;
         private readonly PeerProxy _proxy;
 
-        
+
+        private IPEndPoint _endPointAddress;
         private bool _persistent;
 
-        
-        private IPEndPoint _endPointAddress;
-
-        public RemotePeer(NetworksManager manager, PeerProxy proxy)
+        public RemotePeer(ConnectionManagerHigher managerHigher, PeerProxy proxy)
         {
-            _manager = manager;
+            _managerHigher = managerHigher;
             _proxy = proxy;
         }
 
 
         public override bool Connected
         {
-            get
-            {
-                return !_proxy.IsDisposed;
-            }
+            get { return !_proxy.IsDisposed; }
         }
 
         public override bool Persistent
         {
-            get
-            {
-                return _proxy.Persistent;
-            }
-            set { _manager.SetPersistent(this, _proxy, value); }
+            get { return _proxy.Persistent; }
+            set { _managerHigher.SetPersistent(this, _proxy, value); }
         }
 
         /// <summary>
@@ -65,14 +55,9 @@ namespace Filechronization.Network.System.Connections
         /// </summary>
         public override IPEndPoint Endpoint
         {
-            get
-            {
-                return _proxy.Endpoint;
-            }
+            get { return _proxy.Endpoint; }
         }
 
-
-        
 
         /// <summary>
         ///   Tlumaczy obiekt na adres ip jesli jest to mozliwe
@@ -93,8 +78,6 @@ namespace Filechronization.Network.System.Connections
         }
 
 
-
-
         public static IPAddress ExtractAddress(UnifiedAddress dnsOrIP)
         {
             try
@@ -107,16 +90,10 @@ namespace Filechronization.Network.System.Connections
             }
         }
 
-       
-        
 
         public override void Send(Message message)
         {
-            _manager.HandleSend(_proxy, message);
-
-
+            _managerHigher.HandleSend(_proxy, message);
         }
-
-        
     }
 }

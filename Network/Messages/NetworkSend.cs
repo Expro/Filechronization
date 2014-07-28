@@ -1,50 +1,48 @@
-﻿/*
- * 
- * Author: Maciej Grabowski
- * 
- */
+﻿// Author: Piotr Trzpil
 
 #region
-using System;
-using System.Net;
+
+
+
 #endregion
 
-namespace Filechronization.Network.Messages
+namespace Network.Messages
 {
-	#region
-	using Modularity.Messages;
-	#endregion
-	/// <summary>
-	/// Wylacznie obiekt tej klasy jest bezposrednio przesylany przez siec
-	/// </summary>
+    #region Usings
+
+    using Filechronization.Modularity.Messages;
+    using global::System;
+    using global::System.Net;
+
+    #endregion
+
+    #region
+
+    #endregion
+
+    /// <summary>
+    ///   Wylacznie obiekt tej klasy jest bezposrednio przesylany przez siec
+    /// </summary>
     [Serializable]
     public class NetworkSend
     {
-        private IPEndPoint pReciver;
-        private Message pMessage;
-		
+        private readonly Message pMessage;
+        private readonly IPEndPoint pReciver;
+
         public NetworkSend(IPEndPoint reciver, Message message)
         {
             pReciver = reciver;
             pMessage = message;
         }
-		
+
         public IPEndPoint reciver
         {
-            get
-            {
-                return pReciver;
-            }
+            get { return pReciver; }
         }
-		
+
         public Message message
         {
-            get
-            {
-                return pMessage;
-            }
+            get { return pMessage; }
         }
     }
 }
-
-

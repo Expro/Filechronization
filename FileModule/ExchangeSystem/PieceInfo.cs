@@ -1,17 +1,21 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
     #region Usings
 
     using System;
-    using Filechronization.Modularity.Messages;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
     [Serializable]
-    public struct PieceInfo 
+    public struct PieceInfo
     {
-        private readonly RelPath relFilePath;
         private readonly int index;
+        private readonly RelPath relFilePath;
 
 
         public PieceInfo(RelPath relFilePath, int index)
@@ -24,8 +28,9 @@ namespace FileModule.ExchangeSystem
         {
             get { return relFilePath; }
         }
+
         /// <summary>
-        /// Numer czesci w pliku
+        ///   Numer czesci w pliku
         /// </summary>
         public int Index
         {
@@ -34,13 +39,11 @@ namespace FileModule.ExchangeSystem
 
         public bool Equals(PieceInfo other)
         {
-   
             return Equals(other.relFilePath, relFilePath) && other.index == index;
         }
 
         public override bool Equals(object obj)
         {
-
             if (obj.GetType() != typeof (PieceInfo)) return false;
             return Equals((PieceInfo) obj);
         }

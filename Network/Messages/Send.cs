@@ -1,23 +1,24 @@
-﻿/*
- * 
- * Author: Maciej Grabowski
- * 
- */
-
-namespace Filechronization.Network.Messages
+﻿// Author: Piotr Trzpil
+namespace Network.Messages
 {
-	#region
-	using global::System;
-	using Modularity.Messages;
-	using UserManagement;
-	#endregion
-	
+    #region Usings
+
+    using Filechronization.Modularity.Messages;
+    using Filechronization.UserManagement;
+    using global::System;
+
+    #endregion
+
+    #region
+
+    #endregion
+
     [Serializable]
-    public class Send: Message
+    public class Send : Message
     {
         private readonly User _reciver;
-        private Message pMessage;
-		
+        private readonly Message pMessage;
+
         public Send(User reciver, Message message)
         {
             _reciver = reciver;
@@ -26,20 +27,12 @@ namespace Filechronization.Network.Messages
 
         public User reciver
         {
-            get
-            {
-                return _reciver;
-            }
+            get { return _reciver; }
         }
-		
+
         public Message message
         {
-            get
-            {
-                return pMessage;
-            }
+            get { return pMessage; }
         }
     }
 }
-
-

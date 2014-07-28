@@ -1,10 +1,13 @@
-﻿namespace FileModule
+﻿// Author: Piotr Trzpil
+
+namespace FileModule
 {
     #region Usings
 
     using System;
     using System.Collections.Concurrent;
     using System.Threading;
+    using CodeExecutionTools.Logging;
 
     #endregion
 
@@ -12,127 +15,69 @@
 
     public class QueingThread : IDisposable
     {
-        private readonly BlockingCollection<Action> queue;
-        private readonly Thread thread;
-       
+        private readonly BlockingCollection<Action> _queue;
+        private readonly Thread _thread;
+        private bool _disposed;
 
-        private bool running;
+        private bool _running;
 
         public QueingThread()
         {
-            queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
-            thread = new Thread(Run);
-            
-
-            running = false;
+            _queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
+            _thread = new Thread(Run);
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _running = false;
+            _disposed = true;
+            _queue.CompleteAdding();
+        }
+
+        #endregion
 
         public void Start()
         {
-            
-            if (!running)
+            if (!_running && !_disposed)
             {
-                running = true;
-                thread.Start();
+                _running = true;
+                _thread.Start();
             }
-            
+            else
+            {
+                throw new InvalidOperationException("Is running or disposed.");
+            }
         }
 
-        
-        public void Dispose()
+        public void Add(Action action)
         {
-            running = false;
-            queue.CompleteAdding();
-          
-        }
-        public void Add(Action comm)
-        {
-            queue.Add(comm);
-            
+            _queue.Add(action);
         }
 
 
         private void Run()
         {
-            
-            foreach (var action in queue.GetConsumingEnumerable())
+            foreach (Action action in _queue.GetConsumingEnumerable())
             {
-                //var job = queue.Take(tokenSource.Token);
-
-
-#if !DEBUG
-                try
-                {
-#endif     
-                    action();
-#if !DEBUG
-                }
-                catch (Exception e)
-                {
-                    Bug.Err(e);
-                }
-#endif
-            }
-
-                
-            
-        }
-        
-
-//        private readonly BlockingQueue<QueedJob> queue;
-//        private readonly Thread thread;
-//
-//        private bool running;
-//
-//        public QueingThread()
-//        {
-//            queue = new BlockingQueue<QueedJob>();
-//            thread = new Thread(Run);
-//            running = false;
-//        }
-//
-//        public void Start()
-//        {
-//            Monitor.Enter(queue);
-//            if (!running)
-//            {
-//                running = true;
-//                thread.Start();
-//            }
-//            Monitor.Exit(queue);
-//        }
-//
-//        public void Stop()
-//        {
-//   
-//            running = false;
-//            queue.Unblock();
-//
-//
-//        }
-//
-//        public void Add(QueedJob comm)
-//        {
-//            queue.Enqueue(comm);
-//        }
-//
-//        public void Clear()
-//        {
-//            queue.Clear();
-//        }
-//
-//        private void Run()
-//        {
-//            while (running)
-//            {
-//                var task = queue.Dequeue();
-//                if(task!= null)
+//#if !DEBUG
+//                try
 //                {
-//                    task();
+//#endif     
+                action();
+//#if !DEBUG
 //                }
-//                
-//            }
-//        }
-        
+//                catch (Exception e)
+//                {
+//                    LoggingService.Trace.Error(e.toString());
+                    // Kill the program anyway.
+//                    throw;
+//                }
+//#endif
+            }
+        }
+
+
     }
 }

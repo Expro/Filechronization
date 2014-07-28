@@ -1,8 +1,13 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem.Messages
 {
     #region Usings
 
     using System;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -13,9 +18,9 @@ namespace FileModule.ExchangeSystem.Messages
             : base(fileName, pieceIndex, inPieceOffset)
         {
         }
-        public BlockRequest(BlockInfo blockInfo) :base(blockInfo)
+
+        public BlockRequest(BlockInfo blockInfo) : base(blockInfo)
         {
-            
         }
     }
 }

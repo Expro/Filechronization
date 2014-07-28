@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
     #region Usings
@@ -6,6 +7,10 @@ namespace FileModule.ExchangeSystem
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+
+    #endregion
+
+    #region Usings
 
     #endregion
 
@@ -45,7 +50,7 @@ namespace FileModule.ExchangeSystem
 
             for (int i = 0; i < pieceCount; i++)
             {
-                var pieceInfo = new PieceProperties(i, hashes[i]);
+                PieceProperties pieceInfo = new PieceProperties(i, hashes[i]);
                 piecesIndexed[i] = pieceInfo;
                 piecesRaritySorted.Add(pieceInfo);
             }
@@ -82,8 +87,7 @@ namespace FileModule.ExchangeSystem
         /// <returns>New active piece</returns>
         public ActivePiece GetNonActivePiece()
         {
-            
-            var selectedPieces = new List<PieceProperties>();
+            List<PieceProperties> selectedPieces = new List<PieceProperties>();
             const int sampleSize = 10;
             int counter = 0;
 

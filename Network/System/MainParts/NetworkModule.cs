@@ -1,123 +1,127 @@
-﻿/*
- * Author: Piotr Trzpil
- */
- 
+﻿// Author: Piotr Trzpil
+
 #region Usings
-using Filechronization.Tasks.Messages;
-using Filechronization.Network.Messages;
-using Filechronization.Modularity;
-using Filechronization.Modularity.Messages;
-using Filechronization.Network.States;
-using Filechronization.UserManagement;
+
+
+
 #endregion
- 
-namespace Filechronization.Network.System.MainParts
+
+namespace Network.System.MainParts
 {
-	/// <summary>
-	///   Glowny obiekt modulu sieciowego
-	/// </summary>
-	public class NetworkModule
-	{
-		///<summary>
-		///  Struktura przechowujaca uzytwkownikow.
-		///</summary>
-		public Users UsersStructure
-		{
-			get { return SharedContext.users; }
-		}
+    #region Usings
 
-		/// <summary>
-		///   Modul sterujacy wiadomosciami
-		/// </summary>
-		public Service ServiceModule
-		{
-			get { return SharedContext.service; }
-		}
+    using Filechronization.Modularity;
+    using Filechronization.Modularity.Messages;
+    using Filechronization.Tasks.Messages;
+    using Filechronization.UserManagement;
+    using Messages;
+    using States;
 
-		public static int portNr = 6112;
+    #endregion
 
-		public readonly NetQueue netQueue;
+    /// <summary>
+    ///   Glowny obiekt modulu sieciowego
+    /// </summary>
+    public class NetworkModule
+    {
+        public static int portNr = 6112;
+
+        public readonly NetQueue netQueue;
+        private FileModulelLink _fileLink;
+        private InterfaceModuleLink _interfaceLink;
 
 
-		private StateAbstract _networkState;
+        private StateAbstract _networkState;
 
-		public StateAbstract NetworkState
-		{
-			get { return _networkState; }
-		}
+        /// <summary>
+        ///   Tworzy modul sieciowy
+        /// </summary>
+        public NetworkModule()
+        {
+            Processor proc = ServiceModule.CreateProcessor();
 
+            AssignProcessor(ServiceModule, proc);
 
-		public PeerCenter PeerCenter { get; private set; }
+            netQueue = new NetQueue(ServiceModule, proc);
+            netQueue.Start();
 
-		public TaskCenter TaskCenter { get; private set; }
-
-
-		private InterfaceModuleLink _interfaceLink;
-		private FileModulelLink _fileLink;
-
-		/// <summary>
-		///   Aktualny uzytkownik
-		/// </summary>
-		public User CurrentUser { get; set; }
+            _interfaceLink = new InterfaceModuleLink(this);
+            _fileLink = new FileModulelLink(this);
+            NetworkManager = new NetworkManager(this);
+            TaskCenter = new TaskCenter(this);
 
 
-		/// <summary>
-		///   Tworzy modul sieciowy
-		/// </summary>
-		public NetworkModule()
-		{
-			Processor proc = ServiceModule.CreateProcessor();
+            _networkState = new StateDisconnected(this);
+        }
 
-			AssignProcessor(ServiceModule, proc);
+        ///<summary>
+        ///  Struktura przechowujaca uzytwkownikow.
+        ///</summary>
+        public Users UsersStructure
+        {
+            get { return null; }
+        }
 
-			netQueue = new NetQueue(ServiceModule, proc);
-			netQueue.Start();
+        /// <summary>
+        ///   Modul sterujacy wiadomosciami
+        /// </summary>
+        public Service ServiceModule
+        {
+            get { return null; }
+        }
 
-			_interfaceLink = new InterfaceModuleLink(this);
-			_fileLink = new FileModulelLink(this);
-			PeerCenter = new PeerCenter(this);
-			TaskCenter = new TaskCenter(this);
-
-
-			_networkState = new StateDisconnected(this);
-		}
-
-
-		private void AssignProcessor(Service serv, Processor processor)
-		{
-			serv.AssignProcessor(typeof (NetworkSend), processor);
-			serv.AssignProcessor(typeof (LocalTaskMessage), processor);
-			serv.AssignProcessor(typeof (Notification), processor);
+        public StateAbstract NetworkState
+        {
+            get { return _networkState; }
+        }
 
 
-			serv.AssignProcessor(typeof (UserStateChanged), processor);
-			serv.Register(typeof (UserStateChanged), HandleToStateMessage);
-			serv.AssignProcessor(typeof (ConnectionLost), processor);
-			serv.Register(typeof (ConnectionLost), HandleToStateMessage);
+        public NetworkManager NetworkManager { get; private set; }
+
+        public TaskCenter TaskCenter { get; private set; }
 
 
-			//serv.Register(typeof (Notification), HandleNotification);
-		}
+        /// <summary>
+        ///   Aktualny uzytkownik
+        /// </summary>
+        public User CurrentUser { get; set; }
 
-		private void HandleToStateMessage(Message message)
-		{
-			var toState = (ToStateMessage) message;
-			NetworkState.handleMessage((User) toState.UserSender, toState);
-		}
 
-		/// <summary>
-		///   Zmiana stanu polaczenia z siecia na zadany
-		/// </summary>
-		/// <param name = "state">Zadany stan</param>
-		public void ChangeStateTo(StateAbstract state)
-		{
-			SendNotification("State changed to:" + state.GetType().Name, NotificationType.STATE);
-			_networkState = state;
-			if (NetworkState is StateDisconnected)
-			{
-				//PeerCenter.StartConnectToNetwork();
-			}
-		}
+        private void AssignProcessor(Service serv, Processor processor)
+        {
+            serv.AssignProcessor(typeof (NetworkSend), processor);
+            serv.AssignProcessor(typeof (LocalTaskMessage), processor);
+            //serv.AssignProcessor(typeof (Notification), processor);
+
+
+            serv.AssignProcessor(typeof (UserStateChanged), processor);
+            serv.Register(typeof (UserStateChanged), HandleToStateMessage);
+            serv.AssignProcessor(typeof (ConnectionLost), processor);
+            serv.Register(typeof (ConnectionLost), HandleToStateMessage);
+
+
+            //serv.Register(typeof (Notification), HandleNotification);
+        }
+
+        private void HandleToStateMessage(Message message)
+        {
+            ToStateMessage toState = (ToStateMessage) message;
+            NetworkState.handleMessage((User) toState.UserSender, toState);
+        }
+
+        /// <summary>
+        ///   Zmiana stanu polaczenia z siecia na zadany
+        /// </summary>
+        /// <param name = "state">Zadany stan</param>
+        public void ChangeStateTo(StateAbstract state)
+        {
+            //SendNotification("State changed to:" + state.GetType().Name, NotificationType.STATE);
+            _networkState = state;
+            if (NetworkState is StateDisconnected)
+            {
+                //PeerCenter.StartConnectToNetwork();
+            }
+        }
 
 
 //
@@ -130,9 +134,8 @@ namespace Filechronization.Network.System.MainParts
 //						{
 //							((StateArbiter) NetworkState).giveAwayArbiter();
 //						}
-		// networkState.
+        // networkState.
 //					});
 //		}
-
-	}
+    }
 }

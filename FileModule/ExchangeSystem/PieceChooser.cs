@@ -1,18 +1,13 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
-    #region Usings
 
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
+    #region Usings
 
     #endregion
 
     public class PieceChooser
     {
-        
-
 //
 //        int getBit(unsigned char map[], int bitOffset)
 //        {

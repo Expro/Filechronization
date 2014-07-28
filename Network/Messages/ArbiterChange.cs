@@ -1,15 +1,13 @@
-﻿/*
- * Author: Piotr Trzpil
- */
-namespace Filechronization.Network.Messages
+﻿// Author: Piotr Trzpil
+namespace Network.Messages
 {
     public class ArbiterChange : ToStateMessage
     {
-        public string login { get; private set; }
-
         public ArbiterChange(string login)
         {
             this.login = login;
         }
+
+        public string login { get; private set; }
     }
 }

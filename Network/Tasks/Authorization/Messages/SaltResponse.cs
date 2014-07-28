@@ -1,18 +1,22 @@
-﻿/*
- * 
- * Author: Maciej Grabowski
- * 
- */
+﻿// Author: Piotr Trzpil
 
 #region
-using System;
-using Filechronization.Modularity.Messages;
-using Filechronization.Security;
+
+
+
 #endregion
 
-namespace Filechronization.Network.Tasks.Authorization.Messages
+namespace Network.Tasks.Authorization.Messages
 {
-	[Serializable]
+    #region Usings
+
+    using Filechronization.Modularity.Messages;
+    using Filechronization.Security;
+    using global::System;
+
+    #endregion
+
+    [Serializable]
     public class SaltResponse : Message
     {
         private readonly Entropy pSalt;

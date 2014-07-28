@@ -1,3 +1,4 @@
+// Author: Piotr Trzpil
 namespace FileModule.ExchangeSystem
 {
     #region Usings
@@ -10,13 +11,17 @@ namespace FileModule.ExchangeSystem
 
     #endregion
 
+    #region Usings
+
+    #endregion
+
     public class JobManager
     {
         private readonly Dictionary<PieceInfo, ActivePiece> activePieces;
 
 
         private readonly NewFileModule fileModule;
-        private readonly Dictionary<string, TransferJob> jobList;
+        private readonly Dictionary<RelPath, TransferJob> jobList;
 
 
         private readonly Random random;
@@ -25,7 +30,7 @@ namespace FileModule.ExchangeSystem
 
         public JobManager()
         {
-            jobList = new Dictionary<string, TransferJob>();
+            jobList = new Dictionary<RelPath, TransferJob>();
             activePieces = new Dictionary<PieceInfo, ActivePiece>();
 
             //requested = new HashSet<BlockInfo>();
@@ -50,8 +55,6 @@ namespace FileModule.ExchangeSystem
             TransferJob job = SelectFile();
             ActivePiece newPiece = job.GetNonActivePiece();
 
-            
-
 
             activePieces.Add(newPiece.PieceInfo, newPiece);
         }
@@ -62,7 +65,7 @@ namespace FileModule.ExchangeSystem
             TransferJob job = jobList[pieceInfo.RelFilePath];
             if (CheckPieceData(job, pieceInfo))
             {
-            //TODO:PieceAvailable message = new PieceAvailable(job.File.Path, pieceInfo.Index);
+                //TODO:PieceAvailable message = new PieceAvailable(job.File.Path, pieceInfo.Index);
 
                 job.PieceComplete(pieceInfo);
                 if (job.Complete)
@@ -78,7 +81,7 @@ namespace FileModule.ExchangeSystem
 
         private bool CheckPieceData(TransferJob job, PieceInfo piece)
         {
-            string path = fileModule._context.Path.ToFull(piece.RelFilePath);
+            string path = fileModule._context.MainPath.ToFull(piece.RelFilePath);
             // TODO: to jest zle na razie (stala wielkosc)
             byte[] data = _dataManager.ReadPiece(path, ExchUtils.GetInFilePosition(piece),
                                                  ExchUtils.StandardPieceSize);
